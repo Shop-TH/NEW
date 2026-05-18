@@ -4,70 +4,219 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>SkinMart</title>
-
-  <!-- Telegram Mini App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Prompt:wght@300;400;500;600;700&display=swap');
+    :root {
+      --bg     : #07080f;
+      --surface: rgba(255,255,255,0.04);
+      --border : rgba(255,255,255,0.08);
+      --text   : #f0f0f5;
+      --muted  : rgba(255,255,255,0.4);
+      --accent : #a78bfa;
+      --font   : 'DM Serif Display', Georgia, serif;
+      --body   : 'Prompt', sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{background:var(--bg);overscroll-behavior:none;}
+    body{font-family:var(--body);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    #root{min-height:100vh;}
+    .screen{min-height:100vh;padding-bottom:120px;}
+    .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:32px;height:100vh;}
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc,
-             collection, getDocs, query, where, serverTimestamp, increment }
-      from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    @keyframes fadeUp   {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes popIn    {from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+    @keyframes pulse    {0%,100%{opacity:0.4}50%{opacity:1}}
+    @keyframes slideUp  {from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .brand-card,.product-card{animation:fadeUp 0.5s both ease;}
 
-    // ══════════════════════════════════════════
-    //  ⚙️  ตั้งค่า — แก้ก่อนอัปโหลด
-    // ══════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",
-  authDomain: "shop-th.firebaseapp.com",
-  projectId: "shop-th",
-  storageBucket: "shop-th.firebasestorage.app",
-  messagingSenderId: "407059998090",
-  appId: "1:407059998090:web:e008bcb4042e574eb7d473",
-  measurementId: "G-8WV3EFEWLS"
-};
-    const SHOP_ID = "shop_001";
+    /* SPLASH */
+    .splash{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+    .splash-icon {font-size:72px;animation:popIn 0.7s cubic-bezier(0.34,1.56,0.64,1);}
+    .splash-title{font-family:var(--font);font-size:38px;animation:fadeUp 0.6s 0.3s both;}
+    .splash-sub  {font-size:12px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;animation:fadeUp 0.6s 0.5s both;}
+    .dots        {display:flex;gap:6px;margin-top:16px;animation:fadeUp 0.6s 0.8s both;}
+    .dot         {width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.2s infinite;}
+    .dot:nth-child(2){animation-delay:0.2s;}.dot:nth-child(3){animation-delay:0.4s;}
 
-    // ══════════════════════════════════════════
-    //  🔥  Firebase Init
-    // ══════════════════════════════════════════
-    const app = initializeApp(FIREBASE_CONFIG);
-    const db  = getFirestore(app);
+    /* HOME */
+    .home-hero  {padding:52px 24px 32px;position:relative;overflow:hidden;}
+    .hero-greeting{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+    .hero-title {font-family:var(--font);font-size:36px;line-height:1.2;margin-bottom:10px;}
+    .hero-accent{font-style:italic;color:var(--accent);}
+    .hero-sub   {font-size:13px;color:var(--muted);}
+    .section-label{font-size:10px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;padding:0 24px;margin-bottom:12px;}
+    .brand-list {display:flex;flex-direction:column;gap:10px;padding:0 16px;}
+    .brand-card {background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;text-align:left;width:100%;transition:all 0.15s;}
+    .brand-card:active{transform:scale(0.97);}
+    .brand-icon {width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+    .brand-info {flex:1;}
+    .brand-name {font-family:var(--font);font-size:19px;margin-bottom:3px;}
+    .brand-desc {font-size:12px;color:var(--muted);margin-bottom:5px;}
+    .brand-count{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+    .brand-dot  {width:8px;height:8px;border-radius:50%;opacity:0.7;flex-shrink:0;}
 
-    // ══════════════════════════════════════════
-    //  📱  Telegram User
-    // ══════════════════════════════════════════
-    const tg      = window.Telegram?.WebApp;
-    const TG_USER = tg?.initDataUnsafe?.user || null;
-    if (tg) { tg.expand(); tg.setHeaderColor("#07080f"); tg.setBackgroundColor("#07080f"); }
+    /* FAB */
+    .fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:28px;padding:14px 28px;color:#fff;font-family:var(--body);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(167,139,250,0.45);z-index:50;animation:slideUp 0.3s ease;white-space:nowrap;}
+    .fab-badge{background:rgba(255,255,255,0.25);border-radius:20px;padding:2px 10px;font-size:13px;font-weight:800;}
 
-    // ══════════════════════════════════════════
-    //  🔢  Utils
-    // ══════════════════════════════════════════
-    const fmt = n => "฿" + Number(n).toLocaleString("th-TH");
-    const calcTotal = (cart, products) =>
-      cart.reduce((s, i) => {
-        const p = products.find(x => x.id === i.id);
-        return s + (p ? p.price * i.qty : 0);
-      }, 0);
+    /* TOPBAR */
+    .topbar{padding:20px 20px 16px;position:sticky;top:0;background:rgba(7,8,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:10;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--body);flex-shrink:0;}
+    .topbar-brand{display:flex;align-items:center;gap:10px;}
+    .topbar-emoji{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .topbar-name {font-family:var(--font);font-size:19px;}
+    .topbar-count{font-size:11px;color:var(--muted);}
 
-    // ══════════════════════════════════════════
-    //  🔥  Firebase Services
-    // ══════════════════════════════════════════
-    async function fetchBrands() {
+    /* PRODUCTS */
+    .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;}
+    .product-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+    .product-img {position:relative;padding-top:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .product-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .product-img>span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+    .product-badge{position:absolute;top:8px;right:8px;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:800;color:#07080f;}
+    .product-info  {padding:10px 12px 12px;}
+    .product-name  {font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer;min-height:34px;}
+    .product-footer{display:flex;justify-content:space-between;align-items:center;}
+    .product-price {font-size:14px;font-weight:700;}
+    .add-btn{border-radius:10px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.12s;font-family:var(--body);}
+    .add-btn:active{transform:scale(0.9);}
+
+    /* DETAIL */
+    .back-float{position:fixed;top:16px;left:16px;z-index:20;background:rgba(7,8,15,0.8);border:1px solid var(--border);border-radius:12px;padding:8px 16px;color:var(--muted);font-size:13px;cursor:pointer;backdrop-filter:blur(8px);font-family:var(--body);}
+    .detail-img{position:relative;height:320px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+    .detail-img img{width:100%;height:100%;object-fit:cover;}
+    .detail-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,#07080f 0%,transparent 55%);}
+    .detail-body{padding:0 24px 24px;margin-top:-36px;position:relative;}
+    .detail-brand-tag{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;margin-bottom:14px;}
+    .detail-name{font-family:var(--font);font-size:26px;line-height:1.25;margin-bottom:10px;}
+    .detail-price{font-size:30px;font-weight:700;font-family:var(--font);margin-bottom:20px;}
+    .detail-desc-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;}
+    .detail-desc-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+    .detail-desc{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.8;}
+    .detail-cod{font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;}
+    .detail-bar{position:fixed;bottom:0;left:0;right:0;padding:14px 20px 28px;background:rgba(7,8,15,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;gap:10px;z-index:20;}
+    .detail-cart-btn{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--body);}
+    .detail-add-btn{flex:3;border:none;border-radius:16px;padding:15px;color:#07080f;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);transition:transform 0.1s;}
+    .detail-add-btn:active{transform:scale(0.97);}
+
+    /* CART */
+    .cart-list{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+    .cart-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;}
+    .cart-thumb{width:60px;height:60px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:28px;}
+    .cart-thumb img{width:100%;height:100%;object-fit:cover;}
+    .cart-info {flex:1;min-width:0;}
+    .cart-name {font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cart-price{font-size:14px;font-weight:700;}
+    .cart-qty-ctrl{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .qty-btn{width:30px;height:30px;border-radius:9px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .qty-btn.minus{background:var(--surface);border:1px solid var(--border);color:var(--text);}
+    .qty-btn.plus {background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.4);color:var(--accent);}
+    .qty-num{font-size:15px;font-weight:700;min-width:20px;text-align:center;}
+    .cart-bar{position:fixed;bottom:0;left:0;right:0;padding:16px 20px 28px;background:rgba(7,8,15,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:20;}
+    .cart-summary{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .cart-summary-label{font-size:12px;color:var(--muted);}
+    .cart-total{font-family:var(--font);font-size:28px;color:var(--accent);}
+
+    /* PAYMENT */
+    .payment-body{padding:20px;display:flex;flex-direction:column;gap:14px;}
+    .bank-box   {background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;}
+    .bank-label {font-size:10px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px;}
+    .bank-name  {font-size:13px;color:var(--muted);margin-bottom:4px;}
+    .bank-number{font-family:monospace;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:4px;}
+    .bank-holder{font-size:13px;color:var(--muted);}
+    .amount-box {background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:16px;padding:20px;text-align:center;}
+    .amount-label{font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+    .amount-value{font-family:var(--font);font-size:40px;color:var(--accent);}
+    .slip-label {display:flex;flex-direction:column;align-items:center;gap:10px;border:2px dashed rgba(167,139,250,0.4);border-radius:18px;padding:28px;cursor:pointer;color:var(--accent);background:rgba(167,139,250,0.05);}
+    .slip-text  {font-size:15px;font-weight:600;}
+    .slip-hint  {font-size:12px;color:var(--muted);}
+    #slip-preview img{width:100%;border-radius:16px;max-height:240px;object-fit:contain;border:1px solid var(--border);}
+
+    /* BUTTONS */
+    .primary-btn{width:100%;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:18px;padding:16px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);box-shadow:0 8px 32px rgba(167,139,250,0.4);transition:transform 0.1s;}
+    .primary-btn:active{transform:scale(0.97);}
+    .primary-btn:disabled{opacity:0.5;cursor:not-allowed;}
+    .outline-btn{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.35);border-radius:16px;padding:12px 28px;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--body);margin-top:8px;}
+
+    /* SUCCESS */
+    .success-icon {font-size:72px;animation:popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+    .success-title{font-family:var(--font);font-size:28px;animation:fadeUp 0.5s 0.2s both;}
+    .success-sub  {font-size:14px;color:var(--muted);line-height:1.8;animation:fadeUp 0.5s 0.3s both;}
+    .order-id-box {background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 28px;text-align:center;animation:fadeUp 0.5s 0.4s both;}
+    .order-id-label{font-size:11px;color:var(--muted);margin-bottom:6px;}
+    .order-id-value{font-family:monospace;font-size:22px;font-weight:800;color:var(--accent);}
+    .empty-title{font-family:var(--font);font-size:24px;}
+    .empty-sub  {font-size:13px;color:var(--muted);}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc,
+           collection, getDocs, query, where, serverTimestamp, increment }
+    from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  // ══════════════════════════════════════════
+  //  ⚙️  Config
+  // ══════════════════════════════════════════
+  const FIREBASE_CONFIG = {
+    apiKey           : "AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",
+    authDomain       : "shop-th.firebaseapp.com",
+    projectId        : "shop-th",
+    storageBucket    : "shop-th.firebasestorage.app",
+    messagingSenderId: "407059998090",
+    appId            : "1:407059998090:web:e008bcb4042e574eb7d473",
+  };
+  const SHOP_ID = "shop_001";
+  const BANK = {
+    name   : "กสิกรไทย",
+    account: "123-4-56789-0",
+    holder : "บริษัท สกินมาร์ท จำกัด",
+  };
+
+  // ══════════════════════════════════════════
+  //  🔥  Firebase + Telegram
+  // ══════════════════════════════════════════
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db  = getFirestore(app);
+
+  const tg      = window.Telegram?.WebApp;
+  const TG_USER = tg?.initDataUnsafe?.user || null;
+  if (tg) tg.expand();
+
+  // ══════════════════════════════════════════
+  //  🔢  Utils
+  // ══════════════════════════════════════════
+  const fmt = n => "฿" + Number(n).toLocaleString("th-TH");
+  const calcTotal = (cart, products) =>
+    cart.reduce((s, i) => {
+      const p = products.find(x => x.id === i.id);
+      return s + (p ? p.price * i.qty : 0);
+    }, 0);
+
+  // ══════════════════════════════════════════
+  //  🔥  Firebase Services
+  // ══════════════════════════════════════════
+  async function fetchBrands() {
+    try {
       const snap = await getDocs(collection(db, "shops", SHOP_ID, "brands"));
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    }
+    } catch (e) { console.error("fetchBrands:", e); return []; }
+  }
 
-    async function fetchProducts() {
+  async function fetchProducts() {
+    try {
       const q    = query(collection(db, "shops", SHOP_ID, "products"), where("active", "==", true));
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    }
+    } catch (e) { console.error("fetchProducts:", e); return []; }
+  }
 
-    async function trackCustomer() {
-      if (!TG_USER) return;
+  async function trackCustomer() {
+    if (!TG_USER) return;
+    try {
       const chatId = String(TG_USER.id);
       const ref    = doc(db, "customers", chatId);
       const snap   = await getDoc(ref);
@@ -88,575 +237,380 @@ const firebaseConfig = {
         await updateDoc(ref, { lastVisit: serverTimestamp(), visitCount: increment(1) });
       }
       await addDoc(collection(db, "visits"), {
-        chatId: String(TG_USER.id), shopId: SHOP_ID,
-        screen: "home", timestamp: serverTimestamp(),
+        chatId, shopId: SHOP_ID, screen: "home", timestamp: serverTimestamp(),
       });
-    }
+    } catch (e) { console.error("trackCustomer:", e); }
+  }
 
-    async function saveOrder(cart, products) {
-      if (!TG_USER) return null;
-      const chatId  = String(TG_USER.id);
-      const total   = calcTotal(cart, products);
-      const orderId = "SM" + Date.now().toString().slice(-6);
-      const items   = cart.map(i => {
-        const p = products.find(x => x.id === i.id);
-        return { id: i.id, name: p?.name, price: p?.price, qty: i.qty };
-      });
+  async function saveOrder(cart, products) {
+    if (!TG_USER) return "GUEST" + Date.now().toString().slice(-6);
+    const chatId  = String(TG_USER.id);
+    const total   = calcTotal(cart, products);
+    const orderId = "SM" + Date.now().toString().slice(-6);
+    const items   = cart.map(i => {
+      const p = products.find(x => x.id === i.id);
+      return { id: i.id, name: p?.name || "", price: p?.price || 0, qty: i.qty };
+    });
+    try {
       await setDoc(doc(db, "orders", orderId), {
-        orderId,
-        chatId,
+        orderId, chatId,
         customerName: (TG_USER.first_name || "") + " " + (TG_USER.last_name || ""),
         username    : TG_USER.username || "",
-        shopId      : SHOP_ID,
-        items, total,
-        status      : "รอตรวจสอบ",
-        createdAt   : serverTimestamp(),
+        shopId: SHOP_ID, items, total,
+        status: "รอตรวจสอบ", createdAt: serverTimestamp(),
       });
       await updateDoc(doc(db, "customers", chatId), {
-        totalOrders: increment(1),
-        totalSpent : increment(total),
-        lastOrder  : serverTimestamp(),
+        totalOrders: increment(1), totalSpent: increment(total), lastOrder: serverTimestamp(),
       });
-      return orderId;
+    } catch (e) { console.error("saveOrder:", e); }
+    return orderId;
+  }
+
+  // ══════════════════════════════════════════
+  //  🎮  STATE
+  // ══════════════════════════════════════════
+  let S = {
+    screen: "splash", brands: [], products: [],
+    cart: [], activeBrand: null, activeProduct: null, orderId: null, slip: null,
+  };
+  function setState(patch) { S = { ...S, ...patch }; render(); }
+
+  // ══════════════════════════════════════════
+  //  📺  RENDER
+  // ══════════════════════════════════════════
+  function render() {
+    const root = document.getElementById("root");
+    switch (S.screen) {
+      case "splash"  : root.innerHTML = splashHTML();   break;
+      case "home"    : root.innerHTML = homeHTML();     bindHome();     break;
+      case "products": root.innerHTML = productsHTML(); bindProducts(); break;
+      case "detail"  : root.innerHTML = detailHTML();   bindDetail();   break;
+      case "cart"    : root.innerHTML = cartHTML();     bindCart();     break;
+      case "payment" : root.innerHTML = paymentHTML();  bindPayment();  break;
+      case "success" : root.innerHTML = successHTML();  bindSuccess();  break;
     }
+  }
 
-    // ══════════════════════════════════════════
-    //  🎮  APP STATE
-    // ══════════════════════════════════════════
-    let STATE = {
-      screen      : "splash",
-      brands      : [],
-      products    : [],
-      cart        : [],
-      activeBrand : null,
-      activeProduct: null,
-      orderId     : null,
-      slip        : null,
-    };
+  // ══════════════════════════════════════════
+  //  🖼️  HTML TEMPLATES
+  // ══════════════════════════════════════════
+  const splashHTML = () => `
+    <div class="splash">
+      <div class="splash-icon">🛍️</div>
+      <div class="splash-title">SkinMart</div>
+      <div class="splash-sub">Premium Skincare</div>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>`;
 
-    function setState(patch) {
-      STATE = { ...STATE, ...patch };
-      render();
-    }
-
-    // ══════════════════════════════════════════
-    //  🎨  RENDER
-    // ══════════════════════════════════════════
-    function render() {
-      const root = document.getElementById("root");
-      switch (STATE.screen) {
-        case "splash":   root.innerHTML = renderSplash();   break;
-        case "home":     root.innerHTML = renderHome();     bindHome();     break;
-        case "products": root.innerHTML = renderProducts(); bindProducts(); break;
-        case "detail":   root.innerHTML = renderDetail();   bindDetail();   break;
-        case "cart":     root.innerHTML = renderCart();     bindCart();     break;
-        case "payment":  root.innerHTML = renderPayment();  bindPayment();  break;
-        case "success":  root.innerHTML = renderSuccess();  bindSuccess();  break;
-      }
-    }
-
-    // ══════════════════════════════════════════
-    //  📺  SCREENS HTML
-    // ══════════════════════════════════════════
-    function renderSplash() {
-      return `
-        <div class="splash">
-          <div class="splash-icon">🛍️</div>
-          <div class="splash-title">SkinMart</div>
-          <div class="splash-sub">Premium Skincare</div>
-          <div class="dots">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          </div>
-        </div>`;
-    }
-
-    function renderHome() {
-      const greeting = TG_USER?.first_name ? `สวัสดีค่ะ คุณ${TG_USER.first_name} 👋` : "สวัสดีค่ะ 👋";
-      const cartCount = STATE.cart.reduce((s, i) => s + i.qty, 0);
-      const brandsHTML = STATE.brands.map((b, i) => {
-        const count = STATE.products.filter(p => p.brand === b.key).length;
-        return `
-          <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i * 0.07}s">
-            <div class="brand-icon" style="background:${b.color}20;border:1px solid ${b.color}30">${b.emoji}</div>
-            <div class="brand-info">
-              <div class="brand-name">${b.name}</div>
-              <div class="brand-desc">${b.desc || ""}</div>
-              <div class="brand-count" style="color:${b.color}">${count} รายการ →</div>
-            </div>
-            <div class="brand-dot" style="background:${b.color}"></div>
-          </button>`;
-      }).join("");
-      return `
-        <div class="screen">
-          <div class="home-hero">
-            <div class="hero-greeting">${greeting}</div>
-            <div class="hero-title">เลือกสินค้า<br><span class="hero-accent">ที่ใช่สำหรับคุณ</span></div>
-            <div class="hero-sub">${STATE.products.length} รายการ • จ่ายปลายทาง ไม่ต้องโอนก่อน</div>
-          </div>
-          <div class="section-label">เลือกแบรนด์</div>
-          <div class="brand-list">${brandsHTML}</div>
-          ${cartCount > 0 ? `<button class="fab" id="fab-cart">🛒 ดูตะกร้า <span class="fab-badge">${cartCount}</span></button>` : ""}
-        </div>`;
-    }
-
-    function renderProducts() {
-      const brand    = STATE.brands.find(b => b.key === STATE.activeBrand) || {};
-      const products = STATE.products.filter(p => p.brand === STATE.activeBrand);
-      const cartCount = STATE.cart.reduce((s, i) => s + i.qty, 0);
-      const prodsHTML = products.map((p, i) => {
-        const inCart = STATE.cart.find(c => c.id === p.id);
-        return `
-          <div class="product-card" style="animation-delay:${i * 0.05}s">
-            <div class="product-img" data-pid="${p.id}" style="background:${brand.color}18">
-              ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>` : `<span style="font-size:40px">${brand.emoji}</span>`}
-              ${inCart ? `<div class="product-badge" style="background:${brand.color}">×${inCart.qty}</div>` : ""}
-            </div>
-            <div class="product-info">
-              <div class="product-name" data-pid="${p.id}">${p.name}</div>
-              <div class="product-footer">
-                <span class="product-price" style="color:${brand.color}">${fmt(p.price)}</span>
-                <button class="add-btn ${inCart ? "added" : ""}" data-add="${p.id}"
-                  style="background:${inCart ? brand.color : brand.color + "18"};border:1px solid ${brand.color};color:${inCart ? "#07080f" : brand.color}">
-                  ${inCart ? "✓+" : "+"}
-                </button>
+  const homeHTML = () => {
+    const greeting  = TG_USER?.first_name ? `สวัสดีค่ะ คุณ${TG_USER.first_name} 👋` : "สวัสดีค่ะ 👋";
+    const cartCount = S.cart.reduce((s, i) => s + i.qty, 0);
+    const brandsHTML = S.brands.length === 0
+      ? `<div style="text-align:center;padding:40px;color:var(--muted)">กำลังโหลดสินค้า...</div>`
+      : S.brands.map((b, i) => {
+          const count = S.products.filter(p => p.brand === b.key).length;
+          return `
+            <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i * 0.07}s">
+              <div class="brand-icon" style="background:${b.color}20;border:1px solid ${b.color}30">${b.emoji}</div>
+              <div class="brand-info">
+                <div class="brand-name">${b.name}</div>
+                <div class="brand-desc">${b.desc || ""}</div>
+                <div class="brand-count" style="color:${b.color}">${count} รายการ →</div>
               </div>
-            </div>
-          </div>`;
-      }).join("");
-      return `
-        <div class="screen">
-          <div class="topbar">
-            <button class="back-btn" id="back-home">← กลับ</button>
-            <div class="topbar-brand">
-              <span class="topbar-emoji" style="background:${brand.color}20">${brand.emoji}</span>
-              <div>
-                <div class="topbar-name">${brand.name}</div>
-                <div class="topbar-count">${products.length} รายการ</div>
-              </div>
-            </div>
-          </div>
-          <div class="product-grid">${prodsHTML}</div>
-          ${cartCount > 0 ? `<button class="fab" id="fab-cart">🛒 ดูตะกร้า (${cartCount})</button>` : ""}
-        </div>`;
-    }
+              <div class="brand-dot" style="background:${b.color}"></div>
+            </button>`;
+        }).join("");
+    return `
+      <div class="screen">
+        <div class="home-hero">
+          <div class="hero-greeting">${greeting}</div>
+          <div class="hero-title">เลือกสินค้า<br><span class="hero-accent">ที่ใช่สำหรับคุณ</span></div>
+          <div class="hero-sub">${S.products.length} รายการ • จ่ายปลายทาง ไม่ต้องโอนก่อน</div>
+        </div>
+        <div class="section-label">เลือกแบรนด์</div>
+        <div class="brand-list">${brandsHTML}</div>
+        ${cartCount > 0 ? `<button class="fab" id="fab">🛒 ดูตะกร้า <span class="fab-badge">${cartCount}</span></button>` : ""}
+      </div>`;
+  };
 
-    function renderDetail() {
-      const p     = STATE.products.find(x => x.id === STATE.activeProduct);
-      const brand = STATE.brands.find(b => b.key === p?.brand) || {};
-      const inCart = STATE.cart.find(c => c.id === p?.id);
-      const cartCount = STATE.cart.reduce((s, i) => s + i.qty, 0);
-      if (!p) return renderHome();
+  const productsHTML = () => {
+    const brand    = S.brands.find(b => b.key === S.activeBrand) || {};
+    const products = S.products.filter(p => p.brand === S.activeBrand);
+    const cartCount = S.cart.reduce((s, i) => s + i.qty, 0);
+    const prodsHTML = products.map((p, i) => {
+      const inCart = S.cart.find(c => c.id === p.id);
       return `
-        <div class="screen">
-          <button class="back-float" id="back-products">← กลับ</button>
-          <div class="detail-img" style="background:${brand.color}18">
-            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}"/>` : `<span style="font-size:80px">${brand.emoji}</span>`}
-            <div class="detail-img-overlay"></div>
+        <div class="product-card" style="animation-delay:${i * 0.05}s">
+          <div class="product-img" data-pid="${p.id}" style="background:${brand.color}18">
+            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>` : `<span style="font-size:40px">${brand.emoji}</span>`}
+            ${inCart ? `<div class="product-badge" style="background:${brand.color}">×${inCart.qty}</div>` : ""}
           </div>
-          <div class="detail-body">
-            <div class="detail-brand-tag" style="background:${brand.color}15;border:1px solid ${brand.color}30;color:${brand.color}">
-              ${brand.emoji} ${brand.name}
+          <div class="product-info">
+            <div class="product-name" data-pid="${p.id}">${p.name}</div>
+            <div class="product-footer">
+              <span class="product-price" style="color:${brand.color}">${fmt(p.price)}</span>
+              <button class="add-btn" data-add="${p.id}"
+                style="background:${inCart ? brand.color : brand.color + "18"};border:1px solid ${brand.color};color:${inCart ? "#07080f" : brand.color}">
+                ${inCart ? "✓+" : "+"}
+              </button>
             </div>
-            <div class="detail-name">${p.name}</div>
-            <div class="detail-price" style="color:${brand.color}">${fmt(p.price)}</div>
-            ${p.description ? `
-              <div class="detail-desc-box">
-                <div class="detail-desc-label">รายละเอียด</div>
-                <div class="detail-desc">${p.description}</div>
-              </div>` : ""}
-            <div class="detail-cod">📦 ชำระเงินสดปลายทาง (COD) — ไม่ต้องโอนก่อน</div>
-          </div>
-          <div class="detail-bar">
-            ${cartCount > 0 ? `<button class="detail-cart-btn" id="go-cart">🛒 ${cartCount}</button>` : ""}
-            <button class="detail-add-btn" id="add-detail" style="background:linear-gradient(135deg,${brand.color},${brand.color}bb)">
-              ${inCart ? `✅ เพิ่มอีก (${inCart.qty} ชิ้น)` : "🛒 เพิ่มลงตะกร้า"}
-            </button>
           </div>
         </div>`;
-    }
-
-    function renderCart() {
-      const total = calcTotal(STATE.cart, STATE.products);
-      if (STATE.cart.length === 0) {
-        return `
-          <div class="screen center">
-            <div style="font-size:64px">🛒</div>
-            <div class="empty-title">ตะกร้าว่างอยู่ค่ะ</div>
-            <div class="empty-sub">เลือกสินค้าที่ต้องการก่อนนะคะ</div>
-            <button class="outline-btn" id="back-to-shop">← เลือกสินค้า</button>
-          </div>`;
-      }
-      const itemsHTML = STATE.cart.map(item => {
-        const p = STATE.products.find(x => x.id === item.id);
-        const b = STATE.brands.find(x => x.key === p?.brand);
-        if (!p) return "";
-        return `
-          <div class="cart-item">
-            <div class="cart-thumb" style="background:${b?.color}18">
-              ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>` : `<span>${b?.emoji}</span>`}
-            </div>
-            <div class="cart-info">
-              <div class="cart-name">${p.name}</div>
-              <div class="cart-price" style="color:${b?.color}">${fmt(p.price * item.qty)}</div>
-            </div>
-            <div class="cart-qty-ctrl">
-              <button class="qty-btn minus" data-id="${item.id}">−</button>
-              <span class="qty-num">${item.qty}</span>
-              <button class="qty-btn plus" data-id="${item.id}">+</button>
-            </div>
-          </div>`;
-      }).join("");
-      return `
-        <div class="screen">
-          <div class="topbar">
-            <button class="back-btn" id="back-products2">← เลือกต่อ</button>
-            <div class="topbar-name" style="font-size:18px">🛒 ตะกร้าสินค้า</div>
+    }).join("");
+    return `
+      <div class="screen">
+        <div class="topbar">
+          <button class="back-btn" id="back-home">← กลับ</button>
+          <div class="topbar-brand">
+            <div class="topbar-emoji" style="background:${brand.color}20">${brand.emoji}</div>
+            <div><div class="topbar-name">${brand.name}</div><div class="topbar-count">${products.length} รายการ</div></div>
           </div>
-          <div class="cart-list">${itemsHTML}</div>
-          <div class="cart-bar">
-            <div class="cart-summary">
-              <div class="cart-summary-label">ยอดรวมทั้งหมด</div>
-              <div class="cart-total">${fmt(total)}</div>
-            </div>
-            <button class="primary-btn" id="go-payment">✅ ยืนยันสั่งซื้อ — ${fmt(total)}</button>
+        </div>
+        <div class="product-grid">${prodsHTML || `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">ยังไม่มีสินค้าในแบรนด์นี้ค่ะ</div>`}</div>
+        ${cartCount > 0 ? `<button class="fab" id="fab">🛒 ดูตะกร้า (${cartCount})</button>` : ""}
+      </div>`;
+  };
+
+  const detailHTML = () => {
+    const p      = S.products.find(x => x.id === S.activeProduct);
+    const brand  = S.brands.find(b => b.key === p?.brand) || {};
+    const inCart = S.cart.find(c => c.id === p?.id);
+    const cartCount = S.cart.reduce((s, i) => s + i.qty, 0);
+    if (!p) return homeHTML();
+    return `
+      <div class="screen">
+        <button class="back-float" id="back-prod">← กลับ</button>
+        <div class="detail-img" style="background:${brand.color}18">
+          ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}"/>` : `<span style="font-size:80px">${brand.emoji}</span>`}
+          <div class="detail-img-overlay"></div>
+        </div>
+        <div class="detail-body">
+          <div class="detail-brand-tag" style="background:${brand.color}15;border:1px solid ${brand.color}30;color:${brand.color}">${brand.emoji} ${brand.name}</div>
+          <div class="detail-name">${p.name}</div>
+          <div class="detail-price" style="color:${brand.color}">${fmt(p.price)}</div>
+          ${p.description ? `<div class="detail-desc-box"><div class="detail-desc-label">รายละเอียด</div><div class="detail-desc">${p.description}</div></div>` : ""}
+          <div class="detail-cod">📦 ชำระเงินสดปลายทาง (COD) — ไม่ต้องโอนก่อน</div>
+        </div>
+        <div class="detail-bar">
+          ${cartCount > 0 ? `<button class="detail-cart-btn" id="go-cart">🛒 ${cartCount}</button>` : ""}
+          <button class="detail-add-btn" id="add-detail" style="background:linear-gradient(135deg,${brand.color},${brand.color}bb)">
+            ${inCart ? `✅ เพิ่มอีก (${inCart.qty} ชิ้น)` : "🛒 เพิ่มลงตะกร้า"}
+          </button>
+        </div>
+      </div>`;
+  };
+
+  const cartHTML = () => {
+    const total = calcTotal(S.cart, S.products);
+    if (S.cart.length === 0) return `
+      <div class="center">
+        <div style="font-size:64px">🛒</div>
+        <div class="empty-title">ตะกร้าว่างอยู่ค่ะ</div>
+        <div class="empty-sub">เลือกสินค้าที่ต้องการก่อนนะคะ</div>
+        <button class="outline-btn" id="back-shop">← เลือกสินค้า</button>
+      </div>`;
+    const itemsHTML = S.cart.map(item => {
+      const p = S.products.find(x => x.id === item.id);
+      const b = S.brands.find(x => x.key === p?.brand);
+      if (!p) return "";
+      return `
+        <div class="cart-item">
+          <div class="cart-thumb" style="background:${b?.color}18">
+            ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>` : `<span>${b?.emoji}</span>`}
+          </div>
+          <div class="cart-info">
+            <div class="cart-name">${p.name}</div>
+            <div class="cart-price" style="color:${b?.color}">${fmt(p.price * item.qty)}</div>
+          </div>
+          <div class="cart-qty-ctrl">
+            <button class="qty-btn minus" data-id="${item.id}">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn plus" data-id="${item.id}">+</button>
           </div>
         </div>`;
-    }
-
-    function renderPayment() {
-      const total = calcTotal(STATE.cart, STATE.products);
-      return `
-        <div class="screen">
-          <div class="topbar">
-            <button class="back-btn" id="back-cart">← กลับ</button>
-            <div class="topbar-name" style="font-size:18px">💳 ชำระเงิน</div>
+    }).join("");
+    return `
+      <div class="screen">
+        <div class="topbar">
+          <button class="back-btn" id="back-cont">← เลือกต่อ</button>
+          <div class="topbar-name">🛒 ตะกร้าสินค้า</div>
+        </div>
+        <div class="cart-list">${itemsHTML}</div>
+        <div class="cart-bar">
+          <div class="cart-summary">
+            <div><div class="cart-summary-label">ยอดรวมทั้งหมด</div><div class="cart-total">${fmt(total)}</div></div>
+            <div style="font-size:12px;color:var(--muted);text-align:right"><div>📦 COD</div><div>จ่ายเมื่อรับของ</div></div>
           </div>
-          <div class="payment-body">
-            <div class="bank-box">
-              <div class="bank-label">บัญชีธนาคาร</div>
-              <div class="bank-name">🏦 กสิกรไทย</div>
-              <div class="bank-number">123-4-56789-0</div>
-              <div class="bank-holder">👤 บริษัท สกินมาร์ท จำกัด</div>
-            </div>
-            <div class="amount-box">
-              <div class="amount-label">ยอดที่ต้องโอน</div>
-              <div class="amount-value">${fmt(total)}</div>
-            </div>
-            <div id="slip-area">
-              <label class="slip-label" for="slip-input">
-                <span style="font-size:36px">📎</span>
-                <span class="slip-text">แนบสลิปโอนเงิน</span>
-                <span class="slip-hint">กดเพื่อเลือกรูปภาพ</span>
-              </label>
-              <input type="file" id="slip-input" accept="image/*" style="display:none"/>
-            </div>
-            <div id="slip-preview" style="display:none">
-              <img id="slip-img" src="" alt="slip"/>
-              <button class="outline-btn" id="change-slip">เลือกรูปใหม่</button>
-            </div>
-            <button class="primary-btn" id="send-slip" style="display:none">📤 ส่งสลิปยืนยัน</button>
+          <button class="primary-btn" id="go-pay">✅ ยืนยันสั่งซื้อ — ${fmt(total)}</button>
+        </div>
+      </div>`;
+  };
+
+  const paymentHTML = () => {
+    const total = calcTotal(S.cart, S.products);
+    return `
+      <div class="screen">
+        <div class="topbar">
+          <button class="back-btn" id="back-cart2">← กลับ</button>
+          <div class="topbar-name">💳 ชำระเงิน</div>
+        </div>
+        <div class="payment-body">
+          <div class="bank-box">
+            <div class="bank-label">บัญชีธนาคาร</div>
+            <div class="bank-name">🏦 ${BANK.name}</div>
+            <div class="bank-number">${BANK.account}</div>
+            <div class="bank-holder">👤 ${BANK.holder}</div>
           </div>
-        </div>`;
-    }
+          <div class="amount-box">
+            <div class="amount-label">ยอดที่ต้องโอน</div>
+            <div class="amount-value">${fmt(total)}</div>
+          </div>
+          <div id="slip-area">
+            <label class="slip-label" for="slip-input">
+              <span style="font-size:36px">📎</span>
+              <span class="slip-text">แนบสลิปโอนเงิน</span>
+              <span class="slip-hint">กดเพื่อเลือกรูปภาพ</span>
+            </label>
+            <input type="file" id="slip-input" accept="image/*" style="display:none"/>
+          </div>
+          <div id="slip-preview" style="display:none">
+            <img id="slip-img" src="" alt="slip" style="margin-bottom:10px"/>
+            <button class="outline-btn" id="change-slip" style="width:100%">เลือกรูปใหม่</button>
+          </div>
+          <button class="primary-btn" id="send-slip" style="display:none">📤 ส่งสลิปยืนยัน</button>
+        </div>
+      </div>`;
+  };
 
-    function renderSuccess() {
-      return `
-        <div class="screen center">
-          <div class="success-icon">🎉</div>
-          <div class="success-title">ส่งสลิปแล้วค่ะ!</div>
-          <div class="success-sub">รอแอดมินตรวจสอบและยืนยัน<br>ภายใน 15-30 นาทีค่ะ 😊</div>
-          ${STATE.orderId ? `
-            <div class="order-id-box">
-              <div class="order-id-label">เลขออเดอร์</div>
-              <div class="order-id-value">${STATE.orderId}</div>
-            </div>` : ""}
-          <button class="outline-btn" id="restart">🔄 สั่งซื้อสินค้าอีกครั้ง</button>
-        </div>`;
-    }
+  const successHTML = () => `
+    <div class="center">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">ส่งสลิปแล้วค่ะ!</div>
+      <div class="success-sub">รอแอดมินตรวจสอบและยืนยัน<br>ภายใน 15-30 นาทีค่ะ 😊</div>
+      ${S.orderId ? `<div class="order-id-box"><div class="order-id-label">เลขออเดอร์</div><div class="order-id-value">${S.orderId}</div></div>` : ""}
+      <button class="outline-btn" id="restart">🔄 สั่งซื้อสินค้าอีกครั้ง</button>
+    </div>`;
 
-    // ══════════════════════════════════════════
-    //  🔗  BIND EVENTS
-    // ══════════════════════════════════════════
-    function bindHome() {
-      document.querySelectorAll(".brand-card").forEach(el => {
-        el.addEventListener("click", () => setState({ screen:"products", activeBrand: el.dataset.brand }));
-      });
-      document.getElementById("fab-cart")?.addEventListener("click", () => setState({ screen:"cart" }));
-    }
+  // ══════════════════════════════════════════
+  //  🔗  BIND EVENTS
+  // ══════════════════════════════════════════
+  function bindHome() {
+    document.querySelectorAll(".brand-card").forEach(el =>
+      el.addEventListener("click", () => setState({ screen:"products", activeBrand: el.dataset.brand })));
+    document.getElementById("fab")?.addEventListener("click", () => setState({ screen:"cart" }));
+  }
 
-    function bindProducts() {
-      document.getElementById("back-home")?.addEventListener("click", () => setState({ screen:"home" }));
-      document.getElementById("fab-cart")?.addEventListener("click", () => setState({ screen:"cart" }));
-      document.querySelectorAll("[data-add]").forEach(el => {
-        el.addEventListener("click", () => addToCart(el.dataset.add));
-      });
-      document.querySelectorAll("[data-pid]").forEach(el => {
-        el.addEventListener("click", () => setState({ screen:"detail", activeProduct: el.dataset.pid }));
-      });
-    }
+  function bindProducts() {
+    document.getElementById("back-home")?.addEventListener("click", () => setState({ screen:"home" }));
+    document.getElementById("fab")?.addEventListener("click", () => setState({ screen:"cart" }));
+    document.querySelectorAll("[data-add]").forEach(el =>
+      el.addEventListener("click", () => addToCart(el.dataset.add)));
+    document.querySelectorAll("[data-pid]").forEach(el =>
+      el.addEventListener("click", () => setState({ screen:"detail", activeProduct: el.dataset.pid })));
+  }
 
-    function bindDetail() {
-      document.getElementById("back-products")?.addEventListener("click", () => setState({ screen:"products" }));
-      document.getElementById("go-cart")?.addEventListener("click", () => setState({ screen:"cart" }));
-      document.getElementById("add-detail")?.addEventListener("click", () => {
-        addToCart(STATE.activeProduct);
-      });
-    }
+  function bindDetail() {
+    document.getElementById("back-prod")?.addEventListener("click", () => setState({ screen:"products" }));
+    document.getElementById("go-cart")?.addEventListener("click",  () => setState({ screen:"cart" }));
+    document.getElementById("add-detail")?.addEventListener("click", () => { addToCart(S.activeProduct); setState({}); });
+  }
 
-    function bindCart() {
-      document.getElementById("back-products2")?.addEventListener("click", () => setState({ screen: STATE.activeBrand ? "products" : "home" }));
-      document.getElementById("back-to-shop")?.addEventListener("click", () => setState({ screen:"home" }));
-      document.getElementById("go-payment")?.addEventListener("click", () => setState({ screen:"payment" }));
-      document.querySelectorAll(".qty-btn.minus").forEach(el => {
-        el.addEventListener("click", () => updateQty(el.dataset.id, -1));
-      });
-      document.querySelectorAll(".qty-btn.plus").forEach(el => {
-        el.addEventListener("click", () => updateQty(el.dataset.id, 1));
-      });
-    }
+  function bindCart() {
+    document.getElementById("back-cont")?.addEventListener("click",  () => setState({ screen: S.activeBrand ? "products" : "home" }));
+    document.getElementById("back-shop")?.addEventListener("click",  () => setState({ screen:"home" }));
+    document.getElementById("go-pay")?.addEventListener("click",     () => setState({ screen:"payment" }));
+    document.querySelectorAll(".qty-btn.minus").forEach(el =>
+      el.addEventListener("click", () => updateQty(el.dataset.id, -1)));
+    document.querySelectorAll(".qty-btn.plus").forEach(el =>
+      el.addEventListener("click", () => updateQty(el.dataset.id, 1)));
+  }
 
-    function bindPayment() {
-      document.getElementById("back-cart")?.addEventListener("click", () => setState({ screen:"cart" }));
-      const input   = document.getElementById("slip-input");
-      const preview = document.getElementById("slip-preview");
-      const slipImg = document.getElementById("slip-img");
-      const sendBtn = document.getElementById("send-slip");
-      const slipArea= document.getElementById("slip-area");
+  function bindPayment() {
+    document.getElementById("back-cart2")?.addEventListener("click", () => setState({ screen:"cart" }));
+    const input   = document.getElementById("slip-input");
+    const preview = document.getElementById("slip-preview");
+    const slipImg = document.getElementById("slip-img");
+    const sendBtn = document.getElementById("send-slip");
+    const slipArea= document.getElementById("slip-area");
 
-      input?.addEventListener("change", e => {
-        const f = e.target.files[0];
-        if (!f) return;
-        const r = new FileReader();
-        r.onload = ev => {
-          STATE.slip = ev.target.result;
-          slipImg.src = ev.target.result;
-          slipArea.style.display  = "none";
-          preview.style.display   = "block";
-          sendBtn.style.display   = "block";
-        };
-        r.readAsDataURL(f);
-      });
+    input?.addEventListener("change", e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        S.slip = ev.target.result;
+        slipImg.src = ev.target.result;
+        slipArea.style.display = "none";
+        preview.style.display  = "block";
+        sendBtn.style.display  = "block";
+      };
+      r.readAsDataURL(f);
+    });
 
-      document.getElementById("change-slip")?.addEventListener("click", () => {
-        STATE.slip = null;
-        slipArea.style.display = "block";
-        preview.style.display  = "none";
-        sendBtn.style.display  = "none";
-      });
+    document.getElementById("change-slip")?.addEventListener("click", () => {
+      S.slip = null;
+      slipArea.style.display = "block";
+      preview.style.display  = "none";
+      sendBtn.style.display  = "none";
+    });
 
-      sendBtn?.addEventListener("click", async () => {
-        if (!STATE.slip) return;
-        sendBtn.disabled     = true;
-        sendBtn.textContent  = "⏳ กำลังส่ง...";
-        try {
-          const id = await saveOrder(STATE.cart, STATE.products);
-          if (tg) {
-            tg.sendData(JSON.stringify({ action:"new_order", orderId:id, total: calcTotal(STATE.cart, STATE.products) }));
-          }
-          setState({ screen:"success", orderId:id, cart:[] });
-        } catch (err) {
-          sendBtn.disabled    = false;
-          sendBtn.textContent = "📤 ส่งสลิปยืนยัน";
-          alert("เกิดข้อผิดพลาด กรุณาลองใหม่ค่ะ");
-        }
-      });
-    }
-
-    function bindSuccess() {
-      document.getElementById("restart")?.addEventListener("click", () => setState({ screen:"home", cart:[], orderId:null }));
-    }
-
-    // ══════════════════════════════════════════
-    //  🛒  CART LOGIC
-    // ══════════════════════════════════════════
-    function addToCart(id) {
-      const cart   = STATE.cart;
-      const exists = cart.find(i => i.id === id);
-      const newCart = exists
-        ? cart.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i)
-        : [...cart, { id, qty: 1 }];
-      setState({ cart: newCart });
-    }
-
-    function updateQty(id, delta) {
-      const newCart = STATE.cart
-        .map(i => i.id === id ? { ...i, qty: i.qty + delta } : i)
-        .filter(i => i.qty > 0);
-      setState({ cart: newCart });
-    }
-
-    // ══════════════════════════════════════════
-    //  🚀  INIT
-    // ══════════════════════════════════════════
-    async function init() {
-      render(); // แสดง splash ก่อน
+    sendBtn?.addEventListener("click", async () => {
+      if (!S.slip) return;
+      sendBtn.disabled    = true;
+      sendBtn.textContent = "⏳ กำลังส่ง...";
       try {
-        const [brands, products] = await Promise.all([fetchBrands(), fetchProducts()]);
-        STATE.brands   = brands;
-        STATE.products = products;
-        await trackCustomer();
+        const id = await saveOrder(S.cart, S.products);
+        if (tg) tg.sendData(JSON.stringify({ action:"new_order", orderId:id, total: calcTotal(S.cart, S.products) }));
+        setState({ screen:"success", orderId:id, cart:[] });
       } catch (err) {
-        console.error("Init error:", err);
+        console.error(err);
+        sendBtn.disabled    = false;
+        sendBtn.textContent = "📤 ส่งสลิปยืนยัน";
+        alert("เกิดข้อผิดพลาด กรุณาลองใหม่ค่ะ");
       }
-      setTimeout(() => setState({ screen:"home" }), 2000);
+    });
+  }
+
+  function bindSuccess() {
+    document.getElementById("restart")?.addEventListener("click",
+      () => setState({ screen:"home", cart:[], orderId:null }));
+  }
+
+  // ══════════════════════════════════════════
+  //  🛒  CART LOGIC
+  // ══════════════════════════════════════════
+  function addToCart(id) {
+    const exists  = S.cart.find(i => i.id === id);
+    const newCart = exists
+      ? S.cart.map(i => i.id === id ? { ...i, qty: i.qty + 1 } : i)
+      : [...S.cart, { id, qty: 1 }];
+    setState({ cart: newCart });
+  }
+
+  function updateQty(id, delta) {
+    const newCart = S.cart
+      .map(i => i.id === id ? { ...i, qty: i.qty + delta } : i)
+      .filter(i => i.qty > 0);
+    setState({ cart: newCart });
+  }
+
+  // ══════════════════════════════════════════
+  //  🚀  INIT
+  // ══════════════════════════════════════════
+  async function init() {
+    render(); // splash
+    try {
+      const [brands, products] = await Promise.all([fetchBrands(), fetchProducts()]);
+      S.brands   = brands;
+      S.products = products;
+      trackCustomer(); // ไม่ await เพื่อไม่ให้ช้า
+    } catch (err) {
+      console.error("Init:", err);
     }
+    setTimeout(() => setState({ screen:"home" }), 2000);
+  }
 
-    init();
-  </script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Prompt:wght@300;400;500;600;700&display=swap');
-
-    :root {
-      --bg      : #07080f;
-      --surface : rgba(255,255,255,0.04);
-      --border  : rgba(255,255,255,0.08);
-      --text    : #f0f0f5;
-      --muted   : rgba(255,255,255,0.4);
-      --accent  : #a78bfa;
-      --font    : 'DM Serif Display', Georgia, serif;
-      --body    : 'Prompt', sans-serif;
-    }
-
-    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-    html,body { background:var(--bg); overscroll-behavior:none; }
-    body { font-family:var(--body); color:var(--text); overflow-x:hidden; -webkit-font-smoothing:antialiased; }
-
-    #root { min-height:100vh; }
-    .screen { min-height:100vh; padding-bottom:120px; }
-    .center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:32px; height:100vh; }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes splashPop { from{opacity:0;transform:scale(0.5)} to{opacity:1;transform:scale(1)} }
-    @keyframes pulse     { 0%,100%{opacity:0.4} 50%{opacity:1} }
-    @keyframes slideUp   { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-    .brand-card, .product-card { animation:fadeUp 0.5s both ease; }
-
-    /* SPLASH */
-    .splash { height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; }
-    .splash-icon  { font-size:72px; animation:splashPop 0.7s cubic-bezier(0.34,1.56,0.64,1); }
-    .splash-title { font-family:var(--font); font-size:38px; animation:fadeUp 0.6s 0.3s both; }
-    .splash-sub   { font-size:12px; color:var(--muted); letter-spacing:4px; text-transform:uppercase; animation:fadeUp 0.6s 0.5s both; }
-    .dots         { display:flex; gap:6px; margin-top:16px; animation:fadeUp 0.6s 0.8s both; }
-    .dot          { width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pulse 1.2s infinite; }
-    .dot:nth-child(2){ animation-delay:0.2s; }
-    .dot:nth-child(3){ animation-delay:0.4s; }
-
-    /* HOME */
-    .home-hero    { padding:52px 24px 32px; position:relative; overflow:hidden; }
-    .hero-greeting{ font-size:12px; color:var(--accent); font-weight:600; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
-    .hero-title   { font-family:var(--font); font-size:36px; line-height:1.2; margin-bottom:10px; }
-    .hero-accent  { font-style:italic; color:var(--accent); }
-    .hero-sub     { font-size:13px; color:var(--muted); }
-    .section-label{ font-size:10px; color:var(--muted); letter-spacing:2.5px; text-transform:uppercase; padding:0 24px; margin-bottom:12px; }
-    .brand-list   { display:flex; flex-direction:column; gap:10px; padding:0 16px; }
-    .brand-card   { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; text-align:left; width:100%; transition:all 0.15s; }
-    .brand-card:active { transform:scale(0.97); }
-    .brand-icon   { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
-    .brand-info   { flex:1; }
-    .brand-name   { font-family:var(--font); font-size:19px; margin-bottom:3px; }
-    .brand-desc   { font-size:12px; color:var(--muted); margin-bottom:5px; }
-    .brand-count  { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-    .brand-dot    { width:8px; height:8px; border-radius:50%; opacity:0.7; flex-shrink:0; }
-
-    /* FAB */
-    .fab { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--accent),#7c3aed); border:none; border-radius:28px; padding:14px 28px; color:#fff; font-family:var(--body); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(167,139,250,0.45); z-index:50; animation:slideUp 0.3s ease; white-space:nowrap; }
-    .fab-badge { background:rgba(255,255,255,0.25); border-radius:20px; padding:2px 10px; font-size:13px; font-weight:800; }
-
-    /* TOPBAR */
-    .topbar { padding:20px 20px 16px; position:sticky; top:0; background:rgba(7,8,15,0.92); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); z-index:10; display:flex; align-items:center; gap:14px; }
-    .back-btn { background:none; border:none; color:var(--muted); font-size:13px; cursor:pointer; font-family:var(--body); flex-shrink:0; }
-    .topbar-brand { display:flex; align-items:center; gap:10px; }
-    .topbar-emoji { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
-    .topbar-name  { font-family:var(--font); font-size:19px; }
-    .topbar-count { font-size:11px; color:var(--muted); }
-
-    /* PRODUCTS */
-    .product-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:14px; }
-    .product-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
-    .product-img  { position:relative; padding-top:100%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .product-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-    .product-img > span { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
-    .product-badge { position:absolute; top:8px; right:8px; border-radius:20px; padding:2px 9px; font-size:10px; font-weight:800; color:#07080f; }
-    .product-info { padding:10px 12px 12px; }
-    .product-name { font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); line-height:1.4; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; cursor:pointer; min-height:34px; }
-    .product-footer { display:flex; justify-content:space-between; align-items:center; }
-    .product-price { font-size:14px; font-weight:700; }
-    .add-btn { border-radius:10px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.12s; font-family:var(--body); }
-    .add-btn:active { transform:scale(0.9); }
-
-    /* DETAIL */
-    .back-float { position:fixed; top:16px; left:16px; z-index:20; background:rgba(7,8,15,0.8); border:1px solid var(--border); border-radius:12px; padding:8px 16px; color:var(--muted); font-size:13px; cursor:pointer; backdrop-filter:blur(8px); font-family:var(--body); }
-    .detail-img { position:relative; height:320px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-    .detail-img img { width:100%; height:100%; object-fit:cover; }
-    .detail-img-overlay { position:absolute; inset:0; background:linear-gradient(to top,#07080f 0%,transparent 55%); }
-    .detail-body { padding:0 24px 24px; margin-top:-36px; position:relative; }
-    .detail-brand-tag { display:inline-flex; align-items:center; gap:6px; border-radius:20px; padding:4px 12px; font-size:11px; font-weight:700; margin-bottom:14px; }
-    .detail-name { font-family:var(--font); font-size:26px; line-height:1.25; margin-bottom:10px; }
-    .detail-price { font-size:30px; font-weight:700; font-family:var(--font); margin-bottom:20px; }
-    .detail-desc-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 18px; margin-bottom:14px; }
-    .detail-desc-label { font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
-    .detail-desc { font-size:14px; color:rgba(255,255,255,0.75); line-height:1.8; }
-    .detail-cod  { font-size:12px; color:var(--muted); background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; }
-    .detail-bar  { position:fixed; bottom:0; left:0; right:0; padding:14px 20px 28px; background:rgba(7,8,15,0.97); backdrop-filter:blur(16px); border-top:1px solid var(--border); display:flex; gap:10px; z-index:20; }
-    .detail-cart-btn { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; color:var(--text); font-size:14px; font-weight:700; cursor:pointer; font-family:var(--body); }
-    .detail-add-btn  { flex:3; border:none; border-radius:16px; padding:15px; color:#07080f; font-size:15px; font-weight:800; cursor:pointer; font-family:var(--body); transition:transform 0.1s; }
-    .detail-add-btn:active { transform:scale(0.97); }
-
-    /* CART */
-    .cart-list { padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
-    .cart-item { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; display:flex; gap:12px; align-items:center; }
-    .cart-thumb { width:60px; height:60px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:28px; }
-    .cart-thumb img { width:100%; height:100%; object-fit:cover; }
-    .cart-info  { flex:1; min-width:0; }
-    .cart-name  { font-size:13px; font-weight:600; color:rgba(255,255,255,0.85); margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .cart-price { font-size:14px; font-weight:700; }
-    .cart-qty-ctrl { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-    .qty-btn { width:30px; height:30px; border-radius:9px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .qty-btn.minus { background:var(--surface); border:1px solid var(--border); color:var(--text); }
-    .qty-btn.plus  { background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.4); color:var(--accent); }
-    .qty-num { font-size:15px; font-weight:700; min-width:20px; text-align:center; }
-    .cart-bar { position:fixed; bottom:0; left:0; right:0; padding:16px 20px 28px; background:rgba(7,8,15,0.97); backdrop-filter:blur(16px); border-top:1px solid var(--border); z-index:20; }
-    .cart-summary { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-    .cart-summary-label { font-size:12px; color:var(--muted); }
-    .cart-total { font-family:var(--font); font-size:28px; color:var(--accent); }
-
-    /* PAYMENT */
-    .payment-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
-    .bank-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px 20px; }
-    .bank-label  { font-size:10px; color:var(--muted); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:12px; }
-    .bank-name   { font-size:13px; color:var(--muted); margin-bottom:4px; }
-    .bank-number { font-family:monospace; font-size:22px; font-weight:800; letter-spacing:2px; margin-bottom:4px; }
-    .bank-holder { font-size:13px; color:var(--muted); }
-    .amount-box  { background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.25); border-radius:16px; padding:20px; text-align:center; }
-    .amount-label{ font-size:11px; color:var(--accent); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
-    .amount-value{ font-family:var(--font); font-size:40px; color:var(--accent); }
-    .slip-label  { display:flex; flex-direction:column; align-items:center; gap:10px; border:2px dashed rgba(167,139,250,0.4); border-radius:18px; padding:28px; cursor:pointer; color:var(--accent); background:rgba(167,139,250,0.05); }
-    .slip-text   { font-size:15px; font-weight:600; }
-    .slip-hint   { font-size:12px; color:var(--muted); }
-    #slip-preview img { width:100%; border-radius:16px; max-height:240px; object-fit:contain; border:1px solid var(--border); }
-
-    /* BUTTONS */
-    .primary-btn { width:100%; background:linear-gradient(135deg,var(--accent),#7c3aed); border:none; border-radius:18px; padding:16px; color:#fff; font-size:15px; font-weight:800; cursor:pointer; font-family:var(--body); box-shadow:0 8px 32px rgba(167,139,250,0.4); transition:transform 0.1s; }
-    .primary-btn:active { transform:scale(0.97); }
-    .primary-btn:disabled { opacity:0.5; cursor:not-allowed; }
-    .outline-btn { background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.35); border-radius:16px; padding:12px 28px; color:var(--accent); font-size:14px; font-weight:700; cursor:pointer; font-family:var(--body); margin-top:8px; }
-
-    /* SUCCESS */
-    .success-icon  { font-size:72px; animation:splashPop 0.6s cubic-bezier(0.34,1.56,0.64,1); }
-    .success-title { font-family:var(--font); font-size:28px; animation:fadeUp 0.5s 0.2s both; }
-    .success-sub   { font-size:14px; color:var(--muted); line-height:1.8; animation:fadeUp 0.5s 0.3s both; }
-    .order-id-box  { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 28px; text-align:center; animation:fadeUp 0.5s 0.4s both; }
-    .order-id-label{ font-size:11px; color:var(--muted); margin-bottom:6px; }
-    .order-id-value{ font-family:monospace; font-size:22px; font-weight:800; color:var(--accent); }
-
-    /* EMPTY */
-    .empty-title { font-family:var(--font); font-size:24px; }
-    .empty-sub   { font-size:13px; color:var(--muted); }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
+  init();
+</script>
 </body>
 </html>
