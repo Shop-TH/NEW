@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>SkinMart</title>
+  <!-- Telegram Mini App SDK — สำคัญมาก ต้องมี -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #07080f;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* ป้องกัน iOS bounce */
+    html, body { overscroll-behavior: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
