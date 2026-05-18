@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/skinmart-miniapp/",  // ← ชื่อ GitHub repo
+  base: "/shop-th/",  // ← ชื่อ GitHub repo
   build: {
     outDir: "dist",
   },
