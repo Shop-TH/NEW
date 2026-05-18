@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/shop-th/",  // ← ชื่อ GitHub repo
+  base: "/NEW/",  // ← ชื่อ GitHub repo
   build: {
     outDir: "dist",
   },
