@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>SkinMart Admin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
+    :root{
+      --bg    : #f4f6f9;
+      --white : #ffffff;
+      --border: #e8eaed;
+      --text  : #1a1a2e;
+      --muted : #888;
+      --green : #00B900;
+      --red   : #f44336;
+      --blue  : #1565c0;
+      --orange: #f57c00;
+      --font  : 'Prompt', sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{background:var(--bg);overscroll-behavior:none;}
+    body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;}
+
+    /* LAYOUT */
+    .screen{min-height:100vh;padding-bottom:80px;}
+    .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:32px;height:100vh;}
+
+    /* HEADER */
+    .header{background:linear-gradient(135deg,var(--green),#00952b);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,185,0,0.25);}
+    .header-left{display:flex;align-items:center;gap:10px;}
+    .header-ava{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .header-title{color:#fff;font-weight:700;font-size:15px;}
+    .header-sub  {color:rgba(255,255,255,0.75);font-size:11px;margin-top:1px;}
+    .header-badge{background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;color:#fff;font-size:11px;font-weight:600;}
+
+    /* TABS */
+    .tabs{background:var(--white);border-bottom:1px solid var(--border);display:flex;position:sticky;top:65px;z-index:99;}
+    .tab{flex:1;padding:12px 6px;border:none;background:transparent;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;}
+    .tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+    /* CARDS */
+    .card{background:var(--white);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .card-title {font-size:14px;font-weight:700;}
+
+    /* PRODUCT ITEM */
+    .prod-item{background:var(--white);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);display:flex;align-items:center;gap:12px;}
+    .prod-img  {width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;}
+    .prod-img img{width:100%;height:100%;object-fit:cover;}
+    .prod-info {flex:1;min-width:0;}
+    .prod-name {font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .prod-meta {display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .prod-price{font-size:13px;font-weight:700;}
+    .prod-stock{font-size:11px;color:var(--muted);}
+    .prod-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+
+    /* BADGE */
+    .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+    .badge-green {background:#e8f5e9;color:#2e7d32;}
+    .badge-gray  {background:#f5f5f5;color:#999;}
+    .badge-orange{background:#fff3e0;color:#e65100;}
+    .badge-red   {background:#ffebee;color:#c62828;}
+
+    /* BUTTONS */
+    .btn{border:none;border-radius:8px;padding:8px 14px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;justify-content:center;transition:all 0.15s;}
+    .btn:active{transform:scale(0.95);}
+    .btn-green {background:var(--green);color:#fff;}
+    .btn-blue  {background:#e3f2fd;color:var(--blue);}
+    .btn-orange{background:#fff3e0;color:var(--orange);}
+    .btn-red   {background:#ffebee;color:var(--red);}
+    .btn-gray  {background:#f5f5f5;color:#666;}
+    .btn-full  {width:100%;padding:13px;}
+    .btn-sm    {padding:5px 10px;font-size:11px;}
+    .btn-icon  {width:32px;height:32px;padding:0;border-radius:8px;}
+
+    /* FORM */
+    .form-group{margin-bottom:14px;}
+    .form-label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:0.4px;text-transform:uppercase;}
+    .form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;background:#fff;}
+    .form-input:focus{border-color:var(--green);}
+    .form-textarea{resize:vertical;min-height:80px;}
+    .form-select{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' fill='none' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 12px center;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+    /* TOGGLE */
+    .toggle-wrap{display:flex;align-items:center;justify-content:space-between;background:#f8f8f8;border-radius:10px;padding:10px 14px;}
+    .toggle-label{font-size:13px;font-weight:600;}
+    .toggle-sub  {font-size:11px;color:var(--muted);margin-top:2px;}
+    .toggle{width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s;border:none;flex-shrink:0;}
+    .toggle-knob{position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);transition:left 0.2s;}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+    .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:20px 18px 40px;animation:slideModal 0.3s ease;}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+    .modal-title{font-size:16px;font-weight:800;}
+    .modal-close{background:#f5f5f5;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+    @keyframes slideModal{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 0;}
+    .stat-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
+    .stat-val {font-size:22px;font-weight:800;margin-top:4px;}
+    .stat-label{font-size:11px;color:var(--muted);}
+
+    /* BRAND CARD */
+    .brand-admin-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
+    .brand-admin-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+    .brand-admin-info{display:flex;align-items:center;gap:12px;}
+    .brand-admin-emoji{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+    .brand-admin-actions{display:flex;gap:8px;}
+
+    /* CONFIRM */
+    .confirm-box{background:#fff;border-radius:16px;margin:auto;width:calc(100% - 48px);max-width:320px;padding:24px 20px;box-shadow:0 8px 40px rgba(0,0,0,0.2);animation:popIn 0.2s ease;}
+    @keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+    .confirm-icon {font-size:40px;text-align:center;margin-bottom:12px;}
+    .confirm-title{font-size:16px;font-weight:800;text-align:center;margin-bottom:8px;}
+    .confirm-desc {font-size:13px;color:var(--muted);text-align:center;line-height:1.7;margin-bottom:20px;white-space:pre-line;}
+    .confirm-actions{display:flex;gap:10px;}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);border-radius:28px;padding:10px 24px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);white-space:nowrap;animation:toastIn 0.3s ease;pointer-events:none;}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* LOGIN */
+    .login-screen{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;background:linear-gradient(135deg,#f0fff4,#e8f5e9);}
+    .login-icon {font-size:64px;}
+    .login-title{font-size:24px;font-weight:800;}
+    .login-sub  {font-size:13px;color:var(--muted);text-align:center;line-height:1.7;}
+    .login-box  {background:#fff;border-radius:16px;padding:20px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,0.08);}
+    .login-otp  {display:flex;gap:8px;margin-bottom:12px;}
+    .otp-input  {flex:1;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:20px;font-weight:800;text-align:center;letter-spacing:8px;font-family:monospace;outline:none;}
+    .otp-input:focus{border-color:var(--green);}
+    .loading{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;padding:20px;}
+    .spinner{width:20px;height:20px;border:2px solid #eee;border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:40px 20px;color:var(--muted);}
+    .empty-icon {font-size:48px;margin-bottom:12px;}
+    .empty-text {font-size:14px;}
+
+    /* LOW STOCK */
+    .alert-bar{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:10px 14px;margin:0 14px 10px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e65100;}
+
+    /* ORDERS */
+    .order-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+    .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .order-id   {font-weight:800;color:var(--green);font-size:14px;}
+    .order-items{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.7;}
+    .order-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px;}
+    .order-total{font-weight:800;font-size:15px;color:var(--blue);}
+    .order-actions{display:flex;gap:8px;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
+           addDoc, collection, getDocs, query, where, orderBy,
+           serverTimestamp, increment, writeBatch }
+    from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  // ══════════════════════════════════════════
+  //  ⚙️  Config
+  // ══════════════════════════════════════════
+  const FIREBASE_CONFIG = {
+    apiKey           : "AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",
+    authDomain       : "shop-th.firebaseapp.com",
+    projectId        : "shop-th",
+    storageBucket    : "shop-th.firebasestorage.app",
+    messagingSenderId: "407059998090",
+    appId            : "1:407059998090:web:e008bcb4042e574eb7d473",
+  };
+  const SHOP_ID = "shop_001";
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db  = getFirestore(app);
+
+  const tg      = window.Telegram?.WebApp;
+  const TG_USER = tg?.initDataUnsafe?.user || null;
+  if (tg) tg.expand();
+
+  // ══════════════════════════════════════════
+  //  🔢  Utils
+  // ══════════════════════════════════════════
+  const fmt = n => "฿" + Number(n).toLocaleString("th-TH");
+  let toastTimer = null;
+
+  function showToast(msg, type = "success") {
+    const old = document.querySelector(".toast");
+    if (old) old.remove();
+    if (toastTimer) clearTimeout(toastTimer);
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = msg;
+    t.style.background = type === "success" ? "#00B900" : type === "error" ? "#f44336" : "#f57c00";
+    t.style.color = "#fff";
+    document.body.appendChild(t);
+    toastTimer = setTimeout(() => t.remove(), 2500);
+  }
+
+  // ══════════════════════════════════════════
+  //  🔐  AUTH — ตรวจสอบ Chat ID
+  // ══════════════════════════════════════════
+  let ADMIN_DATA = null;
+
+  async function checkAuth() {
+    // ถ้าเปิดจาก Telegram ใช้ Chat ID อัตโนมัติ
+    if (TG_USER) {
+      const chatId = String(TG_USER.id);
+      const snap   = await getDoc(doc(db, "admins", chatId));
+      if (snap.exists() && snap.data().active) {
+        ADMIN_DATA = snap.data();
+        return true;
+      }
+      return false;
+    }
+    // ถ้าเปิดจากเบราว์เซอร์ปกติ — ขอ OTP
+    return "otp";
+  }
+
+  async function requestOTP(chatId) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const exp = new Date(Date.now() + 5 * 60 * 1000); // 5 นาที
+    await setDoc(doc(db, "otp", chatId), {
+      code: otp, expiredAt: exp, used: false, chatId,
+    });
+    // ส่ง OTP ผ่าน Apps Script Bot
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: `🔐 รหัส OTP ของคุณ: *${otp}*\n\nหมดอายุใน 5 นาทีค่ะ`, parse_mode: "Markdown" }),
+      });
+    } catch (e) { console.error(e); }
+    return otp;
+  }
+
+  async function verifyOTP(chatId, code) {
+    const snap = await getDoc(doc(db, "otp", chatId));
+    if (!snap.exists()) return false;
+    const data = snap.data();
+    if (data.used) return false;
+    if (data.code !== code) return false;
+    if (new Date() > data.expiredAt.toDate()) return false;
+    await updateDoc(doc(db, "otp", chatId), { used: true });
+    const adminSnap = await getDoc(doc(db, "admins", chatId));
+    if (!adminSnap.exists()) return false;
+    ADMIN_DATA = adminSnap.data();
+    return true;
+  }
+
+  // ══════════════════════════════════════════
+  //  🔥  Firebase Services
+  // ══════════════════════════════════════════
+  async function fetchBrands() {
+    const snap = await getDocs(collection(db, "shops", SHOP_ID, "brands"));
+    return snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+  }
+
+  async function fetchProducts() {
+    const snap = await getDocs(collection(db, "shops", SHOP_ID, "products"));
+    return snap.docs.map(d => ({ docId: d.id, ...d.data() }))
+      .sort((a, b) => a.brand.localeCompare(b.brand));
+  }
+
+  async function fetchOrders() {
+    const snap = await getDocs(collection(db, "orders"));
+    return snap.docs.map(d => ({ docId: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  }
+
+  async function saveBrand(data, docId) {
+    const ref = docId
+      ? doc(db, "shops", SHOP_ID, "brands", docId)
+      : doc(db, "shops", SHOP_ID, "brands", data.key);
+    await setDoc(ref, data, { merge: true });
+  }
+
+  async function deleteBrand(docId) {
+    await deleteDoc(doc(db, "shops", SHOP_ID, "brands", docId));
+  }
+
+  async function saveProduct(data, docId) {
+    if (docId) {
+      await setDoc(doc(db, "shops", SHOP_ID, "products", docId), data, { merge: true });
+    } else {
+      const id = data.id || data.brand.slice(0,2).toUpperCase() + Date.now().toString().slice(-4);
+      data.id  = id;
+      await setDoc(doc(db, "shops", SHOP_ID, "products", id), data);
+    }
+  }
+
+  async function deleteProduct(docId) {
+    await deleteDoc(doc(db, "shops", SHOP_ID, "products", docId));
+  }
+
+  async function updateOrderStatus(docId, status) {
+    await updateDoc(doc(db, "orders", docId), { status });
+  }
+
+  // ══════════════════════════════════════════
+  //  🎮  STATE
+  // ══════════════════════════════════════════
+  let S = {
+    view       : "loading",   // loading | login | otp | main
+    tab        : "products",  // products | brands | orders | stats
+    brands     : [],
+    products   : [],
+    orders     : [],
+    modal      : null,        // null | "add_product" | "edit_product" | "add_brand" | "edit_brand" | "stock"
+    modalData  : {},
+    confirm    : null,
+    otpChatId  : "",
+    otpSent    : false,
+  };
+
+  function setState(patch) { S = { ...S, ...patch }; render(); }
+
+  // ══════════════════════════════════════════
+  //  🔄  LOAD DATA
+  // ══════════════════════════════════════════
+  async function loadAll() {
+    const [brands, products, orders] = await Promise.all([fetchBrands(), fetchProducts(), fetchOrders()]);
+    S.brands   = brands;
+    S.products = products;
+    S.orders   = orders;
+  }
+
+  // ══════════════════════════════════════════
+  //  📺  RENDER
+  // ══════════════════════════════════════════
+  function render() {
+    const root = document.getElementById("root");
+
+    if (S.view === "loading") { root.innerHTML = `<div class="center"><div class="spinner" style="width:36px;height:36px;border-width:3px"></div><div style="color:var(--muted);font-size:13px">กำลังโหลด...</div></div>`; return; }
+    if (S.view === "login")   { root.innerHTML = loginHTML(); bindLogin(); return; }
+    if (S.view === "denied")  { root.innerHTML = `<div class="center"><div style="font-size:56px">🔒</div><div style="font-size:18px;font-weight:800">ไม่มีสิทธิ์เข้าใช้งาน</div><div style="font-size:13px;color:var(--muted)">Chat ID ของคุณไม่ได้รับอนุญาต<br>กรุณาติดต่อผู้ดูแลระบบค่ะ</div></div>`; return; }
+
+    // MAIN
+    let content = "";
+    if (S.tab === "products") content = productsHTML();
+    if (S.tab === "brands")   content = brandsHTML();
+    if (S.tab === "orders")   content = ordersHTML();
+    if (S.tab === "stats")    content = statsHTML();
+
+    root.innerHTML = `
+      <div class="header">
+        <div class="header-left">
+          <div class="header-ava">⚙️</div>
+          <div>
+            <div class="header-title">SkinMart Admin</div>
+            <div class="header-sub">${ADMIN_DATA?.name || TG_USER?.first_name || "แอดมิน"}</div>
+          </div>
+        </div>
+        <div class="header-badge">${S.products.length} SKU</div>
+      </div>
+      <div class="tabs">
+        <button class="tab ${S.tab==="products"?"active":""}" data-tab="products">📦 สินค้า</button>
+        <button class="tab ${S.tab==="brands"?"active":""}"   data-tab="brands">🏷️ แบรนด์</button>
+        <button class="tab ${S.tab==="orders"?"active":""}"   data-tab="orders">📋 ออเดอร์</button>
+        <button class="tab ${S.tab==="stats"?"active":""}"    data-tab="stats">📊 ภาพรวม</button>
+      </div>
+      <div style="padding:14px">${content}</div>
+      ${S.modal ? modalHTML() : ""}
+      ${S.confirm ? confirmHTML() : ""}`;
+
+    bindMain();
+    if (S.modal)   bindModal();
+    if (S.confirm) bindConfirm();
+  }
+
+  // ══════════════════════════════════════════
+  //  🔐  LOGIN HTML
+  // ══════════════════════════════════════════
+  const loginHTML = () => `
+    <div class="login-screen">
+      <div class="login-icon">🔐</div>
+      <div class="login-title">SkinMart Admin</div>
+      <div class="login-sub">กรอก Chat ID ของคุณเพื่อขอ OTP<br>จาก Telegram Bot ค่ะ</div>
+      <div class="login-box">
+        ${!S.otpSent ? `
+          <div class="form-group">
+            <label class="form-label">Chat ID ของคุณ</label>
+            <input class="form-input" id="chatid-input" type="number" placeholder="เช่น 123456789" value="${S.otpChatId}"/>
+          </div>
+          <button class="btn btn-green btn-full" id="send-otp">📨 ขอรหัส OTP</button>
+        ` : `
+          <div style="text-align:center;margin-bottom:14px">
+            <div style="font-size:13px;color:var(--muted)">ส่ง OTP ไปที่ Telegram แล้วค่ะ</div>
+            <div style="font-size:13px;font-weight:700;margin-top:4px">Chat ID: ${S.otpChatId}</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">รหัส OTP 6 หลัก</label>
+            <input class="form-input otp-input" id="otp-input" type="number" placeholder="000000" maxlength="6"/>
+          </div>
+          <button class="btn btn-green btn-full" id="verify-otp" style="margin-bottom:8px">✅ ยืนยัน OTP</button>
+          <button class="btn btn-gray btn-full" id="resend-otp">ส่งใหม่อีกครั้ง</button>
+        `}
+      </div>
+    </div>`;
+
+  // ══════════════════════════════════════════
+  //  📦  PRODUCTS HTML
+  // ══════════════════════════════════════════
+  function productsHTML() {
+    const lowStock = S.products.filter(p => p.stock <= 10 && p.active);
+    const prodHTML = S.products.map(p => {
+      const b = S.brands.find(x => x.key === p.brand);
+      return `
+        <div class="prod-item">
+          <div class="prod-img">
+            ${p.imageUrl ? `<img src="${p.imageUrl}" onerror="this.style.display='none'"/>` : (b?.emoji || "📦")}
+          </div>
+          <div class="prod-info">
+            <div class="prod-name">${p.name}</div>
+            <div class="prod-meta">
+              <span class="badge" style="background:${b?.color}18;color:${b?.color}">${b?.emoji} ${b?.name || p.brand}</span>
+              ${p.active ? `<span class="badge badge-green">แสดง</span>` : `<span class="badge badge-gray">ซ่อน</span>`}
+              ${(p.stock || 0) <= 5 ? `<span class="badge badge-red">⚠️ ${p.stock || 0}</span>` : (p.stock || 0) <= 10 ? `<span class="badge badge-orange">📦 ${p.stock || 0}</span>` : `<span class="prod-stock">📦 ${p.stock || 0} ชิ้น</span>`}
+            </div>
+            <div class="prod-price" style="color:${b?.color || "#333"};margin-top:4px">${fmt(p.price)}</div>
+          </div>
+          <div class="prod-actions">
+            <button class="btn btn-blue btn-icon btn-sm" data-edit-prod="${p.docId}" title="แก้ไข">✏️</button>
+            <button class="btn btn-orange btn-icon btn-sm" data-stock="${p.docId}" title="สต็อก">📦</button>
+            <button class="btn ${p.active?"btn-gray":"btn-green"} btn-icon btn-sm" data-toggle="${p.docId}" data-active="${p.active}" title="${p.active?"ซ่อน":"แสดง"}">${p.active?"👁️":"👁"}</button>
+            <button class="btn btn-red btn-icon btn-sm" data-del-prod="${p.docId}" data-name="${p.name}" title="ลบ">🗑️</button>
+          </div>
+        </div>`;
+    }).join("") || `<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">ยังไม่มีสินค้า</div></div>`;
+
+    return `
+      ${lowStock.length > 0 ? `<div class="alert-bar">⚠️ สินค้าสต็อกต่ำ ${lowStock.length} รายการ</div>` : ""}
+      <div class="card-header">
+        <div class="card-title">สินค้าทั้งหมด (${S.products.length})</div>
+        <button class="btn btn-green" id="add-prod">➕ เพิ่มสินค้า</button>
+      </div>
+      ${prodHTML}`;
+  }
+
+  // ══════════════════════════════════════════
+  //  🏷️  BRANDS HTML
+  // ══════════════════════════════════════════
+  function brandsHTML() {
+    const html = S.brands.map(b => {
+      const count = S.products.filter(p => p.brand === b.key).length;
+      return `
+        <div class="brand-admin-card">
+          <div class="brand-admin-header" style="background:linear-gradient(135deg,${b.color}22,${b.color}08)">
+            <div class="brand-admin-info">
+              <div class="brand-admin-emoji" style="background:${b.color}25">${b.emoji}</div>
+              <div>
+                <div style="font-weight:700;font-size:15px;color:${b.color}">${b.name}</div>
+                <div style="font-size:12px;color:var(--muted)">${count} SKU</div>
+              </div>
+            </div>
+            <div class="brand-admin-actions">
+              <button class="btn btn-blue btn-sm" data-edit-brand="${b.docId}">✏️ แก้ไข</button>
+              <button class="btn btn-red btn-sm" data-del-brand="${b.docId}" data-name="${b.name}">🗑️</button>
+            </div>
+          </div>
+          <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px">
+            ${S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>`<span class="badge" style="background:${b.color}12;color:${b.color}">${p.name}</span>`).join("")}
+            ${S.products.filter(p=>p.brand===b.key).length > 4 ? `<span class="badge badge-gray">+${S.products.filter(p=>p.brand===b.key).length-4} อีก</span>` : ""}
+          </div>
+        </div>`;
+    }).join("") || `<div class="empty"><div class="empty-icon">🏷️</div><div class="empty-text">ยังไม่มีแบรนด์</div></div>`;
+    return `
+      <div class="card-header">
+        <div class="card-title">แบรนด์ทั้งหมด (${S.brands.length})</div>
+        <button class="btn btn-green" id="add-brand">➕ เพิ่มแบรนด์</button>
+      </div>
+      ${html}`;
+  }
+
+  // ══════════════════════════════════════════
+  //  📋  ORDERS HTML
+  // ══════════════════════════════════════════
+  function ordersHTML() {
+    const html = S.orders.map(o => `
+      <div class="order-card">
+        <div class="order-header">
+          <span class="order-id">${o.orderId}</span>
+          <span class="badge ${o.status==="ยืนยันแล้ว"?"badge-green":o.status==="ปฏิเสธ"?"badge-red":"badge-orange"}">${o.status}</span>
+        </div>
+        <div class="order-items">${o.customerName || ""} ${o.username ? "@"+o.username : ""}<br>${(o.items||[]).map(i=>`${i.name} ×${i.qty}`).join(", ")}</div>
+        <div class="order-footer">
+          <div class="order-total">${fmt(o.total)}</div>
+          ${o.status === "รอตรวจสอบ" ? `
+            <div class="order-actions">
+              <button class="btn btn-green btn-sm" data-confirm-order="${o.docId}">✅ ยืนยัน</button>
+              <button class="btn btn-red btn-sm" data-reject-order="${o.docId}">❌ ปฏิเสธ</button>
+            </div>` : ""}
+        </div>
+      </div>`).join("") || `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">ยังไม่มีออเดอร์</div></div>`;
+    return `
+      <div class="card-header">
+        <div class="card-title">ออเดอร์ทั้งหมด (${S.orders.length})</div>
+        <button class="btn btn-gray btn-sm" id="refresh-orders">🔄 รีเฟรช</button>
+      </div>
+      ${html}`;
+  }
+
+  // ══════════════════════════════════════════
+  //  📊  STATS HTML
+  // ══════════════════════════════════════════
+  function statsHTML() {
+    const totalSKU   = S.products.length;
+    const activeSKU  = S.products.filter(p => p.active).length;
+    const lowStock   = S.products.filter(p => (p.stock || 0) <= 10).length;
+    const totalVal   = S.products.reduce((s, p) => s + (p.price * (p.stock || 0)), 0);
+    const totalOrders= S.orders.length;
+    const confirmed  = S.orders.filter(o => o.status === "ยืนยันแล้ว").length;
+    const revenue    = S.orders.filter(o => o.status === "ยืนยันแล้ว").reduce((s, o) => s + (o.total || 0), 0);
+    return `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        ${[
+          ["📦", totalSKU, "SKU ทั้งหมด", "#1565c0"],
+          ["✅", activeSKU, "SKU ที่แสดง", "#00B900"],
+          ["⚠️", lowStock+" รายการ", "สต็อกต่ำ", "#f57c00"],
+          ["💰", fmt(totalVal), "มูลค่าสต็อก", "#7B1FA2"],
+          ["📋", totalOrders, "ออเดอร์ทั้งหมด", "#1565c0"],
+          ["🎉", confirmed, "ยืนยันแล้ว", "#00B900"],
+          ["💵", fmt(revenue), "ยอดขาย COD", "#f57c00"],
+          ["🏷️", S.brands.length, "แบรนด์", "#7B1FA2"],
+        ].map(([e,v,l,c]) => `
+          <div class="stat-card">
+            <div style="font-size:20px">${e}</div>
+            <div class="stat-val" style="color:${c}">${v}</div>
+            <div class="stat-label">${l}</div>
+          </div>`).join("")}
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">สรุปรายแบรนด์</div>
+        ${S.brands.map(b => {
+          const bp  = S.products.filter(p => p.brand === b.key);
+          const stk = bp.reduce((s,p)=>s+(p.stock||0),0);
+          const val = bp.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
+          return `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="font-size:22px">${b.emoji}</div>
+              <div style="flex:1"><div style="font-weight:700;color:${b.color}">${b.name}</div><div style="font-size:11px;color:var(--muted)">${bp.length} SKU • ${stk} ชิ้น</div></div>
+              <div style="font-weight:800;font-size:14px">${fmt(val)}</div>
+            </div>`;
+        }).join("")}
+      </div>`;
+  }
+
+  // ══════════════════════════════════════════
+  //  🪟  MODAL HTML
+  // ══════════════════════════════════════════
+  function modalHTML() {
+    const d = S.modalData;
+    let title = "", body = "";
+
+    if (S.modal === "add_product" || S.modal === "edit_product") {
+      title = S.modal === "add_product" ? "➕ เพิ่มสินค้าใหม่" : "✏️ แก้ไขสินค้า";
+      body = `
+        <div class="form-group">
+          <label class="form-label">แบรนด์ *</label>
+          <select class="form-input form-select" id="f-brand">
+            ${S.brands.map(b => `<option value="${b.key}" ${d.brand===b.key?"selected":""}>${b.emoji} ${b.name}</option>`).join("")}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ชื่อสินค้า *</label>
+          <input class="form-input" id="f-name" placeholder="เช่น Vitamin C Serum 30ml" value="${d.name||""}"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ราคา (฿) *</label>
+            <input class="form-input" id="f-price" type="number" placeholder="590" value="${d.price||""}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">สต็อก (ชิ้น)</label>
+            <input class="form-input" id="f-stock" type="number" placeholder="50" value="${d.stock||""}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL รูปสินค้า</label>
+          <input class="form-input" id="f-img" placeholder="https://..." value="${d.imageUrl||""}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">รายละเอียด</label>
+          <textarea class="form-input form-textarea" id="f-desc" placeholder="คุณสมบัติสินค้า...">${d.description||""}</textarea>
+        </div>
+        <div class="toggle-wrap" style="margin-bottom:16px">
+          <div><div class="toggle-label">แสดงสินค้า</div><div class="toggle-sub">ลูกค้าจะเห็นสินค้านี้</div></div>
+          <button class="toggle" id="f-active-toggle" style="background:${d.active!==false?"var(--green)":"#ccc"}">
+            <div class="toggle-knob" style="left:${d.active!==false?22:3}px"></div>
+          </button>
+        </div>
+        <button class="btn btn-green btn-full" id="save-product">💾 บันทึก</button>`;
+    }
+
+    if (S.modal === "add_brand" || S.modal === "edit_brand") {
+      title = S.modal === "add_brand" ? "➕ เพิ่มแบรนด์" : "✏️ แก้ไขแบรนด์";
+      const emojis = ["🧪","✨","🌿","💎","🌸","🌺","🍃","💄","🫧","🌙","⭐","🔬"];
+      const colors = ["#4ade80","#fb923c","#34d399","#c084fc","#60a5fa","#f472b6","#facc15","#2dd4bf"];
+      body = `
+        <div class="form-group">
+          <label class="form-label">ชื่อแบรนด์ *</label>
+          <input class="form-input" id="f-bname" placeholder="เช่น SkinLab" value="${d.name||""}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">คำอธิบาย</label>
+          <input class="form-input" id="f-bdesc" placeholder="เช่น วิทยาศาสตร์เพื่อผิว" value="${d.desc||""}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emoji</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${emojis.map(e=>`<button class="btn ${d.emoji===e?"btn-green":"btn-gray"} emoji-pick" data-e="${e}" style="width:40px;height:40px;font-size:20px;padding:0">${e}</button>`).join("")}
+          </div>
+          <input type="hidden" id="f-bemoji" value="${d.emoji||"🌸"}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">สีแบรนด์</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+            ${colors.map(c=>`<button class="color-pick" data-c="${c}" style="width:32px;height:32px;border-radius:50%;background:${c};border:3px solid ${d.color===c?"#333":"transparent"};cursor:pointer"></button>`).join("")}
+          </div>
+          <input type="color" id="f-bcolor" value="${d.color||"#4ade80"}" style="width:40px;height:32px;border:none;border-radius:8px;cursor:pointer;padding:2px"/>
+        </div>
+        <div style="background:#f8f8f8;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">PREVIEW</div>
+          <div id="brand-preview" style="display:inline-flex;align-items:center;gap:10px;background:#fff;border:2px solid ${d.color||"#4ade80"};border-radius:14px;padding:10px 18px">
+            <span id="prev-emoji" style="font-size:24px">${d.emoji||"🌸"}</span>
+            <span id="prev-name" style="font-weight:700;color:${d.color||"#4ade80"};font-size:15px">${d.name||"ชื่อแบรนด์"}</span>
+          </div>
+        </div>
+        <button class="btn btn-green btn-full" id="save-brand">💾 บันทึก</button>`;
+    }
+
+    if (S.modal === "stock") {
+      const p = S.products.find(x => x.docId === d.docId);
+      body = `
+        <div style="background:#f8f8f8;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${p?.name}</div>
+          <div style="font-size:32px;font-weight:800">${p?.stock || 0} <span style="font-size:14px;color:var(--muted)">ชิ้น</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px">
+          ${[-50,-10,-5,-1,1,5,10,50].map(n=>`<button class="btn ${n<0?"btn-red":"btn-green"} stock-delta" data-n="${n}" style="min-width:52px">${n>0?"+":""}${n}</button>`).join("")}
+        </div>
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--muted)">ตั้งค่าโดยตรง</div>
+          <input class="form-input" id="stock-direct" type="number" placeholder="${p?.stock||0}" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px"/>
+        </div>
+        <button class="btn btn-green btn-full" id="save-stock">💾 อัปเดตสต็อก</button>`;
+    }
+
+    return `
+      <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">${title}</div>
+            <button class="modal-close" id="close-modal">✕</button>
+          </div>
+          ${body}
+        </div>
+      </div>`;
+  }
+
+  // ══════════════════════════════════════════
+  //  ⚠️  CONFIRM HTML
+  // ══════════════════════════════════════════
+  function confirmHTML() {
+    const c = S.confirm;
+    return `
+      <div class="modal-overlay" style="align-items:center">
+        <div class="confirm-box">
+          <div class="confirm-icon">${c.icon||"⚠️"}</div>
+          <div class="confirm-title">${c.title}</div>
+          <div class="confirm-desc">${c.desc}</div>
+          <div class="confirm-actions">
+            <button class="btn btn-gray btn-full" id="confirm-cancel">ยกเลิก</button>
+            <button class="btn btn-red btn-full" id="confirm-ok">${c.okLabel||"ยืนยัน"}</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ══════════════════════════════════════════
+  //  🔗  BIND
+  // ══════════════════════════════════════════
+  function bindLogin() {
+    document.getElementById("send-otp")?.addEventListener("click", async () => {
+      const chatId = document.getElementById("chatid-input")?.value.trim();
+      if (!chatId) return showToast("กรุณากรอก Chat ID ค่ะ", "error");
+      const snap = await getDoc(doc(db, "admins", chatId));
+      if (!snap.exists()) return showToast("ไม่พบ Chat ID นี้ในระบบค่ะ", "error");
+      await requestOTP(chatId);
+      setState({ otpChatId: chatId, otpSent: true });
+    });
+
+    document.getElementById("verify-otp")?.addEventListener("click", async () => {
+      const code = document.getElementById("otp-input")?.value.trim();
+      if (code.length !== 6) return showToast("กรอก OTP 6 หลักค่ะ", "error");
+      const ok = await verifyOTP(S.otpChatId, code);
+      if (!ok) return showToast("OTP ไม่ถูกต้องหรือหมดอายุแล้วค่ะ", "error");
+      await loadAll();
+      setState({ view: "main" });
+      showToast("✅ เข้าสู่ระบบสำเร็จค่ะ");
+    });
+
+    document.getElementById("resend-otp")?.addEventListener("click", () => setState({ otpSent: false }));
+  }
+
+  function bindMain() {
+    // Tabs
+    document.querySelectorAll(".tab").forEach(el =>
+      el.addEventListener("click", async () => {
+        const tab = el.dataset.tab;
+        if (tab === "orders") { S.orders = await fetchOrders(); }
+        setState({ tab });
+      }));
+
+    // Add product/brand
+    document.getElementById("add-prod")?.addEventListener("click", () =>
+      setState({ modal:"add_product", modalData:{ active:true, brand: S.brands[0]?.key } }));
+    document.getElementById("add-brand")?.addEventListener("click", () =>
+      setState({ modal:"add_brand", modalData:{ emoji:"🌸", color:"#4ade80" } }));
+
+    // Refresh orders
+    document.getElementById("refresh-orders")?.addEventListener("click", async () => {
+      S.orders = await fetchOrders(); setState({});
+    });
+
+    // Edit product
+    document.querySelectorAll("[data-edit-prod]").forEach(el =>
+      el.addEventListener("click", () => {
+        const p = S.products.find(x => x.docId === el.dataset.editProd);
+        setState({ modal:"edit_product", modalData: { ...p } });
+      }));
+
+    // Stock
+    document.querySelectorAll("[data-stock]").forEach(el =>
+      el.addEventListener("click", () =>
+        setState({ modal:"stock", modalData:{ docId: el.dataset.stock } })));
+
+    // Toggle active
+    document.querySelectorAll("[data-toggle]").forEach(el =>
+      el.addEventListener("click", async () => {
+        const p = S.products.find(x => x.docId === el.dataset.toggle);
+        await saveProduct({ active: !p.active }, p.docId);
+        S.products = await fetchProducts();
+        setState({});
+        showToast(p.active ? "ซ่อนสินค้าแล้ว" : "แสดงสินค้าแล้ว", p.active ? "warn" : "success");
+      }));
+
+    // Delete product
+    document.querySelectorAll("[data-del-prod]").forEach(el =>
+      el.addEventListener("click", () =>
+        setState({ confirm:{ icon:"🗑️", title:"ลบสินค้า?", desc:`ต้องการลบ "${el.dataset.name}" ?\nไม่สามารถกู้คืนได้`, okLabel:"🗑️ ลบ",
+          onOk: async () => { await deleteProduct(el.dataset.delProd); S.products = await fetchProducts(); setState({ confirm:null }); showToast("🗑️ ลบสินค้าแล้ว","error"); }
+        }})));
+
+    // Edit brand
+    document.querySelectorAll("[data-edit-brand]").forEach(el =>
+      el.addEventListener("click", () => {
+        const b = S.brands.find(x => x.docId === el.dataset.editBrand);
+        setState({ modal:"edit_brand", modalData: { ...b } });
+      }));
+
+    // Delete brand
+    document.querySelectorAll("[data-del-brand]").forEach(el =>
+      el.addEventListener("click", () =>
+        setState({ confirm:{ icon:"🗑️", title:"ลบแบรนด์?", desc:`ต้องการลบแบรนด์ "${el.dataset.name}" ?\nสินค้าในแบรนด์จะยังอยู่แต่ไม่แสดงแบรนด์`, okLabel:"🗑️ ลบ",
+          onOk: async () => { await deleteBrand(el.dataset.delBrand); S.brands = await fetchBrands(); setState({ confirm:null }); showToast("🗑️ ลบแบรนด์แล้ว","error"); }
+        }})));
+
+    // Confirm/Reject order
+    document.querySelectorAll("[data-confirm-order]").forEach(el =>
+      el.addEventListener("click", async () => {
+        await updateOrderStatus(el.dataset.confirmOrder, "ยืนยันแล้ว");
+        S.orders = await fetchOrders(); setState({});
+        showToast("✅ ยืนยันออเดอร์แล้ว");
+      }));
+    document.querySelectorAll("[data-reject-order]").forEach(el =>
+      el.addEventListener("click", async () => {
+        await updateOrderStatus(el.dataset.rejectOrder, "ปฏิเสธ");
+        S.orders = await fetchOrders(); setState({});
+        showToast("❌ ปฏิเสธออเดอร์แล้ว", "error");
+      }));
+  }
+
+  function bindModal() {
+    document.getElementById("close-modal")?.addEventListener("click", () => setState({ modal:null, modalData:{} }));
+    document.getElementById("modal-overlay")?.addEventListener("click", e => {
+      if (e.target.id === "modal-overlay") setState({ modal:null, modalData:{} });
+    });
+
+    // Save product
+    document.getElementById("save-product")?.addEventListener("click", async () => {
+      const data = {
+        brand      : document.getElementById("f-brand")?.value,
+        name       : document.getElementById("f-name")?.value.trim(),
+        price      : Number(document.getElementById("f-price")?.value),
+        stock      : Number(document.getElementById("f-stock")?.value || 0),
+        imageUrl   : document.getElementById("f-img")?.value.trim(),
+        description: document.getElementById("f-desc")?.value.trim(),
+        active     : S.modalData.active !== false,
+      };
+      if (!data.name || !data.price) return showToast("กรุณากรอกชื่อและราคาค่ะ", "error");
+      await saveProduct(data, S.modal === "edit_product" ? S.modalData.docId : null);
+      S.products = await fetchProducts();
+      setState({ modal:null, modalData:{} });
+      showToast("✅ บันทึกสินค้าแล้ว");
+    });
+
+    // Toggle active in modal
+    document.getElementById("f-active-toggle")?.addEventListener("click", () => {
+      const newVal = S.modalData.active === false ? true : false;
+      const btn    = document.getElementById("f-active-toggle");
+      const knob   = btn?.querySelector(".toggle-knob");
+      btn.style.background   = newVal ? "var(--green)" : "#ccc";
+      knob.style.left        = newVal ? "22px" : "3px";
+      S.modalData.active     = newVal;
+    });
+
+    // Save brand
+    document.getElementById("save-brand")?.addEventListener("click", async () => {
+      const name  = document.getElementById("f-bname")?.value.trim();
+      const desc  = document.getElementById("f-bdesc")?.value.trim();
+      const emoji = document.getElementById("f-bemoji")?.value;
+      const color = document.getElementById("f-bcolor")?.value;
+      if (!name) return showToast("กรุณากรอกชื่อแบรนด์ค่ะ", "error");
+      const key  = S.modal === "edit_brand" ? S.modalData.key : name.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12) || "brand"+Date.now();
+      const hero = `linear-gradient(135deg,${color},${color}aa)`;
+      await saveBrand({ key, name, desc, emoji, color, hero }, S.modal === "edit_brand" ? S.modalData.docId : null);
+      S.brands = await fetchBrands();
+      setState({ modal:null, modalData:{} });
+      showToast("✅ บันทึกแบรนด์แล้ว");
+    });
+
+    // Emoji picker
+    document.querySelectorAll(".emoji-pick").forEach(el =>
+      el.addEventListener("click", () => {
+        document.getElementById("f-bemoji").value = el.dataset.e;
+        document.getElementById("prev-emoji").textContent = el.dataset.e;
+        document.querySelectorAll(".emoji-pick").forEach(b => b.className = "btn btn-gray emoji-pick");
+        el.className = "btn btn-green emoji-pick";
+      }));
+
+    // Color picker
+    document.querySelectorAll(".color-pick").forEach(el =>
+      el.addEventListener("click", () => {
+        const c = el.dataset.c;
+        document.getElementById("f-bcolor").value = c;
+        document.getElementById("prev-name").style.color = c;
+        document.getElementById("brand-preview").style.borderColor = c;
+        document.querySelectorAll(".color-pick").forEach(b => b.style.border = "3px solid transparent");
+        el.style.border = "3px solid #333";
+      }));
+
+    document.getElementById("f-bname")?.addEventListener("input", e => {
+      const el = document.getElementById("prev-name");
+      if (el) el.textContent = e.target.value || "ชื่อแบรนด์";
+    });
+    document.getElementById("f-bcolor")?.addEventListener("input", e => {
+      const c = e.target.value;
+      document.getElementById("prev-name").style.color = c;
+      document.getElementById("brand-preview").style.borderColor = c;
+    });
+
+    // Stock delta
+    document.querySelectorAll(".stock-delta").forEach(el =>
+      el.addEventListener("click", () => {
+        const p = S.products.find(x => x.docId === S.modalData.docId);
+        const cur = Number(document.getElementById("stock-direct")?.value) || p?.stock || 0;
+        const nv  = Math.max(0, cur + Number(el.dataset.n));
+        document.getElementById("stock-direct").value = nv;
+      }));
+
+    document.getElementById("save-stock")?.addEventListener("click", async () => {
+      const p   = S.products.find(x => x.docId === S.modalData.docId);
+      const nv  = Number(document.getElementById("stock-direct")?.value);
+      if (isNaN(nv) || nv < 0) return showToast("จำนวนไม่ถูกต้องค่ะ", "error");
+      await saveProduct({ stock: nv }, p.docId);
+      S.products = await fetchProducts();
+      setState({ modal:null, modalData:{} });
+      showToast("📦 อัปเดตสต็อกแล้ว");
+    });
+  }
+
+  function bindConfirm() {
+    document.getElementById("confirm-cancel")?.addEventListener("click", () => setState({ confirm:null }));
+    document.getElementById("confirm-ok")?.addEventListener("click", () => { S.confirm?.onOk?.(); });
+  }
+
+  // ══════════════════════════════════════════
+  //  🚀  INIT
+  // ══════════════════════════════════════════
+  async function init() {
+    setState({ view:"loading" });
+    try {
+      const auth = await checkAuth();
+      if (auth === true) {
+        await loadAll();
+        setState({ view:"main", tab:"products" });
+      } else if (auth === "otp") {
+        setState({ view:"login" });
+      } else {
+        setState({ view:"denied" });
+      }
+    } catch (err) {
+      console.error("Init:", err);
+      setState({ view:"login" });
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
