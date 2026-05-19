@@ -203,70 +203,68 @@
     }
     .hr-line { flex: 1; height: 1px; background: var(--border); }
     .hr-text  { font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; }
-    .brand-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+    .brand-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* BRAND CARD — Logo ซ้าย + Gradient ดำไหลขวา */
+    /* BRAND CARD — Style H */
     .brand-card {
-      width: 100%; cursor: pointer;
+      width: 100%; height: 110px;
       border-radius: var(--r-lg);
       overflow: hidden; position: relative;
-      display: block;
-      height: 110px;
-      border: none; background: none;
+      display: block; cursor: pointer;
+      background: linear-gradient(135deg, #111111, #161616);
+      border: none;
       animation: fadeUp .5s both;
       transition: transform .15s;
     }
     .brand-card:active { transform: scale(.97); }
 
-    /* รูป Logo เต็มพื้นหลังการ์ด ชิดซ้าย */
-    .bc-logo {
-      position: absolute; inset: 0;
-      width: 55%; height: 100%;
-      object-fit: cover; object-position: center;
-      display: block;
-    }
-    .bc-logo-emoji {
-      position: absolute; left: 0; top: 0;
-      width: 55%; height: 100%;
-      background: var(--bg3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 46px;
+    /* เส้นทองบนซ้าย */
+    .bc-top-line {
+      position: absolute; top: 0; left: 0;
+      width: 60%; height: 2px;
+      background: linear-gradient(to right, #d4a847, rgba(212,168,71,.1));
     }
 
-    /* Gradient ดำไหลจากขวาทับซ้าย — เนียนมาก */
-    .bc-grad {
-      position: absolute; inset: 0;
-      background: linear-gradient(
-        to right,
-        transparent 0%,
-        transparent 25%,
-        rgba(10,10,10,.55) 45%,
-        rgba(10,10,10,.92) 60%,
-        #0a0a0a 75%
-      );
+    /* เส้นทองล่างซ้าย */
+    .bc-bot-line {
+      position: absolute; bottom: 0; left: 0;
+      width: 40px; height: 1.5px;
+      background: linear-gradient(to right, #d4a847, transparent);
     }
 
-    /* ชื่อแบรนด์ — ขวา ตรงกลางแนวตั้ง */
+    /* ข้อความซ้ายกลาง */
     .bc-content {
-      position: absolute; right: 0; top: 0; bottom: 0;
-      width: 58%;
-      display: flex; flex-direction: column;
-      align-items: flex-start; justify-content: center;
-      padding: 0 20px 0 8px;
-      z-index: 2;
+      position: absolute; left: 20px; top: 50%;
+      transform: translateY(-50%);
+    }
+    .bc-label {
+      font-size: 10px; font-weight: 400;
+      color: rgba(212,168,71,.55);
+      letter-spacing: 4px; text-transform: uppercase;
+      margin-bottom: 8px;
     }
     .bc-name {
-      font-size: 28px; font-weight: 800;
-      color: var(--text); letter-spacing: .5px;
-      line-height: 1.15;
-      text-shadow: 0 2px 16px rgba(0,0,0,.8);
+      font-size: 30px; font-weight: 800;
+      color: var(--text); letter-spacing: 1px;
+      line-height: 1;
     }
-    /* เส้นทองบางๆ ใต้ชื่อ */
-    .bc-line {
-      width: 28px; height: 2px;
-      background: var(--gold);
-      border-radius: 2px; margin-top: 8px;
-      opacity: .8;
+
+    /* Logo มุมขวา จาง */
+    .bc-logo-right {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 100px;
+      background: linear-gradient(to left, rgba(212,168,71,.05), transparent);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .bc-logo-right img {
+      width: 80px; height: 80px;
+      object-fit: contain;
+      opacity: .55;
+      filter: grayscale(20%);
+    }
+    .bc-logo-right-emoji {
+      font-size: 44px; opacity: .18;
     }
 
     /* Cart FAB */
@@ -573,14 +571,17 @@
           const logoSrc = b.logoUrl || "";
           return`
             <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i*.08}s">
-              ${logoSrc
-                ? `<img class="bc-logo" src="${logoSrc}" alt="${b.name}" onerror="this.style.display='none'"/>`
-                : `<div class="bc-logo-emoji">${b.emoji||"🫧"}</div>`}
-              <div class="bc-grad"></div>
+              <div class="bc-top-line"></div>
               <div class="bc-content">
+                <div class="bc-label">Fragrance</div>
                 <div class="bc-name">${b.name}</div>
-                <div class="bc-line"></div>
               </div>
+              <div class="bc-logo-right">
+                ${logoSrc
+                  ? `<img src="${logoSrc}" alt="${b.name}" onerror="this.style.display='none'"/>`
+                  : `<div class="bc-logo-right-emoji">${b.emoji||"🫧"}</div>`}
+              </div>
+              <div class="bc-bot-line"></div>
             </button>`;
         }).join("");
     return`
