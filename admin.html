@@ -3,262 +3,299 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>SkinMart Admin</title>
+  <title>HENG888 Admin</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
-    :root{--bg:#f4f6f9;--white:#fff;--border:#e8eaed;--text:#1a1a2e;--muted:#888;--green:#00B900;--red:#f44336;--blue:#1565c0;--orange:#f57c00;--font:'Prompt',sans-serif;}
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-    html,body{background:var(--bg);overscroll-behavior:none;}
+    /* ══ TOKENS — Dark (ตรงกับ index.html) ══ */
+    :root {
+      --bg     : #0a0a0a;
+      --bg2    : #111111;
+      --bg3    : #1a1a1a;
+      --bg4    : #222222;
+      --bg5    : #2a2a2a;
+      --border : rgba(255,255,255,0.10);
+      --border2: rgba(255,255,255,0.18);
+      --text   : #f5f5f0;
+      --text2  : rgba(245,245,240,0.55);
+      --text3  : rgba(245,245,240,0.28);
+      --gold   : #d4a847;
+      --gold2  : #f0c860;
+      --gold-bg: rgba(212,168,71,0.10);
+      --gold-bd: rgba(212,168,71,0.25);
+      --red    : #e05555;
+      --red-bg : rgba(224,85,85,0.10);
+      --green  : #4caf7d;
+      --grn-bg : rgba(76,175,125,0.10);
+      --orange : #e08c30;
+      --font   : 'Prompt', sans-serif;
+      --r      : 12px;
+      --r-lg   : 18px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{background:var(--bg);overscroll-behavior:none;min-height:100vh;}
     body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;}
+    img{display:block;} button{font-family:var(--font);cursor:pointer;}
+
+    @keyframes fadeUp  {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scaleIn {from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+    @keyframes slideUp {from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin    {to{transform:rotate(360deg)}}
+    @keyframes popIn   {from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    @keyframes toastIn {from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* ══ LAYOUT ══ */
+    #root{min-height:100vh;}
     .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:32px;height:100vh;}
-    .header{background:linear-gradient(135deg,var(--green),#00952b);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,185,0,0.25);}
-    .header-left{display:flex;align-items:center;gap:10px;}
-    .header-ava{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;}
-    .header-title{color:#fff;font-weight:700;font-size:15px;}
-    .header-sub{color:rgba(255,255,255,0.75);font-size:11px;margin-top:1px;}
-    .header-badge{background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;color:#fff;font-size:11px;font-weight:600;}
-    .tabs{background:var(--white);border-bottom:1px solid var(--border);display:flex;position:sticky;top:65px;z-index:99;}
-    .tab{flex:1;padding:12px 4px;border:none;background:transparent;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;}
-    .tab.active{color:var(--green);border-bottom-color:var(--green);}
+    .spinner{width:28px;height:28px;border:2.5px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+
+    /* ══ HEADER ══ */
+    .header{
+      background:var(--bg2);
+      border-bottom:1px solid var(--border);
+      padding:16px 18px;
+      position:sticky;top:0;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .header-left{display:flex;align-items:center;gap:12px;}
+    .header-logo{font-size:20px;font-weight:800;color:var(--text);letter-spacing:2px;}
+    .header-logo span{color:var(--gold);}
+    .header-role{font-size:11px;font-weight:400;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
+    .header-badge{background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--gold);}
+
+    /* ══ TABS ══ */
+    .tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;position:sticky;top:57px;z-index:99;}
+    .tab{flex:1;padding:13px 6px;border:none;background:transparent;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .2s;}
+    .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+    /* ══ CONTENT ══ */
     .content{padding:14px;padding-bottom:80px;}
-    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-    .card-title{font-size:14px;font-weight:700;}
-    .prod-item{background:var(--white);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);display:flex;align-items:center;gap:12px;border-left:4px solid transparent;}
-    .prod-thumb{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;}
-    .prod-thumb img{width:100%;height:100%;object-fit:cover;}
-    .prod-info{flex:1;min-width:0;}
-    .prod-name{font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .prod-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;}
-    .prod-price{font-size:13px;font-weight:700;}
-    .prod-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
-    .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
-    .badge-green{background:#e8f5e9;color:#2e7d32;}
-    .badge-gray {background:#f5f5f5;color:#999;}
-    .badge-orange{background:#fff3e0;color:#e65100;}
-    .badge-red  {background:#ffebee;color:#c62828;}
-    .btn{border:none;border-radius:8px;padding:8px 14px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;justify-content:center;transition:all 0.15s;}
-    .btn:active{transform:scale(0.95);}
-    .btn-green {background:var(--green);color:#fff;}
-    .btn-blue  {background:#e3f2fd;color:var(--blue);}
-    .btn-orange{background:#fff3e0;color:var(--orange);}
-    .btn-red   {background:#ffebee;color:var(--red);}
-    .btn-gray  {background:#f5f5f5;color:#666;}
-    .btn-full  {width:100%;padding:13px;}
-    .btn-sm    {padding:5px 10px;font-size:11px;}
-    .btn-icon  {width:32px;height:32px;padding:0;border-radius:8px;font-size:14px;}
+
+    /* ══ CARDS ══ */
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:10px;}
+    .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .card-title{font-size:14px;font-weight:700;color:var(--text);}
+
+    /* ══ BUTTONS ══ */
+    .btn{border:none;border-radius:var(--r);padding:9px 16px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s,transform .1s;}
+    .btn:active{transform:scale(.95);}
+    .btn-gold  {background:var(--gold);color:#0a0a0a;}
+    .btn-gold:hover{background:var(--gold2);}
+    .btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2);}
+    .btn-red   {background:var(--red-bg);border:1px solid rgba(224,85,85,.25);color:var(--red);}
+    .btn-green {background:var(--grn-bg);border:1px solid rgba(76,175,125,.25);color:var(--green);}
+    .btn-gray  {background:var(--bg3);border:1px solid var(--border);color:var(--text2);}
+    .btn-full  {width:100%;padding:13px;justify-content:center;}
+    .btn-sm    {padding:6px 12px;font-size:12px;}
+    .btn-icon  {width:34px;height:34px;padding:0;justify-content:center;font-size:15px;border-radius:var(--r);}
+    .btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important;}
+
+    /* ══ FORM ══ */
     .form-group{margin-bottom:14px;}
-    .form-label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;}
-    .form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;background:#fff;}
-    .form-input:focus{border-color:var(--green);}
-    .form-textarea{resize:vertical;min-height:80px;}
+    .form-label{display:block;font-size:11px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+    .form-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+    .form-input:focus{border-color:var(--gold-bd);}
+    .form-input::placeholder{color:var(--text3);}
+    .form-textarea{resize:vertical;min-height:76px;line-height:1.6;}
     .form-select{appearance:none;}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .toggle-wrap{display:flex;align-items:center;justify-content:space-between;background:#f8f8f8;border-radius:10px;padding:10px 14px;}
-    .toggle{width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;border:none;flex-shrink:0;transition:background 0.2s;}
-    .toggle-knob{position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);transition:left 0.2s;}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
-    .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:20px 18px 40px;animation:slideModal 0.3s ease;}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-    .modal-title{font-size:16px;font-weight:800;}
-    .modal-close{background:#f5f5f5;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px;}
-    @keyframes slideModal{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
-    .confirm-box{background:#fff;border-radius:16px;width:100%;max-width:320px;padding:24px 20px;animation:popIn 0.2s ease;}
-    @keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-    .confirm-icon{font-size:40px;text-align:center;margin-bottom:12px;}
-    .confirm-title{font-size:16px;font-weight:800;text-align:center;margin-bottom:8px;}
-    .confirm-desc{font-size:13px;color:var(--muted);text-align:center;line-height:1.7;margin-bottom:20px;white-space:pre-line;}
-    .confirm-actions{display:flex;gap:10px;}
-    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);border-radius:28px;padding:10px 24px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);white-space:nowrap;animation:toastIn 0.3s ease;pointer-events:none;}
-    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-    .spinner{width:20px;height:20px;border:2px solid #eee;border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .alert-bar{background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:13px;color:#e65100;}
-    .brand-card-admin{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
-    .brand-card-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
-    .brand-card-info{display:flex;align-items:center;gap:12px;}
-    .brand-emoji-box{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
-    .order-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
-    .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-    .order-id{font-weight:800;color:var(--green);font-size:14px;}
-    .order-meta{font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.7;}
-    .order-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px;margin-top:8px;}
-    .order-total{font-weight:800;font-size:15px;color:var(--blue);}
+
+    /* ══ TOGGLE ══ */
+    .toggle-wrap{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;}
+    .toggle-info{} .toggle-lbl{font-size:13px;font-weight:600;color:var(--text);}
+    .toggle-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+    .toggle{width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;border:none;flex-shrink:0;transition:background .2s;}
+    .toggle-knob{position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .2s;}
+
+    /* ══ PRODUCT ITEM ══ */
+    .prod-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;border-left:3px solid transparent;}
+    .prod-thumb{width:52px;height:52px;border-radius:var(--r);object-fit:cover;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;}
+    .prod-thumb img{width:100%;height:100%;object-fit:cover;}
+    .prod-info{flex:1;min-width:0;}
+    .prod-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .prod-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;}
+    .prod-price{font-size:13px;font-weight:700;color:var(--gold);}
+    .prod-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+
+    /* ══ BADGE ══ */
+    .badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+    .badge-green{background:var(--grn-bg);color:var(--green);border:1px solid rgba(76,175,125,.2);}
+    .badge-gray {background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+    .badge-red  {background:var(--red-bg);color:var(--red);border:1px solid rgba(224,85,85,.2);}
+    .badge-gold {background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd);}
+
+    /* ══ BRAND CARD ADMIN ══ */
+    .brand-admin{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:10px;}
+    .brand-admin-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+    .brand-admin-info{display:flex;align-items:center;gap:12px;}
+    .brand-logo-thumb{width:48px;height:48px;border-radius:var(--r);overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border);flex-shrink:0;}
+    .brand-logo-thumb img{width:100%;height:100%;object-fit:cover;}
+    .brand-admin-name{font-size:16px;font-weight:700;color:var(--text);}
+    .brand-admin-sub {font-size:11px;color:var(--text3);margin-top:2px;}
+    .brand-admin-body{padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px;}
+
+    /* ══ ORDER CARD ══ */
+    .order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:8px;}
+    .order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .order-id  {font-size:14px;font-weight:800;color:var(--gold);}
+    .order-meta{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.7;}
+    .order-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px;margin-top:8px;}
+    .order-total{font-size:16px;font-weight:700;color:var(--gold);}
+
+    /* ══ STAT ══ */
     .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-    .stat-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
-    .stat-val{font-size:20px;font-weight:800;margin-top:4px;}
-    .stat-label{font-size:11px;color:var(--muted);}
-    .empty{text-align:center;padding:40px 20px;color:var(--muted);}
-    .empty-icon{font-size:48px;margin-bottom:12px;}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;}
+    .stat-ico  {font-size:22px;margin-bottom:6px;}
+    .stat-val  {font-size:22px;font-weight:800;color:var(--text);margin-bottom:2px;}
+    .stat-lbl  {font-size:11px;color:var(--text3);font-weight:400;}
+
+    /* ══ ALERT ══ */
+    .alert{background:rgba(224,140,48,.08);border:1px solid rgba(224,140,48,.2);border-radius:var(--r);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--orange);}
+
+    /* ══ MODAL ══ */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+    .modal{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:20px 18px 40px;animation:slideUp .3s ease;border-top:1px solid var(--border);}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+    .modal-title{font-size:16px;font-weight:800;color:var(--text);}
+    .modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;}
+
+    /* ══ CONFIRM ══ */
+    .confirm-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .confirm-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);width:100%;max-width:320px;padding:24px 20px;animation:popIn .2s ease;}
+    .confirm-ico{font-size:38px;text-align:center;margin-bottom:12px;}
+    .confirm-ttl{font-size:16px;font-weight:800;text-align:center;margin-bottom:8px;color:var(--text);}
+    .confirm-dsc{font-size:13px;color:var(--text2);text-align:center;line-height:1.7;margin-bottom:20px;white-space:pre-line;}
+    .confirm-row{display:flex;gap:10px;}
+
+    /* ══ TOAST ══ */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);border-radius:28px;padding:10px 24px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap;animation:toastIn .3s ease;pointer-events:none;}
+
+    /* ══ LOGO UPLOAD ══ */
+    .logo-upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r-lg);padding:24px;cursor:pointer;text-align:center;background:var(--bg3);transition:border-color .2s;}
+    .logo-upload-zone:hover{border-color:var(--gold-bd);}
+    .logo-upload-ico{font-size:28px;margin-bottom:8px;}
+    .logo-upload-txt{font-size:13px;font-weight:500;color:var(--text2);}
+    .logo-upload-hint{font-size:11px;color:var(--text3);margin-top:4px;}
+    .logo-preview-wrap{position:relative;width:100px;height:100px;}
+    .logo-preview-img{width:100px;height:100px;border-radius:var(--r-lg);object-fit:cover;border:1px solid var(--border);}
+    .logo-preview-change{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;cursor:pointer;border:none;}
+
+    /* ══ PROD IMAGE ══ */
+    .prod-img-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:20px;cursor:pointer;text-align:center;background:var(--bg3);transition:border-color .2s;}
+    .prod-img-zone:hover{border-color:var(--gold-bd);}
+    .prod-img-preview{position:relative;width:90px;height:90px;}
+    .prod-img-preview img{width:90px;height:90px;border-radius:var(--r);object-fit:cover;border:1px solid var(--border);}
+    .prod-img-preview-btn{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer;border:none;}
+
+    /* ══ EMPTY ══ */
+    .empty{text-align:center;padding:40px 20px;color:var(--text3);}
+
+    /* ══ LOGIN ══ */
+    .login-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;background:var(--bg);}
+    .login-logo{font-size:36px;font-weight:800;color:var(--text);letter-spacing:3px;}
+    .login-logo span{color:var(--gold);}
+    .login-sub{font-size:13px;color:var(--text3);text-align:center;line-height:1.7;}
+    .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;width:100%;max-width:360px;}
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="module">
-  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
-           addDoc, collection, getDocs, query, where,
-           serverTimestamp, increment }
-    from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-  // ══════════════════════════════════════════
-  //  ⚙️  CONFIG
-  // ══════════════════════════════════════════
-  const FIREBASE_CONFIG = {
-    apiKey           : "AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",
-    authDomain       : "shop-th.firebaseapp.com",
-    projectId        : "shop-th",
-    storageBucket    : "shop-th.firebasestorage.app",
-    messagingSenderId: "407059998090",
-    appId            : "1:407059998090:web:e008bcb4042e574eb7d473",
-  };
-  const SHOP_ID         = "shop_001";
-  const ADMIN_CHAT_ID   = "7234688831";
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGJhJous-opXRgprkwO3TlP1MkOPpb-7pgfmq_f0YcWR-88rBiXjXtIDQ41SHprEFV/exec";
+  /* ══ CONFIG ══ */
+  const FC={apiKey:"AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",authDomain:"shop-th.firebaseapp.com",projectId:"shop-th",storageBucket:"shop-th.firebasestorage.app",messagingSenderId:"407059998090",appId:"1:407059998090:web:e008bcb4042e574eb7d473"};
+  const SHOP="shop_001";
+  const ADMIN_ID="7234688831";
+  const app=initializeApp(FC);const db=getFirestore(app);
+  const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
+  if(tg)tg.expand();
+  const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
 
-  const app     = initializeApp(FIREBASE_CONFIG);
-  const db      = getFirestore(app);
-  const tg      = window.Telegram?.WebApp;
-  const TG_USER = tg?.initDataUnsafe?.user || null;
-  if (tg) tg.expand();
-
-  // ══════════════════════════════════════════
-  //  🔢  UTILS
-  // ══════════════════════════════════════════
-  const fmt = n => "฿" + Number(n).toLocaleString("th-TH");
-  let toastTimer = null;
-
-  function toast(msg, type="success") {
-    document.querySelector(".toast")?.remove();
-    if (toastTimer) clearTimeout(toastTimer);
-    const t = document.createElement("div");
-    t.className = "toast";
-    t.textContent = msg;
-    t.style.background = type==="success"?"#00B900":type==="error"?"#f44336":"#f57c00";
-    t.style.color = "#fff";
-    document.body.appendChild(t);
-    toastTimer = setTimeout(() => t.remove(), 2500);
-  }
-
-  // ══════════════════════════════════════════
-  //  🔐  AUTH
-  // ══════════════════════════════════════════
-  let ADMIN = null;
-
-  async function checkAuth() {
-    // เปิดจาก Telegram — อ่าน Chat ID อัตโนมัติ
-    if (TG_USER) {
-      const chatId = String(TG_USER.id);
-      const snap   = await getDoc(doc(db, "admins", chatId));
-      if (snap.exists() && snap.data().active) {
-        ADMIN = snap.data();
-        return true;
-      }
-      // ถ้าไม่มีใน admins collection ให้เช็ค ADMIN_CHAT_ID โดยตรง
-      if (chatId === ADMIN_CHAT_ID) {
-        ADMIN = { chatId, name: TG_USER.first_name || "แอดมิน", role: "superadmin" };
-        return true;
-      }
+  /* ══ AUTH ══ */
+  let ADMIN=null;
+  async function checkAuth(){
+    if(U){
+      const cid=String(U.id);
+      const snap=await getDoc(doc(db,"admins",cid));
+      if(snap.exists()&&snap.data().active){ADMIN=snap.data();return true;}
+      if(cid===ADMIN_ID){ADMIN={chatId:cid,name:U.first_name||"Admin",role:"superadmin"};return true;}
       return false;
     }
-    // เปิดจากเบราว์เซอร์ปกติ — แสดงหน้า login
     return "browser";
   }
 
-  // ══════════════════════════════════════════
-  //  🔥  FIREBASE
-  // ══════════════════════════════════════════
-  async function loadBrands() {
-    const snap = await getDocs(collection(db, "shops", SHOP_ID, "brands"));
-    return snap.docs.map(d => ({ docId:d.id, ...d.data() }));
+  /* ══ FIREBASE SERVICES ══ */
+  async function loadBrands(){const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({docId:d.id,...d.data()}));}
+  async function loadProducts(){const s=await getDocs(collection(db,"shops",SHOP,"products"));return s.docs.map(d=>({docId:d.id,...d.data()})).sort((a,b)=>(a.brand||"").localeCompare(b.brand||""));}
+  async function loadOrders(){const s=await getDocs(collection(db,"orders"));return s.docs.map(d=>({docId:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));}
+  async function saveProd(data,docId){const ref=docId?doc(db,"shops",SHOP,"products",docId):doc(db,"shops",SHOP,"products",data.id||Date.now().toString());await setDoc(ref,data,{merge:true});}
+  async function delProd(docId){await deleteDoc(doc(db,"shops",SHOP,"products",docId));}
+  async function saveBrand(data,docId){const ref=docId?doc(db,"shops",SHOP,"brands",docId):doc(db,"shops",SHOP,"brands",data.key||Date.now().toString());await setDoc(ref,data,{merge:true});}
+  async function delBrand(docId){await deleteDoc(doc(db,"shops",SHOP,"brands",docId));}
+  async function updateOrder(docId,status){await updateDoc(doc(db,"orders",docId),{status});}
+
+  /* ══ IMAGE PROCESSING ══ */
+  function cropCompress(file,size=600,quality=0.78){
+    return new Promise((res,rej)=>{
+      const r=new FileReader();r.onerror=rej;
+      r.onload=ev=>{
+        const img=new Image();img.onerror=rej;
+        img.onload=()=>{
+          try{
+            const s=Math.min(img.width,img.height);
+            const sx=(img.width-s)/2;const sy=(img.height-s)/2;
+            const c=document.createElement("canvas");c.width=size;c.height=size;
+            const ctx=c.getContext("2d");
+            ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,size,size);
+            ctx.drawImage(img,sx,sy,s,s,0,0,size,size);
+            const b64=c.toDataURL("image/jpeg",quality);
+            res(b64.length*0.75>200*1024?c.toDataURL("image/jpeg",0.6):b64);
+          }catch(e){rej(e);}
+        };
+        img.src=ev.target.result;
+      };
+      r.readAsDataURL(file);
+    });
   }
 
-  async function loadProducts() {
-    const snap = await getDocs(collection(db, "shops", SHOP_ID, "products"));
-    return snap.docs.map(d => ({ docId:d.id, ...d.data() }))
-      .sort((a,b) => (a.brand||"").localeCompare(b.brand||""));
+  /* ══ TOAST ══ */
+  let toastT=null;
+  function toast(msg,type="success"){
+    document.querySelector(".toast")?.remove();
+    if(toastT)clearTimeout(toastT);
+    const t=document.createElement("div");t.className="toast";t.textContent=msg;
+    t.style.background=type==="success"?"#d4a847":type==="error"?"#e05555":"#e08c30";
+    t.style.color=type==="success"?"#0a0a0a":"#fff";
+    document.body.appendChild(t);
+    toastT=setTimeout(()=>t.remove(),2500);
   }
 
-  async function loadOrders() {
-    const snap = await getDocs(collection(db, "orders"));
-    return snap.docs.map(d => ({ docId:d.id, ...d.data() }))
-      .sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-  }
+  /* ══ STATE ══ */
+  let S={view:"loading",tab:"products",brands:[],products:[],orders:[],modal:null,mdata:{},confirm:null,browserChatId:""};
+  const set=p=>{S={...S,...p};render();};
 
-  async function saveProd(data, docId) {
-    const ref = docId
-      ? doc(db, "shops", SHOP_ID, "products", docId)
-      : doc(db, "shops", SHOP_ID, "products", data.id || Date.now().toString());
-    await setDoc(ref, data, { merge:true });
-  }
+  async function loadAll(){const[b,p,o]=await Promise.all([loadBrands(),loadProducts(),loadOrders()]);S.brands=b;S.products=p;S.orders=o;}
 
-  async function delProd(docId) {
-    await deleteDoc(doc(db, "shops", SHOP_ID, "products", docId));
-  }
-
-  async function saveBrand(data, docId) {
-    const ref = docId
-      ? doc(db, "shops", SHOP_ID, "brands", docId)
-      : doc(db, "shops", SHOP_ID, "brands", data.key || Date.now().toString());
-    await setDoc(ref, data, { merge:true });
-  }
-
-  async function delBrand(docId) {
-    await deleteDoc(doc(db, "shops", SHOP_ID, "brands", docId));
-  }
-
-  async function updateOrder(docId, status, chatId) {
-    await updateDoc(doc(db, "orders", docId), { status });
-    // แจ้ง Apps Script ให้ส่งข้อความกลับลูกค้า
-    try {
-      await fetch(APPS_SCRIPT_URL, {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ action:"order_status", orderId:docId, status, chatId }),
-      });
-    } catch(e) { console.error(e); }
-  }
-
-  // ══════════════════════════════════════════
-  //  🎮  STATE
-  // ══════════════════════════════════════════
-  let S = {
-    view:"loading", tab:"products",
-    brands:[], products:[], orders:[],
-    modal:null, modalData:{}, confirm:null,
-    browserChatId:"",
-  };
-
-  function setState(patch) { S={...S,...patch}; render(); }
-
-  async function loadAll() {
-    const [brands,products,orders] = await Promise.all([loadBrands(),loadProducts(),loadOrders()]);
-    S.brands=brands; S.products=products; S.orders=orders;
-  }
-
-  // ══════════════════════════════════════════
-  //  📺  RENDER
-  // ══════════════════════════════════════════
-  function render() {
-    const root = document.getElementById("root");
-    if (S.view==="loading") { root.innerHTML=`<div class="center"><div class="spinner" style="width:36px;height:36px;border-width:3px"></div><div style="color:#888;font-size:13px;margin-top:8px">กำลังโหลด...</div></div>`; return; }
-    if (S.view==="denied")  { root.innerHTML=`<div class="center"><div style="font-size:56px">🔒</div><div style="font-size:18px;font-weight:800">ไม่มีสิทธิ์เข้าใช้งาน</div><div style="font-size:13px;color:#888">กรุณาเปิดผ่าน Telegram Bot ค่ะ<br>หรือติดต่อผู้ดูแลระบบ</div></div>`; return; }
-    if (S.view==="browser") { root.innerHTML=browserLoginHTML(); bindBrowserLogin(); return; }
-
-    let content = "";
-    if (S.tab==="products") content = prodsTab();
-    if (S.tab==="brands")   content = brandsTab();
-    if (S.tab==="orders")   content = ordersTab();
-    if (S.tab==="stats")    content = statsTab();
-
-    root.innerHTML = `
+  /* ══ RENDER ══ */
+  function render(){
+    const r=document.getElementById("root");
+    if(S.view==="loading"){r.innerHTML=`<div class="center"><div class="spinner"></div><div style="color:var(--text3);font-size:13px;margin-top:8px">กำลังโหลด...</div></div>`;return;}
+    if(S.view==="denied"){r.innerHTML=`<div class="center"><div style="font-size:48px">🔒</div><div style="font-size:18px;font-weight:800;color:var(--text)">ไม่มีสิทธิ์เข้าใช้งาน</div><div style="font-size:13px;color:var(--text3)">กรุณาเปิดผ่าน Telegram Bot ครับ</div></div>`;return;}
+    if(S.view==="browser"){r.innerHTML=browserHTML();bindBrowser();return;}
+    let content="";
+    if(S.tab==="products")content=tabProds();
+    if(S.tab==="brands")  content=tabBrands();
+    if(S.tab==="orders")  content=tabOrders();
+    if(S.tab==="stats")   content=tabStats();
+    r.innerHTML=`
       <div class="header">
         <div class="header-left">
-          <div class="header-ava">⚙️</div>
           <div>
-            <div class="header-title">SkinMart Admin</div>
-            <div class="header-sub">${ADMIN?.name || TG_USER?.first_name || "แอดมิน"}</div>
+            <div class="header-logo">HENG<span>888</span></div>
+            <div class="header-role">${ADMIN?.name||U?.first_name||"Admin"}</div>
           </div>
         </div>
         <div class="header-badge">${S.products.length} SKU</div>
@@ -270,295 +307,307 @@
         <button class="tab ${S.tab==="stats"?"active":""}"    data-tab="stats">📊 ภาพรวม</button>
       </div>
       <div class="content">${content}</div>
-      ${S.modal   ? modalHTML()   : ""}
-      ${S.confirm ? confirmHTML() : ""}`;
-
+      ${S.modal?modalHTML():""}
+      ${S.confirm?confirmHTML():""}`;
     bindMain();
-    if (S.modal)   bindModal();
-    if (S.confirm) bindConfirm();
+    if(S.modal)bindModal();
+    if(S.confirm)bindConfirm();
   }
 
-  // ══════════════════════════════════════════
-  //  🖼️  BROWSER LOGIN
-  // ══════════════════════════════════════════
-  const browserLoginHTML = () => `
-    <div class="center" style="background:linear-gradient(135deg,#f0fff4,#e8f5e9);min-height:100vh">
-      <div style="font-size:64px">🔐</div>
-      <div style="font-size:22px;font-weight:800">SkinMart Admin</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.7">กรอก Chat ID ของคุณ<br>เพื่อเข้าใช้งานค่ะ</div>
-      <div style="background:#fff;border-radius:16px;padding:20px;width:100%;max-width:360px;box-shadow:0 4px 20px rgba(0,0,0,0.08)">
-        <label style="display:block;font-size:11px;font-weight:700;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Chat ID ของคุณ</label>
-        <input class="form-input" id="chatid-in" type="number" placeholder="เช่น 7234688831" style="margin-bottom:12px"/>
-        <button class="btn btn-green btn-full" id="do-login">✅ เข้าสู่ระบบ</button>
-        <div style="font-size:11px;color:#aaa;text-align:center;margin-top:10px">หรือเปิดผ่านปุ่ม /admin ใน Telegram Bot</div>
+  /* ══ BROWSER LOGIN ══ */
+  const browserHTML=()=>`
+    <div class="login-wrap">
+      <div class="login-logo">HENG<span>888</span></div>
+      <div class="login-sub">กรอก Chat ID เพื่อเข้าใช้งานครับ<br>หรือเปิดผ่านปุ่ม /admin ใน Telegram</div>
+      <div class="login-box">
+        <div class="form-group">
+          <label class="form-label">Chat ID</label>
+          <input class="form-input" id="cid-in" type="number" placeholder="เช่น 123456789"/>
+        </div>
+        <button class="btn btn-gold btn-full" id="do-login">เข้าสู่ระบบ</button>
       </div>
     </div>`;
+  function bindBrowser(){
+    document.getElementById("do-login")?.addEventListener("click",async()=>{
+      const cid=document.getElementById("cid-in")?.value.trim();
+      if(!cid)return toast("กรุณากรอก Chat ID ครับ","error");
+      set({view:"loading"});
+      const snap=await getDoc(doc(db,"admins",cid));
+      if((snap.exists()&&snap.data().active)||cid===ADMIN_ID){
+        ADMIN={chatId:cid,name:"Admin",role:cid===ADMIN_ID?"superadmin":"admin"};
+        await loadAll();set({view:"main"});toast("✅ เข้าสู่ระบบแล้วครับ");
+      }else{set({view:"browser"});toast("ไม่พบ Chat ID นี้ในระบบครับ","error");}
+    });
+  }
 
-  // ══════════════════════════════════════════
-  //  📦  PRODUCTS TAB
-  // ══════════════════════════════════════════
-  function prodsTab() {
-    const low = S.products.filter(p=>(p.stock||0)<=10&&p.active);
-    const html = S.products.map(p => {
-      const b = S.brands.find(x=>x.key===p.brand);
-      return `
-        <div class="prod-item" style="border-left-color:${p.active?(b?.color||"#ccc"):"#e0e0e0"};opacity:${p.active?1:0.6}">
-          <div class="prod-thumb" style="background:${b?.color}18">
-            ${p.imageUrl?`<img src="${p.imageUrl}" onerror="this.style.display='none'"/>`:(b?.emoji||"📦")}
+  /* ══ TAB: PRODUCTS ══ */
+  function tabProds(){
+    const low=S.products.filter(p=>(p.stock||0)<=10&&p.active);
+    const html=S.products.map(p=>{
+      const b=S.brands.find(x=>x.key===p.brand);
+      const color=p.active?"var(--gold)":"var(--border)";
+      return`
+        <div class="prod-item" style="border-left-color:${color}">
+          <div class="prod-thumb">
+            ${p.imageUrl?`<img src="${p.imageUrl}" onerror="this.style.display='none'"/>`:b?.emoji||"📦"}
           </div>
           <div class="prod-info">
             <div class="prod-name">${p.name}</div>
             <div class="prod-meta">
-              ${b?`<span class="badge" style="background:${b.color}15;color:${b.color}">${b.emoji} ${b.name}</span>`:""}
-              ${p.active?`<span class="badge badge-green">แสดง</span>`:`<span class="badge badge-gray">ซ่อน</span>`}
-              ${(p.stock||0)<=5?`<span class="badge badge-red">⚠️${p.stock||0}</span>`:(p.stock||0)<=10?`<span class="badge badge-orange">📦${p.stock||0}</span>`:`<span style="font-size:11px;color:#aaa">📦${p.stock||0}</span>`}
+              <span class="badge badge-gold">${b?.name||p.brand}</span>
+              <span class="badge ${p.active?"badge-green":"badge-gray"}">${p.active?"แสดง":"ซ่อน"}</span>
+              <span class="badge ${(p.stock||0)<=5?"badge-red":(p.stock||0)<=10?"badge-gold":"badge-gray"}">📦 ${p.stock||0}</span>
             </div>
-            <div class="prod-price" style="color:${b?.color||"#333"}">${fmt(p.price)}</div>
+            <div class="prod-price">${fmt(p.price)}</div>
           </div>
           <div class="prod-actions">
-            <button class="btn btn-blue btn-icon" data-ep="${p.docId}" title="แก้ไข">✏️</button>
-            <button class="btn btn-orange btn-icon" data-sp="${p.docId}" title="สต็อก">📦</button>
-            <button class="btn ${p.active?"btn-gray":"btn-green"} btn-icon" data-tp="${p.docId}" data-ta="${p.active}" title="${p.active?"ซ่อน":"แสดง"}">${p.active?"👁️":"👁"}</button>
-            <button class="btn btn-red btn-icon" data-dp="${p.docId}" data-dn="${p.name}" title="ลบ">🗑️</button>
+            <button class="btn btn-outline btn-icon btn-sm" data-ep="${p.docId}" title="แก้ไข">✏️</button>
+            <button class="btn btn-gray btn-icon btn-sm" data-sp="${p.docId}" title="สต็อก">📦</button>
+            <button class="btn ${p.active?"btn-gray":"btn-green"} btn-icon btn-sm" data-tp="${p.docId}" data-ta="${p.active}">${p.active?"👁":"✓"}</button>
+            <button class="btn btn-red btn-icon btn-sm" data-dp="${p.docId}" data-dn="${p.name}">🗑️</button>
           </div>
         </div>`;
-    }).join("") || `<div class="empty"><div class="empty-icon">📦</div><div>ยังไม่มีสินค้าค่ะ</div></div>`;
-    return `
-      ${low.length>0?`<div class="alert-bar">⚠️ สินค้าสต็อกต่ำ ${low.length} รายการ (≤10 ชิ้น)</div>`:""}
-      <div class="card-header">
+    }).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">📦</div><div>ยังไม่มีสินค้าครับ</div></div>`;
+    return`
+      ${low.length>0?`<div class="alert">⚠️ สินค้าสต็อกต่ำ ${low.length} รายการ (≤10 ชิ้น)</div>`:""}
+      <div class="card-head">
         <div class="card-title">สินค้าทั้งหมด (${S.products.length})</div>
-        <button class="btn btn-green" id="add-prod">➕ เพิ่มสินค้า</button>
+        <button class="btn btn-gold" id="add-prod">+ เพิ่มสินค้า</button>
       </div>
       ${html}`;
   }
 
-  // ══════════════════════════════════════════
-  //  🏷️  BRANDS TAB
-  // ══════════════════════════════════════════
-  function brandsTab() {
-    const html = S.brands.map(b => {
-      const cnt = S.products.filter(p=>p.brand===b.key).length;
-      return `
-        <div class="brand-card-admin">
-          <div class="brand-card-header" style="background:linear-gradient(135deg,${b.color}20,${b.color}08)">
-            <div class="brand-card-info">
-              <div class="brand-emoji-box" style="background:${b.color}25">${b.emoji}</div>
+  /* ══ TAB: BRANDS ══ */
+  function tabBrands(){
+    const html=S.brands.map(b=>{
+      const cnt=S.products.filter(p=>p.brand===b.key).length;
+      return`
+        <div class="brand-admin">
+          <div class="brand-admin-head">
+            <div class="brand-admin-info">
+              <div class="brand-logo-thumb">
+                ${b.logoUrl?`<img src="${b.logoUrl}" alt="${b.name}" onerror="this.style.display='none'"/>`:b.emoji||"🫧"}
+              </div>
               <div>
-                <div style="font-weight:700;font-size:15px;color:${b.color}">${b.name}</div>
-                <div style="font-size:12px;color:#888">${cnt} SKU • ${b.desc||""}</div>
+                <div class="brand-admin-name">${b.name}</div>
+                <div class="brand-admin-sub">${cnt} SKU · ${b.desc||""}</div>
               </div>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="btn btn-blue btn-sm" data-eb="${b.docId}">✏️ แก้ไข</button>
+              <button class="btn btn-outline btn-sm" data-eb="${b.docId}">✏️ แก้ไข</button>
               <button class="btn btn-red btn-sm" data-db="${b.docId}" data-dbn="${b.name}">🗑️</button>
             </div>
           </div>
-          <div style="padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px">
-            ${S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>`<span class="badge" style="background:${b.color}12;color:${b.color}">${p.name}</span>`).join("")}
-            ${cnt>4?`<span class="badge badge-gray">+${cnt-4}</span>`:""}
-            ${cnt===0?`<span style="font-size:12px;color:#ccc">ยังไม่มีสินค้า</span>`:""}
+          <div class="brand-admin-body">
+            ${S.products.filter(p=>p.brand===b.key).slice(0,4).map(p=>`<span class="badge badge-gray">${p.name}</span>`).join("")}
+            ${cnt>4?`<span class="badge badge-gold">+${cnt-4}</span>`:""}
+            ${cnt===0?`<span style="font-size:12px;color:var(--text3)">ยังไม่มีสินค้า</span>`:""}
           </div>
         </div>`;
-    }).join("") || `<div class="empty"><div class="empty-icon">🏷️</div><div>ยังไม่มีแบรนด์ค่ะ</div></div>`;
-    return `
-      <div class="card-header">
+    }).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">🏷️</div><div>ยังไม่มีแบรนด์ครับ</div></div>`;
+    return`
+      <div class="card-head">
         <div class="card-title">แบรนด์ (${S.brands.length})</div>
-        <button class="btn btn-green" id="add-brand">➕ เพิ่มแบรนด์</button>
+        <button class="btn btn-gold" id="add-brand">+ เพิ่มแบรนด์</button>
       </div>
       ${html}`;
   }
 
-  // ══════════════════════════════════════════
-  //  📋  ORDERS TAB
-  // ══════════════════════════════════════════
-  function ordersTab() {
-    const html = S.orders.map(o => `
+  /* ══ TAB: ORDERS ══ */
+  function tabOrders(){
+    const html=S.orders.map(o=>`
       <div class="order-card">
-        <div class="order-header">
+        <div class="order-head">
           <span class="order-id">${o.orderId||o.docId}</span>
-          <span class="badge ${o.status==="ยืนยันแล้ว"?"badge-green":o.status==="ปฏิเสธ"?"badge-red":"badge-orange"}">${o.status||"รอตรวจสอบ"}</span>
+          <span class="badge ${o.status==="ยืนยันแล้ว"?"badge-green":o.status==="ปฏิเสธ"?"badge-red":"badge-gold"}">${o.status||"รอตรวจสอบ"}</span>
         </div>
         <div class="order-meta">
           👤 ${o.customerName||""} ${o.username?"@"+o.username:""}<br>
+          📞 ${o.phone||"-"}<br>
           🛍️ ${(o.items||[]).map(i=>`${i.name} ×${i.qty}`).join(", ")}
         </div>
-        <div class="order-footer">
+        <div class="order-foot">
           <div class="order-total">${fmt(o.total||0)}</div>
           ${(!o.status||o.status==="รอตรวจสอบ")?`
             <div style="display:flex;gap:8px">
-              <button class="btn btn-green btn-sm" data-co="${o.docId}" data-cid="${o.chatId}">✅ ยืนยัน</button>
-              <button class="btn btn-red btn-sm" data-ro="${o.docId}" data-rid="${o.chatId}">❌ ปฏิเสธ</button>
+              <button class="btn btn-green btn-sm" data-co="${o.docId}">✅ ยืนยัน</button>
+              <button class="btn btn-red btn-sm"   data-ro="${o.docId}">❌ ปฏิเสธ</button>
             </div>`:""}
         </div>
-      </div>`).join("") || `<div class="empty"><div class="empty-icon">📋</div><div>ยังไม่มีออเดอร์ค่ะ</div></div>`;
-    return `
-      <div class="card-header">
-        <div class="card-title">ออเดอร์ทั้งหมด (${S.orders.length})</div>
+      </div>`).join("")||`<div class="empty"><div style="font-size:40px;margin-bottom:10px">📋</div><div>ยังไม่มีออเดอร์ครับ</div></div>`;
+    return`
+      <div class="card-head">
+        <div class="card-title">ออเดอร์ (${S.orders.length})</div>
         <button class="btn btn-gray btn-sm" id="refresh-orders">🔄 รีเฟรช</button>
       </div>
       ${html}`;
   }
 
-  // ══════════════════════════════════════════
-  //  📊  STATS TAB
-  // ══════════════════════════════════════════
-  function statsTab() {
-    const totalSKU  = S.products.length;
-    const activeSKU = S.products.filter(p=>p.active).length;
-    const lowStock  = S.products.filter(p=>(p.stock||0)<=10).length;
-    const totalVal  = S.products.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
-    const confirmed = S.orders.filter(o=>o.status==="ยืนยันแล้ว").length;
-    const revenue   = S.orders.filter(o=>o.status==="ยืนยันแล้ว").reduce((s,o)=>s+(o.total||0),0);
-    return `
+  /* ══ TAB: STATS ══ */
+  function tabStats(){
+    const active=S.products.filter(p=>p.active).length;
+    const low   =S.products.filter(p=>(p.stock||0)<=10).length;
+    const val   =S.products.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
+    const conf  =S.orders.filter(o=>o.status==="ยืนยันแล้ว").length;
+    const rev   =S.orders.filter(o=>o.status==="ยืนยันแล้ว").reduce((s,o)=>s+(o.total||0),0);
+    return`
       <div class="stat-grid">
-        ${[
-          ["📦",totalSKU,"SKU ทั้งหมด","#1565c0"],
-          ["✅",activeSKU,"SKU แสดง","#00B900"],
-          ["⚠️",lowStock+" รายการ","สต็อกต่ำ","#f57c00"],
-          ["💰",fmt(totalVal),"มูลค่าสต็อก","#7B1FA2"],
-          ["📋",S.orders.length,"ออเดอร์ทั้งหมด","#1565c0"],
-          ["🎉",confirmed,"ยืนยันแล้ว","#00B900"],
-          ["💵",fmt(revenue),"ยอดขาย COD","#f57c00"],
-          ["🏷️",S.brands.length,"แบรนด์","#7B1FA2"],
-        ].map(([e,v,l,c])=>`
+        ${[["📦",S.products.length,"SKU ทั้งหมด"],["✅",active,"SKU แสดง"],["⚠️",low+" รายการ","สต็อกต่ำ"],["💰",fmt(val),"มูลค่าสต็อก"],["📋",S.orders.length,"ออเดอร์"],["🎉",conf,"ยืนยันแล้ว"],["💵",fmt(rev),"ยอดขาย COD"],["🏷️",S.brands.length,"แบรนด์"]].map(([e,v,l])=>`
           <div class="stat-card">
-            <div style="font-size:20px">${e}</div>
-            <div class="stat-val" style="color:${c}">${v}</div>
-            <div class="stat-label">${l}</div>
+            <div class="stat-ico">${e}</div>
+            <div class="stat-val">${v}</div>
+            <div class="stat-lbl">${l}</div>
           </div>`).join("")}
       </div>
-      <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06)">
-        <div style="font-weight:800;font-size:14px;margin-bottom:12px">สรุปรายแบรนด์</div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px">
+        <div class="card-title" style="margin-bottom:12px">สรุปรายแบรนด์</div>
         ${S.brands.map(b=>{
           const bp=S.products.filter(p=>p.brand===b.key);
           const stk=bp.reduce((s,p)=>s+(p.stock||0),0);
-          const val=bp.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
-          return `
-            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5">
-              <span style="font-size:22px">${b.emoji}</span>
-              <div style="flex:1">
-                <div style="font-weight:700;color:${b.color}">${b.name}</div>
-                <div style="font-size:11px;color:#aaa">${bp.length} SKU • ${stk} ชิ้น</div>
+          const v=bp.reduce((s,p)=>s+(p.price*(p.stock||0)),0);
+          return`
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div class="brand-logo-thumb" style="width:38px;height:38px;border-radius:8px">
+                ${b.logoUrl?`<img src="${b.logoUrl}" alt="${b.name}" onerror="this.style.display='none'"/>`:b.emoji||"🫧"}
               </div>
-              <div style="font-weight:800;font-size:14px">${fmt(val)}</div>
+              <div style="flex:1">
+                <div style="font-weight:700;color:var(--text)">${b.name}</div>
+                <div style="font-size:11px;color:var(--text3)">${bp.length} SKU · ${stk} ชิ้น</div>
+              </div>
+              <div style="font-weight:700;color:var(--gold)">${fmt(v)}</div>
             </div>`;
         }).join("")}
       </div>`;
   }
 
-  // ══════════════════════════════════════════
-  //  🪟  MODAL HTML
-  // ══════════════════════════════════════════
-  function modalHTML() {
-    const d = S.modalData;
-    let title="", body="";
-
-    if (S.modal==="add_prod"||S.modal==="edit_prod") {
-      title = S.modal==="add_prod" ? "➕ เพิ่มสินค้าใหม่" : "✏️ แก้ไขสินค้า";
-      body = `
+  /* ══ MODAL HTML ══ */
+  function modalHTML(){
+    const d=S.mdata;let title="",body="";
+    if(S.modal==="add_prod"||S.modal==="edit_prod"){
+      title=S.modal==="add_prod"?"+ เพิ่มสินค้าใหม่":"✏️ แก้ไขสินค้า";
+      body=`
         <div class="form-group">
           <label class="form-label">แบรนด์ *</label>
           <select class="form-input form-select" id="f-brand">
-            ${S.brands.map(b=>`<option value="${b.key}" ${d.brand===b.key?"selected":""}>${b.emoji} ${b.name}</option>`).join("")}
+            ${S.brands.map(b=>`<option value="${b.key}" ${d.brand===b.key?"selected":""}>${b.name}</option>`).join("")}
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">ชื่อสินค้า *</label>
-          <input class="form-input" id="f-name" placeholder="เช่น Vitamin C Serum 30ml" value="${d.name||""}"/>
+          <input class="form-input" id="f-name" placeholder="เช่น Dior Sauvage 100ml" value="${d.name||""}"/>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">ราคา (฿) *</label>
-            <input class="form-input" id="f-price" type="number" placeholder="590" value="${d.price||""}"/>
+            <input class="form-input" id="f-price" type="number" placeholder="3500" value="${d.price||""}"/>
           </div>
           <div class="form-group">
             <label class="form-label">สต็อก (ชิ้น)</label>
-            <input class="form-input" id="f-stock" type="number" placeholder="50" value="${d.stock||""}"/>
+            <input class="form-input" id="f-stock" type="number" placeholder="20" value="${d.stock||""}"/>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">รูปสินค้า (Crop 1:1 อัตโนมัติ)</label>
-          <div id="img-wrap" style="display:flex;flex-direction:column;gap:8px">
-            ${d.imageUrl ? `<div style="position:relative;width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border)"><img id="img-preview" src="${d.imageUrl}" style="width:100%;height:100%;object-fit:cover"/><button onclick="document.getElementById('f-img-file').click()" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);border:none;color:#fff;font-size:11px;cursor:pointer">เปลี่ยน</button></div>` : `<div id="img-placeholder" style="width:100%;border:1.5px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#fafafa" onclick="document.getElementById('f-img-file').click()"><div style="font-size:28px;margin-bottom:6px">🖼️</div><div style="font-size:13px;color:#888">กดเพื่ออัปโหลดรูปสินค้า</div><div style="font-size:11px;color:#bbb;margin-top:3px">ระบบจะ Crop 1:1 และบีบอัดให้อัตโนมัติ</div></div>`}
+          <div id="prod-img-wrap">
+            ${d.imageUrl?`
+              <div class="prod-img-preview">
+                <img id="prod-img-el" src="${d.imageUrl}"/>
+                <button class="prod-img-preview-btn" onclick="document.getElementById('f-img-file').click()">เปลี่ยน</button>
+              </div>`:`
+              <div class="prod-img-zone" onclick="document.getElementById('f-img-file').click()">
+                <div style="font-size:24px;margin-bottom:6px">🖼️</div>
+                <div class="logo-upload-txt">อัปโหลดรูปสินค้า</div>
+                <div class="logo-upload-hint">Crop 1:1 · บีบอัดอัตโนมัติ</div>
+              </div>`}
             <input type="file" id="f-img-file" accept="image/*" style="display:none"/>
             <input type="hidden" id="f-img" value="${d.imageUrl||""}"/>
-            <div id="img-info" style="font-size:11px;color:#888;display:${d.imageUrl?"block":"none"}">
-              ${d.imageUrl?.startsWith("data:") ? `✅ รูป Base64 (${Math.round(d.imageUrl.length*0.75/1024)}KB)` : d.imageUrl ? "✅ URL รูปภาพ" : ""}
-            </div>
+          </div>
+          <div id="prod-img-info" style="font-size:11px;color:var(--text3);margin-top:6px">
+            ${d.imageUrl?.startsWith("data:")?`✅ ${Math.round(d.imageUrl.length*0.75/1024)} KB`:""}
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">รายละเอียด</label>
-          <textarea class="form-input form-textarea" id="f-desc" placeholder="คุณสมบัติสินค้า...">${d.description||""}</textarea>
+          <textarea class="form-input form-textarea" id="f-desc" placeholder="คุณสมบัติ กลิ่น ปริมาณ...">${d.description||""}</textarea>
         </div>
         <div class="toggle-wrap" style="margin-bottom:16px">
-          <div><div style="font-size:13px;font-weight:700">แสดงสินค้า</div><div style="font-size:11px;color:#888;margin-top:2px">ลูกค้าจะเห็นสินค้านี้</div></div>
-          <button class="toggle" id="f-toggle" style="background:${d.active!==false?"var(--green)":"#ccc"}">
+          <div class="toggle-info">
+            <div class="toggle-lbl">แสดงสินค้า</div>
+            <div class="toggle-sub">ลูกค้าจะเห็นสินค้านี้</div>
+          </div>
+          <button class="toggle" id="f-toggle" style="background:${d.active!==false?"var(--gold)":"var(--bg5)"}">
             <div class="toggle-knob" style="left:${d.active!==false?22:3}px"></div>
           </button>
         </div>
-        <button class="btn btn-green btn-full" id="save-prod">💾 บันทึก</button>`;
+        <button class="btn btn-gold btn-full" id="save-prod">💾 บันทึกสินค้า</button>`;
     }
 
-    if (S.modal==="add_brand"||S.modal==="edit_brand") {
-      title = S.modal==="add_brand" ? "➕ เพิ่มแบรนด์" : "✏️ แก้ไขแบรนด์";
-      const emojis=["🧪","✨","🌿","💎","🌸","🌺","🍃","💄","🫧","🌙","⭐","🔬"];
-      const colors=["#4ade80","#fb923c","#34d399","#c084fc","#60a5fa","#f472b6","#facc15","#2dd4bf"];
-      body = `
+    if(S.modal==="add_brand"||S.modal==="edit_brand"){
+      title=S.modal==="add_brand"?"+ เพิ่มแบรนด์":"✏️ แก้ไขแบรนด์";
+      body=`
         <div class="form-group">
           <label class="form-label">ชื่อแบรนด์ *</label>
-          <input class="form-input" id="f-bname" placeholder="เช่น SkinLab" value="${d.name||""}"/>
+          <input class="form-input" id="f-bname" placeholder="เช่น DIOR" value="${d.name||""}"/>
         </div>
         <div class="form-group">
           <label class="form-label">คำอธิบาย</label>
-          <input class="form-input" id="f-bdesc" placeholder="เช่น วิทยาศาสตร์เพื่อผิว" value="${d.desc||""}"/>
+          <input class="form-input" id="f-bdesc" placeholder="เช่น น้ำหอมแบรนด์ High-end จากฝรั่งเศส" value="${d.desc||""}"/>
         </div>
         <div class="form-group">
-          <label class="form-label">Emoji</label>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px">
-            ${emojis.map(e=>`<button class="btn ${(d.emoji||"🌸")===e?"btn-green":"btn-gray"} em-pick" data-e="${e}" style="width:40px;height:40px;font-size:20px;padding:0">${e}</button>`).join("")}
-          </div>
-          <input type="hidden" id="f-bemoji" value="${d.emoji||"🌸"}"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">สีแบรนด์</label>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-            ${colors.map(c=>`<button class="cl-pick" data-c="${c}" style="width:32px;height:32px;border-radius:50%;background:${c};border:3px solid ${(d.color||"#4ade80")===c?"#333":"transparent"};cursor:pointer;outline:none"></button>`).join("")}
-          </div>
-          <input type="color" id="f-bcolor" value="${d.color||"#4ade80"}" style="width:40px;height:32px;border:none;border-radius:8px;cursor:pointer"/>
-        </div>
-        <div style="background:#f8f8f8;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">
-          <div style="font-size:11px;color:#aaa;margin-bottom:8px">PREVIEW</div>
-          <div id="bprev" style="display:inline-flex;align-items:center;gap:10px;background:#fff;border:2px solid ${d.color||"#4ade80"};border-radius:14px;padding:10px 18px">
-            <span id="bprev-e" style="font-size:24px">${d.emoji||"🌸"}</span>
-            <span id="bprev-n" style="font-weight:700;color:${d.color||"#4ade80"};font-size:15px">${d.name||"ชื่อแบรนด์"}</span>
+          <label class="form-label">Logo แบรนด์ (Crop 1:1 อัตโนมัติ)</label>
+          <div id="logo-wrap" style="display:flex;flex-direction:column;gap:10px">
+            ${d.logoUrl?`
+              <div class="logo-preview-wrap">
+                <img class="logo-preview-img" id="logo-preview" src="${d.logoUrl}"/>
+                <button class="logo-preview-change" onclick="document.getElementById('f-logo-file').click()">เปลี่ยน Logo</button>
+              </div>
+              <div id="logo-info" style="font-size:11px;color:var(--green)">✅ ${Math.round(d.logoUrl.length*0.75/1024)} KB</div>`:`
+              <div class="logo-upload-zone" onclick="document.getElementById('f-logo-file').click()">
+                <div class="logo-upload-ico">🖼️</div>
+                <div class="logo-upload-txt">อัปโหลด Logo แบรนด์</div>
+                <div class="logo-upload-hint">Crop 1:1 · บีบอัดอัตโนมัติ · รองรับ JPG, PNG</div>
+              </div>`}
+            <input type="file" id="f-logo-file" accept="image/*" style="display:none"/>
+            <input type="hidden" id="f-logo" value="${d.logoUrl||""}"/>
           </div>
         </div>
-        <button class="btn btn-green btn-full" id="save-brand">💾 บันทึก</button>`;
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:16px">
+          <div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Preview</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div id="prev-logo" style="width:48px;height:48px;border-radius:var(--r);background:var(--bg4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:22px">
+              ${d.logoUrl?`<img src="${d.logoUrl}" style="width:100%;height:100%;object-fit:cover"/>`:"🫧"}
+            </div>
+            <div>
+              <div id="prev-name" style="font-size:16px;font-weight:800;color:var(--text)">${d.name||"ชื่อแบรนด์"}</div>
+              <div id="prev-desc" style="font-size:11px;color:var(--text3)">${d.desc||"คำอธิบาย"}</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-gold btn-full" id="save-brand">💾 บันทึกแบรนด์</button>`;
     }
 
-    if (S.modal==="stock") {
-      const p = S.products.find(x=>x.docId===d.docId);
-      title = "📦 ปรับสต็อก";
-      body = `
-        <div style="background:#f8f8f8;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px">
-          <div style="font-size:12px;color:#888;margin-bottom:4px">${p?.name}</div>
-          <div style="font-size:32px;font-weight:800">${p?.stock||0} <span style="font-size:14px;color:#aaa">ชิ้น</span></div>
+    if(S.modal==="stock"){
+      const p=S.products.find(x=>x.docId===d.docId);
+      title="📦 ปรับสต็อก";
+      body=`
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${p?.name}</div>
+          <div style="font-size:36px;font-weight:800;color:var(--text)">${p?.stock||0} <span style="font-size:14px;color:var(--text3)">ชิ้น</span></div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px">
-          ${[-50,-10,-5,-1,1,5,10,50].map(n=>`<button class="btn ${n<0?"btn-red":"btn-green"} sk-delta" data-n="${n}" style="min-width:52px">${n>0?"+":""}${n}</button>`).join("")}
+          ${[-50,-10,-5,-1,1,5,10,50].map(n=>`<button class="btn ${n<0?"btn-red":"btn-green"} sk-d" data-n="${n}" style="min-width:54px">${n>0?"+":""}${n}</button>`).join("")}
         </div>
         <div class="form-group">
           <label class="form-label">ตั้งค่าโดยตรง</label>
-          <input class="form-input" id="f-stock-val" type="number" placeholder="${p?.stock||0}" style="text-align:center;font-size:20px;font-weight:800"/>
+          <input class="form-input" id="f-stk" type="number" placeholder="${p?.stock||0}" style="text-align:center;font-size:20px;font-weight:700"/>
         </div>
-        <button class="btn btn-green btn-full" id="save-stock">💾 อัปเดตสต็อก</button>`;
+        <button class="btn btn-gold btn-full" id="save-stk">💾 อัปเดตสต็อก</button>`;
     }
 
-    return `
-      <div class="modal-overlay" id="modal-ov">
+    return`
+      <div class="modal-ov" id="modal-ov">
         <div class="modal">
-          <div class="modal-header">
+          <div class="modal-head">
             <div class="modal-title">${title}</div>
             <button class="modal-close" id="close-modal">✕</button>
           </div>
@@ -567,18 +616,16 @@
       </div>`;
   }
 
-  // ══════════════════════════════════════════
-  //  ⚠️  CONFIRM HTML
-  // ══════════════════════════════════════════
-  function confirmHTML() {
-    const c = S.confirm;
-    return `
-      <div class="confirm-overlay">
+  /* ══ CONFIRM HTML ══ */
+  function confirmHTML(){
+    const c=S.confirm;
+    return`
+      <div class="confirm-ov">
         <div class="confirm-box">
-          <div class="confirm-icon">${c.icon||"⚠️"}</div>
-          <div class="confirm-title">${c.title}</div>
-          <div class="confirm-desc">${c.desc}</div>
-          <div class="confirm-actions">
+          <div class="confirm-ico">${c.icon||"⚠️"}</div>
+          <div class="confirm-ttl">${c.title}</div>
+          <div class="confirm-dsc">${c.desc}</div>
+          <div class="confirm-row">
             <button class="btn btn-gray btn-full" id="c-cancel">ยกเลิก</button>
             <button class="btn btn-red btn-full" id="c-ok">${c.ok||"ยืนยัน"}</button>
           </div>
@@ -586,318 +633,158 @@
       </div>`;
   }
 
-  // ══════════════════════════════════════════
-  //  🔗  BIND
-  // ══════════════════════════════════════════
-  function bindBrowserLogin() {
-    document.getElementById("do-login")?.addEventListener("click", async () => {
-      const chatId = document.getElementById("chatid-in")?.value.trim();
-      if (!chatId) return toast("กรุณากรอก Chat ID ค่ะ","error");
-      setState({ view:"loading" });
-      const snap = await getDoc(doc(db,"admins",chatId));
-      if (snap.exists()&&snap.data().active) {
-        ADMIN = snap.data();
-        await loadAll();
-        setState({ view:"main" });
-        toast("✅ เข้าสู่ระบบสำเร็จค่ะ");
-      } else if (chatId===ADMIN_CHAT_ID) {
-        ADMIN = { chatId, name:"แอดมิน", role:"superadmin" };
-        await loadAll();
-        setState({ view:"main" });
-        toast("✅ เข้าสู่ระบบสำเร็จค่ะ");
-      } else {
-        setState({ view:"browser" });
-        toast("ไม่พบ Chat ID นี้ในระบบค่ะ","error");
-      }
-    });
+  /* ══ BIND MAIN ══ */
+  function bindMain(){
+    document.querySelectorAll(".tab").forEach(el=>el.addEventListener("click",async()=>{
+      if(el.dataset.tab==="orders")S.orders=await loadOrders();
+      set({tab:el.dataset.tab});
+    }));
+    document.getElementById("add-prod")?.addEventListener("click",()=>set({modal:"add_prod",mdata:{active:true,brand:S.brands[0]?.key}}));
+    document.getElementById("add-brand")?.addEventListener("click",()=>set({modal:"add_brand",mdata:{}}));
+    document.getElementById("refresh-orders")?.addEventListener("click",async()=>{S.orders=await loadOrders();set({});});
+
+    document.querySelectorAll("[data-ep]").forEach(el=>el.addEventListener("click",()=>{const p=S.products.find(x=>x.docId===el.dataset.ep);set({modal:"edit_prod",mdata:{...p}});}));
+    document.querySelectorAll("[data-sp]").forEach(el=>el.addEventListener("click",()=>set({modal:"stock",mdata:{docId:el.dataset.sp}})));
+    document.querySelectorAll("[data-tp]").forEach(el=>el.addEventListener("click",async()=>{
+      const p=S.products.find(x=>x.docId===el.dataset.tp);
+      await saveProd({active:!p.active},p.docId);
+      S.products=await loadProducts();set({});
+      toast(p.active?"ซ่อนสินค้าแล้ว":"แสดงสินค้าแล้ว",p.active?"warn":"success");
+    }));
+    document.querySelectorAll("[data-dp]").forEach(el=>el.addEventListener("click",()=>set({confirm:{icon:"🗑️",title:"ลบสินค้า?",desc:`"${el.dataset.dn}"\nไม่สามารถกู้คืนได้`,ok:"ลบ",onOk:async()=>{await delProd(el.dataset.dp);S.products=await loadProducts();set({confirm:null});toast("ลบสินค้าแล้ว","error");}}})));
+    document.querySelectorAll("[data-eb]").forEach(el=>el.addEventListener("click",()=>{const b=S.brands.find(x=>x.docId===el.dataset.eb);set({modal:"edit_brand",mdata:{...b}});}));
+    document.querySelectorAll("[data-db]").forEach(el=>el.addEventListener("click",()=>set({confirm:{icon:"🗑️",title:"ลบแบรนด์?",desc:`"${el.dataset.dbn}"\nสินค้าในแบรนด์จะยังอยู่`,ok:"ลบ",onOk:async()=>{await delBrand(el.dataset.db);S.brands=await loadBrands();set({confirm:null});toast("ลบแบรนด์แล้ว","error");}}})));
+    document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("✅ ยืนยันออเดอร์แล้ว");}));
+    document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("❌ ปฏิเสธออเดอร์แล้ว","error");}));
   }
 
-  function bindMain() {
-    document.querySelectorAll(".tab").forEach(el =>
-      el.addEventListener("click", async () => {
-        if (el.dataset.tab==="orders") S.orders = await loadOrders();
-        setState({ tab:el.dataset.tab });
-      }));
+  /* ══ BIND MODAL ══ */
+  function bindModal(){
+    document.getElementById("close-modal")?.addEventListener("click",()=>set({modal:null,mdata:{}}));
+    document.getElementById("modal-ov")?.addEventListener("click",e=>{if(e.target.id==="modal-ov")set({modal:null,mdata:{}});});
 
-    document.getElementById("add-prod")?.addEventListener("click", () =>
-      setState({ modal:"add_prod", modalData:{ active:true, brand:S.brands[0]?.key } }));
-    document.getElementById("add-brand")?.addEventListener("click", () =>
-      setState({ modal:"add_brand", modalData:{ emoji:"🌸", color:"#4ade80" } }));
-    document.getElementById("refresh-orders")?.addEventListener("click", async () => {
-      S.orders = await loadOrders(); setState({});
-    });
-
-    // Edit product
-    document.querySelectorAll("[data-ep]").forEach(el =>
-      el.addEventListener("click", () => {
-        const p = S.products.find(x=>x.docId===el.dataset.ep);
-        setState({ modal:"edit_prod", modalData:{...p} });
-      }));
-
-    // Stock
-    document.querySelectorAll("[data-sp]").forEach(el =>
-      el.addEventListener("click", () =>
-        setState({ modal:"stock", modalData:{ docId:el.dataset.sp } })));
-
-    // Toggle active
-    document.querySelectorAll("[data-tp]").forEach(el =>
-      el.addEventListener("click", async () => {
-        const p = S.products.find(x=>x.docId===el.dataset.tp);
-        await saveProd({ active:!p.active }, p.docId);
-        S.products = await loadProducts(); setState({});
-        toast(p.active?"ซ่อนสินค้าแล้ว":"แสดงสินค้าแล้ว", p.active?"warn":"success");
-      }));
-
-    // Delete product
-    document.querySelectorAll("[data-dp]").forEach(el =>
-      el.addEventListener("click", () =>
-        setState({ confirm:{ icon:"🗑️", title:"ลบสินค้า?",
-          desc:`ต้องการลบ "${el.dataset.dn}" ?\nไม่สามารถกู้คืนได้`, ok:"🗑️ ลบ",
-          onOk: async () => { await delProd(el.dataset.dp); S.products=await loadProducts(); setState({ confirm:null }); toast("🗑️ ลบสินค้าแล้ว","error"); }
-        }})));
-
-    // Edit brand
-    document.querySelectorAll("[data-eb]").forEach(el =>
-      el.addEventListener("click", () => {
-        const b = S.brands.find(x=>x.docId===el.dataset.eb);
-        setState({ modal:"edit_brand", modalData:{...b} });
-      }));
-
-    // Delete brand
-    document.querySelectorAll("[data-db]").forEach(el =>
-      el.addEventListener("click", () =>
-        setState({ confirm:{ icon:"🗑️", title:"ลบแบรนด์?",
-          desc:`ต้องการลบ "${el.dataset.dbn}" ?\nสินค้าในแบรนด์จะยังอยู่`, ok:"🗑️ ลบ",
-          onOk: async () => { await delBrand(el.dataset.db); S.brands=await loadBrands(); setState({ confirm:null }); toast("🗑️ ลบแบรนด์แล้ว","error"); }
-        }})));
-
-    // Confirm/Reject order
-    document.querySelectorAll("[data-co]").forEach(el =>
-      el.addEventListener("click", async () => {
-        await updateOrder(el.dataset.co, "ยืนยันแล้ว", el.dataset.cid);
-        S.orders=await loadOrders(); setState({});
-        toast("✅ ยืนยันออเดอร์แล้ว");
-      }));
-    document.querySelectorAll("[data-ro]").forEach(el =>
-      el.addEventListener("click", async () => {
-        await updateOrder(el.dataset.ro, "ปฏิเสธ", el.dataset.rid);
-        S.orders=await loadOrders(); setState({});
-        toast("❌ ปฏิเสธออเดอร์แล้ว","error");
-      }));
-  }
-
-  function bindModal() {
-    document.getElementById("close-modal")?.addEventListener("click", () => setState({ modal:null, modalData:{} }));
-    document.getElementById("modal-ov")?.addEventListener("click", e => {
-      if (e.target.id==="modal-ov") setState({ modal:null, modalData:{} });
-    });
-
-    // Image upload + crop 1:1 + compress
-    document.getElementById("f-img-file")?.addEventListener("change", async e => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const placeholder = document.getElementById("img-placeholder");
-      const info        = document.getElementById("img-info");
-      if (placeholder) placeholder.innerHTML = `<div style="font-size:12px;color:#888">⏳ กำลังประมวลผล...</div>`;
-
-      try {
-        const base64 = await cropAndCompress(file, 600, 0.78);
-
-        // แสดง preview
-        const wrap = document.getElementById("img-wrap");
-        wrap.innerHTML = `
-          <div style="position:relative;width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border)">
-            <img src="${base64}" style="width:100%;height:100%;object-fit:cover"/>
-            <button onclick="document.getElementById('f-img-file').click()" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);border:none;color:#fff;font-size:11px;cursor:pointer">เปลี่ยน</button>
+    /* Product image upload */
+    document.getElementById("f-img-file")?.addEventListener("change",async e=>{
+      const f=e.target.files[0];if(!f)return;
+      try{
+        const b64=await cropCompress(f,600,0.78);
+        document.getElementById("f-img").value=b64;
+        const wrap=document.getElementById("prod-img-wrap");
+        wrap.innerHTML=`
+          <div class="prod-img-preview">
+            <img id="prod-img-el" src="${b64}"/>
+            <button class="prod-img-preview-btn" onclick="document.getElementById('f-img-file').click()">เปลี่ยน</button>
           </div>
           <input type="file" id="f-img-file" accept="image/*" style="display:none"/>
-          <input type="hidden" id="f-img" value="${base64}"/>
-          <div style="font-size:11px;color:var(--green)">✅ ${Math.round(base64.length*0.75/1024)} KB · 600×600px</div>`;
-
-        // ผูก event ใหม่
-        document.getElementById("f-img-file")?.addEventListener("change", e => {
-          const f = e.target.files[0];
-          if (f) document.getElementById("f-img-file").dispatchEvent(new Event("change"));
-        });
-
-      } catch(err) {
-        console.error(err);
-        toast("ประมวลผลรูปไม่ได้ค่ะ","error");
-      }
+          <input type="hidden" id="f-img" value="${b64}"/>`;
+        document.getElementById("prod-img-info").textContent=`✅ ${Math.round(b64.length*0.75/1024)} KB · 600×600px`;
+        document.getElementById("f-img-file")?.addEventListener("change",async ev=>{const ff=ev.target.files[0];if(ff)document.getElementById("f-img-file").dispatchEvent(new Event("change"));});
+        toast("✅ ประมวลผลรูปแล้ว");
+      }catch(e){toast("ประมวลผลรูปไม่ได้ครับ","error");}
     });
 
-    // Save product
-    document.getElementById("save-prod")?.addEventListener("click", async () => {
-      const data = {
-        brand      : document.getElementById("f-brand")?.value,
-        name       : document.getElementById("f-name")?.value.trim(),
-        price      : Number(document.getElementById("f-price")?.value),
-        stock      : Number(document.getElementById("f-stock")?.value||0),
-        imageUrl   : document.getElementById("f-img")?.value.trim(),
-        description: document.getElementById("f-desc")?.value.trim(),
-        active     : S.modalData.active !== false,
+    /* Brand logo upload */
+    document.getElementById("f-logo-file")?.addEventListener("change",async e=>{
+      const f=e.target.files[0];if(!f)return;
+      try{
+        const b64=await cropCompress(f,400,0.82);
+        document.getElementById("f-logo").value=b64;
+        const wrap=document.getElementById("logo-wrap");
+        wrap.innerHTML=`
+          <div class="logo-preview-wrap">
+            <img class="logo-preview-img" id="logo-preview" src="${b64}"/>
+            <button class="logo-preview-change" onclick="document.getElementById('f-logo-file').click()">เปลี่ยน Logo</button>
+          </div>
+          <div id="logo-info" style="font-size:11px;color:var(--green)">✅ ${Math.round(b64.length*0.75/1024)} KB</div>
+          <input type="file" id="f-logo-file" accept="image/*" style="display:none"/>
+          <input type="hidden" id="f-logo" value="${b64}"/>`;
+        // update preview
+        const prev=document.getElementById("prev-logo");
+        if(prev)prev.innerHTML=`<img src="${b64}" style="width:100%;height:100%;object-fit:cover"/>`;
+        document.getElementById("f-logo-file")?.addEventListener("change",async ev=>{const ff=ev.target.files[0];if(ff)document.getElementById("f-logo-file").dispatchEvent(new Event("change"));});
+        toast("✅ อัปโหลด Logo แล้ว");
+      }catch(e){toast("อัปโหลด Logo ไม่ได้ครับ","error");}
+    });
+
+    /* Brand name/desc preview live */
+    document.getElementById("f-bname")?.addEventListener("input",e=>{
+      const el=document.getElementById("prev-name");if(el)el.textContent=e.target.value||"ชื่อแบรนด์";
+    });
+    document.getElementById("f-bdesc")?.addEventListener("input",e=>{
+      const el=document.getElementById("prev-desc");if(el)el.textContent=e.target.value||"คำอธิบาย";
+    });
+
+    /* Toggle */
+    document.getElementById("f-toggle")?.addEventListener("click",()=>{
+      const btn=document.getElementById("f-toggle");
+      const knob=btn?.querySelector(".toggle-knob");
+      const nv=S.mdata.active===false;
+      btn.style.background=nv?"var(--gold)":"var(--bg5)";
+      knob.style.left=nv?"22px":"3px";
+      S.mdata.active=nv;
+    });
+
+    /* Save product */
+    document.getElementById("save-prod")?.addEventListener("click",async()=>{
+      const data={
+        brand      :document.getElementById("f-brand")?.value,
+        name       :document.getElementById("f-name")?.value.trim(),
+        price      :Number(document.getElementById("f-price")?.value),
+        stock      :Number(document.getElementById("f-stock")?.value||0),
+        imageUrl   :document.getElementById("f-img")?.value||"",
+        description:document.getElementById("f-desc")?.value.trim(),
+        active     :S.mdata.active!==false,
       };
-      if (!data.name||!data.price) return toast("กรุณากรอกชื่อและราคาค่ะ","error");
-      if (!data.id && S.modal==="add_prod") {
-        const prefix = (data.brand||"XX").slice(0,2).toUpperCase();
-        data.id = prefix + Date.now().toString().slice(-4);
-      }
-      await saveProd(data, S.modal==="edit_prod"?S.modalData.docId:null);
-      S.products=await loadProducts();
-      setState({ modal:null, modalData:{} });
-      toast("✅ บันทึกสินค้าแล้ว");
+      if(!data.name||!data.price)return toast("กรุณากรอกชื่อและราคาครับ","error");
+      if(!data.id&&S.modal==="add_prod"){const px=(data.brand||"XX").slice(0,2).toUpperCase();data.id=px+Date.now().toString().slice(-4);}
+      await saveProd(data,S.modal==="edit_prod"?S.mdata.docId:null);
+      S.products=await loadProducts();set({modal:null,mdata:{}});toast("✅ บันทึกสินค้าแล้ว");
     });
 
-    // Toggle in modal
-    document.getElementById("f-toggle")?.addEventListener("click", () => {
-      const btn  = document.getElementById("f-toggle");
-      const knob = btn?.querySelector(".toggle-knob");
-      const nv   = S.modalData.active === false;
-      btn.style.background = nv ? "var(--green)" : "#ccc";
-      knob.style.left      = nv ? "22px" : "3px";
-      S.modalData.active   = nv;
+    /* Save brand */
+    document.getElementById("save-brand")?.addEventListener("click",async()=>{
+      const name=document.getElementById("f-bname")?.value.trim();
+      const desc=document.getElementById("f-bdesc")?.value.trim();
+      const logo=document.getElementById("f-logo")?.value||"";
+      if(!name)return toast("กรุณากรอกชื่อแบรนด์ครับ","error");
+      const key=S.modal==="edit_brand"?S.mdata.key:name.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"brand"+Date.now();
+      await saveBrand({key,name,desc,logoUrl:logo,emoji:S.mdata.emoji||"🫧"},S.modal==="edit_brand"?S.mdata.docId:null);
+      S.brands=await loadBrands();set({modal:null,mdata:{}});toast("✅ บันทึกแบรนด์แล้ว");
     });
 
-    // Save brand
-    document.getElementById("save-brand")?.addEventListener("click", async () => {
-      const name  = document.getElementById("f-bname")?.value.trim();
-      const desc  = document.getElementById("f-bdesc")?.value.trim();
-      const emoji = document.getElementById("f-bemoji")?.value;
-      const color = document.getElementById("f-bcolor")?.value;
-      if (!name) return toast("กรุณากรอกชื่อแบรนด์ค่ะ","error");
-      const key  = S.modal==="edit_brand"
-        ? S.modalData.key
-        : name.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"brand"+Date.now();
-      await saveBrand({ key,name,desc,emoji,color }, S.modal==="edit_brand"?S.modalData.docId:null);
-      S.brands=await loadBrands();
-      setState({ modal:null, modalData:{} });
-      toast("✅ บันทึกแบรนด์แล้ว");
-    });
+    /* Stock delta */
+    document.querySelectorAll(".sk-d").forEach(el=>el.addEventListener("click",()=>{
+      const p=S.products.find(x=>x.docId===S.mdata.docId);
+      const cur=Number(document.getElementById("f-stk")?.value)||p?.stock||0;
+      document.getElementById("f-stk").value=Math.max(0,cur+Number(el.dataset.n));
+    }));
 
-    // Emoji picker
-    document.querySelectorAll(".em-pick").forEach(el =>
-      el.addEventListener("click", () => {
-        document.getElementById("f-bemoji").value = el.dataset.e;
-        document.getElementById("bprev-e").textContent = el.dataset.e;
-        document.querySelectorAll(".em-pick").forEach(b=>b.className="btn btn-gray em-pick");
-        el.className = "btn btn-green em-pick";
-      }));
-
-    // Color picker
-    document.querySelectorAll(".cl-pick").forEach(el =>
-      el.addEventListener("click", () => {
-        const c = el.dataset.c;
-        document.getElementById("f-bcolor").value = c;
-        document.getElementById("bprev-n").style.color = c;
-        document.getElementById("bprev").style.borderColor = c;
-        document.querySelectorAll(".cl-pick").forEach(b=>b.style.border="3px solid transparent");
-        el.style.border = "3px solid #333";
-      }));
-
-    document.getElementById("f-bname")?.addEventListener("input", e => {
-      const el = document.getElementById("bprev-n");
-      if (el) el.textContent = e.target.value||"ชื่อแบรนด์";
-    });
-    document.getElementById("f-bcolor")?.addEventListener("input", e => {
-      document.getElementById("bprev-n").style.color = e.target.value;
-      document.getElementById("bprev").style.borderColor = e.target.value;
-    });
-
-    // Stock delta
-    document.querySelectorAll(".sk-delta").forEach(el =>
-      el.addEventListener("click", () => {
-        const p   = S.products.find(x=>x.docId===S.modalData.docId);
-        const cur = Number(document.getElementById("f-stock-val")?.value)||p?.stock||0;
-        document.getElementById("f-stock-val").value = Math.max(0, cur+Number(el.dataset.n));
-      }));
-
-    // Save stock
-    document.getElementById("save-stock")?.addEventListener("click", async () => {
-      const p  = S.products.find(x=>x.docId===S.modalData.docId);
-      const nv = Number(document.getElementById("f-stock-val")?.value);
-      if (isNaN(nv)||nv<0) return toast("จำนวนไม่ถูกต้องค่ะ","error");
-      await saveProd({ stock:nv }, p.docId);
-      S.products=await loadProducts();
-      setState({ modal:null, modalData:{} });
-      toast("📦 อัปเดตสต็อกแล้ว");
+    /* Save stock */
+    document.getElementById("save-stk")?.addEventListener("click",async()=>{
+      const p=S.products.find(x=>x.docId===S.mdata.docId);
+      const nv=Number(document.getElementById("f-stk")?.value);
+      if(isNaN(nv)||nv<0)return toast("จำนวนไม่ถูกต้องครับ","error");
+      await saveProd({stock:nv},p.docId);S.products=await loadProducts();
+      set({modal:null,mdata:{}});toast("📦 อัปเดตสต็อกแล้ว");
     });
   }
 
-  function bindConfirm() {
-    document.getElementById("c-cancel")?.addEventListener("click", () => setState({ confirm:null }));
-    document.getElementById("c-ok")?.addEventListener("click", () => S.confirm?.onOk?.());
+  /* ══ BIND CONFIRM ══ */
+  function bindConfirm(){
+    document.getElementById("c-cancel")?.addEventListener("click",()=>set({confirm:null}));
+    document.getElementById("c-ok")?.addEventListener("click",()=>S.confirm?.onOk?.());
   }
 
-  // ══════════════════════════════════════════
-  //  🚀  INIT
-  // ══════════════════════════════════════════
-  async function init() {
-    setState({ view:"loading" });
-    try {
-      const auth = await checkAuth();
-      if (auth===true) {
-        await loadAll();
-        setState({ view:"main" });
-      } else if (auth==="browser") {
-        setState({ view:"browser" });
-      } else {
-        setState({ view:"denied" });
-      }
-    } catch(err) {
-      console.error("Init:", err);
-      setState({ view:"browser" });
-    }
+  /* ══ INIT ══ */
+  async function init(){
+    set({view:"loading"});
+    try{
+      const auth=await checkAuth();
+      if(auth===true){await loadAll();set({view:"main"});}
+      else if(auth==="browser"){set({view:"browser"});}
+      else{set({view:"denied"});}
+    }catch(e){console.error(e);set({view:"browser"});}
   }
-
-  // ══════════════════════════════════════════
-  //  🖼️  Crop 1:1 + Compress Image
-  //  size = ความกว้าง/สูง output (px)
-  //  quality = 0-1 (0.78 = คมชัดพอ ไฟล์เล็ก)
-  // ══════════════════════════════════════════
-  function cropAndCompress(file, size = 600, quality = 0.78) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = ev => {
-        const img = new Image();
-        img.onerror = reject;
-        img.onload = () => {
-          try {
-            // คำนวณ crop 1:1 จากกึ่งกลาง
-            const s   = Math.min(img.width, img.height);
-            const sx  = (img.width  - s) / 2;
-            const sy  = (img.height - s) / 2;
-
-            const canvas = document.createElement("canvas");
-            canvas.width  = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d");
-
-            // พื้นหลังขาว (กรณีรูป PNG มี transparent)
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, size, size);
-
-            // วาดรูป crop + resize
-            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-
-            // บีบอัดเป็น JPEG base64
-            const base64 = canvas.toDataURL("image/jpeg", quality);
-
-            // ถ้ายังใหญ่เกิน 200KB ให้บีบเพิ่ม
-            if (base64.length * 0.75 > 200 * 1024) {
-              resolve(canvas.toDataURL("image/jpeg", 0.6));
-            } else {
-              resolve(base64);
-            }
-          } catch(err) { reject(err); }
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
   init();
 </script>
 </body>
