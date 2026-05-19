@@ -888,13 +888,6 @@
   function addC(id){const ex=S.cart.find(i=>i.id===id);set({cart:ex?S.cart.map(i=>i.id===id?{...i,qty:i.qty+1}:i):[...S.cart,{id,qty:1}]});}
   function upQ(id,d){set({cart:S.cart.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0)});}
 
-  /* ── ADMIN CHECK ── */
-  async function checkAdmin(){
-    if(!U)return false;
-    try{const s=await getDoc(doc(db,"admins",String(U.id)));return s.exists()&&s.data().active===true;}
-    catch{return false;}
-  }
-
   /* ── INIT ── */
   async function init(){
     render();
