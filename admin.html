@@ -477,8 +477,15 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">URL รูปสินค้า</label>
-          <input class="form-input" id="f-img" placeholder="https://..." value="${d.imageUrl||""}"/>
+          <label class="form-label">รูปสินค้า (Crop 1:1 อัตโนมัติ)</label>
+          <div id="img-wrap" style="display:flex;flex-direction:column;gap:8px">
+            ${d.imageUrl ? `<div style="position:relative;width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border)"><img id="img-preview" src="${d.imageUrl}" style="width:100%;height:100%;object-fit:cover"/><button onclick="document.getElementById('f-img-file').click()" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);border:none;color:#fff;font-size:11px;cursor:pointer">เปลี่ยน</button></div>` : `<div id="img-placeholder" style="width:100%;border:1.5px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#fafafa" onclick="document.getElementById('f-img-file').click()"><div style="font-size:28px;margin-bottom:6px">🖼️</div><div style="font-size:13px;color:#888">กดเพื่ออัปโหลดรูปสินค้า</div><div style="font-size:11px;color:#bbb;margin-top:3px">ระบบจะ Crop 1:1 และบีบอัดให้อัตโนมัติ</div></div>`}
+            <input type="file" id="f-img-file" accept="image/*" style="display:none"/>
+            <input type="hidden" id="f-img" value="${d.imageUrl||""}"/>
+            <div id="img-info" style="font-size:11px;color:#888;display:${d.imageUrl?"block":"none"}">
+              ${d.imageUrl?.startsWith("data:") ? `✅ รูป Base64 (${Math.round(d.imageUrl.length*0.75/1024)}KB)` : d.imageUrl ? "✅ URL รูปภาพ" : ""}
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">รายละเอียด</label>
@@ -685,6 +692,41 @@
       if (e.target.id==="modal-ov") setState({ modal:null, modalData:{} });
     });
 
+    // Image upload + crop 1:1 + compress
+    document.getElementById("f-img-file")?.addEventListener("change", async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const placeholder = document.getElementById("img-placeholder");
+      const info        = document.getElementById("img-info");
+      if (placeholder) placeholder.innerHTML = `<div style="font-size:12px;color:#888">⏳ กำลังประมวลผล...</div>`;
+
+      try {
+        const base64 = await cropAndCompress(file, 600, 0.78);
+
+        // แสดง preview
+        const wrap = document.getElementById("img-wrap");
+        wrap.innerHTML = `
+          <div style="position:relative;width:100px;height:100px;border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+            <img src="${base64}" style="width:100%;height:100%;object-fit:cover"/>
+            <button onclick="document.getElementById('f-img-file').click()" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);border:none;color:#fff;font-size:11px;cursor:pointer">เปลี่ยน</button>
+          </div>
+          <input type="file" id="f-img-file" accept="image/*" style="display:none"/>
+          <input type="hidden" id="f-img" value="${base64}"/>
+          <div style="font-size:11px;color:var(--green)">✅ ${Math.round(base64.length*0.75/1024)} KB · 600×600px</div>`;
+
+        // ผูก event ใหม่
+        document.getElementById("f-img-file")?.addEventListener("change", e => {
+          const f = e.target.files[0];
+          if (f) document.getElementById("f-img-file").dispatchEvent(new Event("change"));
+        });
+
+      } catch(err) {
+        console.error(err);
+        toast("ประมวลผลรูปไม่ได้ค่ะ","error");
+      }
+    });
+
     // Save product
     document.getElementById("save-prod")?.addEventListener("click", async () => {
       const data = {
@@ -806,6 +848,54 @@
       console.error("Init:", err);
       setState({ view:"browser" });
     }
+  }
+
+  // ══════════════════════════════════════════
+  //  🖼️  Crop 1:1 + Compress Image
+  //  size = ความกว้าง/สูง output (px)
+  //  quality = 0-1 (0.78 = คมชัดพอ ไฟล์เล็ก)
+  // ══════════════════════════════════════════
+  function cropAndCompress(file, size = 600, quality = 0.78) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = ev => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          try {
+            // คำนวณ crop 1:1 จากกึ่งกลาง
+            const s   = Math.min(img.width, img.height);
+            const sx  = (img.width  - s) / 2;
+            const sy  = (img.height - s) / 2;
+
+            const canvas = document.createElement("canvas");
+            canvas.width  = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+
+            // พื้นหลังขาว (กรณีรูป PNG มี transparent)
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, size, size);
+
+            // วาดรูป crop + resize
+            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+
+            // บีบอัดเป็น JPEG base64
+            const base64 = canvas.toDataURL("image/jpeg", quality);
+
+            // ถ้ายังใหญ่เกิน 200KB ให้บีบเพิ่ม
+            if (base64.length * 0.75 > 200 * 1024) {
+              resolve(canvas.toDataURL("image/jpeg", 0.6));
+            } else {
+              resolve(base64);
+            }
+          } catch(err) { reject(err); }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   init();
