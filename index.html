@@ -241,30 +241,36 @@
   //  📡  แจ้ง Bot → แอดมิน
   // ══════════════════════════════════════════
   async function notifyBot(orderId, cart, products) {
-    try {
-      const total    = calcTotal(cart, products);
-      const items    = cart.map(i => {
-        const p = products.find(x => x.id === i.id);
-        return `${p?.name} ×${i.qty} = ${fmt(p?.price * i.qty)}`;
-      }).join("\n");
-      const customer = TG_USER
-        ? `${TG_USER.first_name || ""} ${TG_USER.last_name || ""} ${TG_USER.username ? "@"+TG_USER.username : ""}`.trim()
-        : "Guest";
+  try {
+    const total    = calcTotal(cart, products);
+    const items    = cart.map(i => {
+      const p = products.find(x => x.id === i.id);
+      return `${p?.name} ×${i.qty}`;
+    }).join(", ");
+    const customer = TG_USER
+      ? `${TG_USER.first_name||""} ${TG_USER.last_name||""}`.trim()
+      : "Guest";
+    const chatId   = TG_USER ? String(TG_USER.id) : "guest";
 
-      await fetch(APPS_SCRIPT_URL, {
-        method : "POST",
-        headers: { "Content-Type": "application/json" },
-        body   : JSON.stringify({
-          action      : "notify_admin",
-          orderId,
-          chatId      : TG_USER ? String(TG_USER.id) : "guest",
-          customerName: customer,
-          items,
-          total,
-        }),
-      });
-    } catch(e) { console.error("notifyBot:", e); }
+    // ใช้ GET แทน POST เพื่อหลีกเลี่ยง CORS
+    const params = new URLSearchParams({
+      action      : "notify_admin",
+      orderId,
+      chatId,
+      customerName: customer,
+      items,
+      total       : String(total),
+    });
+
+    await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
+      method: "GET",
+      mode  : "no-cors",  // ← สำคัญมาก
+    });
+
+  } catch(e) {
+    console.error("notifyBot:", e);
   }
+}
 
   // ══════════════════════════════════════════
   //  🎮  STATE
