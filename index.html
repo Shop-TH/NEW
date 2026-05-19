@@ -464,7 +464,16 @@
     .slip-ico  { font-size: 30px; margin-bottom: 8px; }
     .slip-txt  { font-size: 14px; font-weight: 500; color: var(--text2); }
     .slip-hint { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 4px; }
-    #slip-img  { width: 100%; border-radius: var(--r); max-height: 220px; object-fit: contain; margin-bottom: 10px; border: 1px solid var(--border); }
+    #slip-img  {
+      width: 100%; border-radius: var(--r);
+      max-height: 38vh;
+      object-fit: contain;
+      object-position: center;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      display: block;
+    }
 
     /* ══════════════════════════════════════
        SUCCESS SCREEN
@@ -506,8 +515,8 @@
   /* ── CONFIG ── */
   const FC={apiKey:"AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",authDomain:"shop-th.firebaseapp.com",projectId:"shop-th",storageBucket:"shop-th.firebasestorage.app",messagingSenderId:"407059998090",appId:"1:407059998090:web:e008bcb4042e574eb7d473"};
   const SHOP="shop_001";
-  const ASU="https://script.google.com/macros/s/AKfycbxGJhJous-opXRgprkwO3TlP1MkOPpb-7pgfmq_f0YcWR-88rBiXjXtIDQ41SHprEFV/exec";
-  const BOT="8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
+  const ASU="ttps://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
+  const BOT="8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY;
   const ADMIN="7234688831";
   const BANK={n:"กสิกรไทย",a:"123-4-56789-0",h:"HENG888 CO., LTD."};
 
@@ -524,7 +533,7 @@
   async function track(){if(!U)return;try{const cid=String(U.id);const r=doc(db,"customers",cid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{chatId:cid,shopId:SHOP,firstName:U.first_name||"",lastName:U.last_name||"",username:U.username||"",firstVisit:serverTimestamp(),lastVisit:serverTimestamp(),visitCount:1,totalOrders:0,totalSpent:0});else await updateDoc(r,{lastVisit:serverTimestamp(),visitCount:increment(1)});}catch{}}
   async function checkAdmin(){if(!U)return false;try{const s=await getDoc(doc(db,"admins",String(U.id)));return s.exists()&&s.data().active===true;}catch{return false;}}
   async function saveOrd(cart,ps,info){const cid=U?String(U.id):"guest";const total=tot(cart,ps);const oid="HG"+Date.now().toString().slice(-6);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return{id:i.id,name:p?.name||"",price:p?.price||0,qty:i.qty};});try{await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});if(U)await updateDoc(doc(db,"customers",String(U.id)),{totalOrders:increment(1),totalSpent:increment(total),lastOrder:serverTimestamp(),phone:info.phone});}catch{}return oid;}
-  async function sendSlip(oid,slip,cart,ps,info){const total=tot(cart,ps);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return`• ${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";const cap=`🛎️ *ออเดอร์ใหม่! HENG888*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ชำระปลายทาง (COD)`;const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});try{const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});if(info.location)await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});}catch(e){const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);return`${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});}}
+  async function sendSlip(oid,slip,cart,ps,info){const total=tot(cart,ps);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const brandName=b?.name?`[${b.name}] `:"";return`• ${brandName}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";const cap=`🛎️ *ออเดอร์ใหม่! HENG888*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ชำระปลายทาง (COD)`;const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});try{const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});if(info.location)await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});}catch(e){const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const brandName=b?.name?`[${b.name}] `:"";return`${brandName}${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});}}
 
   /* ── STATE ── */
   let S={screen:"splash",brands:[],products:[],cart:[],activeBrand:null,activeProduct:null,orderId:null,slip:null,info:{phone:"",address:"",location:null}};
