@@ -7,7 +7,11 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Prompt:wght@300;400;500;600;700&display=swap');
-    :root{--bg:#07080f;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--text:#f0f0f5;--muted:rgba(255,255,255,0.4);--accent:#a78bfa;--font:'DM Serif Display',Georgia,serif;--body:'Prompt',sans-serif;}
+    :root{
+      --bg:#07080f;--surface:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);
+      --text:#f0f0f5;--muted:rgba(255,255,255,0.4);--accent:#a78bfa;
+      --font:'DM Serif Display',Georgia,serif;--body:'Prompt',sans-serif;
+    }
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     html,body{background:var(--bg);overscroll-behavior:none;}
     body{font-family:var(--body);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
@@ -19,6 +23,8 @@
     @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
     @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
     .brand-card,.product-card{animation:fadeUp 0.5s both ease;}
+
+    /* SPLASH */
     .splash{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
     .splash-icon{font-size:72px;animation:popIn 0.7s cubic-bezier(0.34,1.56,0.64,1);}
     .splash-title{font-family:var(--font);font-size:38px;animation:fadeUp 0.6s 0.3s both;}
@@ -26,7 +32,9 @@
     .dots{display:flex;gap:6px;margin-top:16px;animation:fadeUp 0.6s 0.8s both;}
     .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.2s infinite;}
     .dot:nth-child(2){animation-delay:0.2s;}.dot:nth-child(3){animation-delay:0.4s;}
-    .home-hero{padding:52px 24px 32px;position:relative;overflow:hidden;}
+
+    /* HOME */
+    .home-hero{padding:52px 24px 32px;overflow:hidden;}
     .hero-greeting{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
     .hero-title{font-family:var(--font);font-size:36px;line-height:1.2;margin-bottom:10px;}
     .hero-accent{font-style:italic;color:var(--accent);}
@@ -43,12 +51,16 @@
     .brand-dot{width:8px;height:8px;border-radius:50%;opacity:0.7;flex-shrink:0;}
     .fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:28px;padding:14px 28px;color:#fff;font-family:var(--body);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(167,139,250,0.45);z-index:50;animation:slideUp 0.3s ease;white-space:nowrap;}
     .fab-badge{background:rgba(255,255,255,0.25);border-radius:20px;padding:2px 10px;font-size:13px;font-weight:800;}
+
+    /* TOPBAR */
     .topbar{padding:20px 20px 16px;position:sticky;top:0;background:rgba(7,8,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:10;display:flex;align-items:center;gap:14px;}
     .back-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--body);flex-shrink:0;}
     .topbar-brand{display:flex;align-items:center;gap:10px;}
     .topbar-emoji{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
     .topbar-name{font-family:var(--font);font-size:19px;}
     .topbar-count{font-size:11px;color:var(--muted);}
+
+    /* PRODUCTS */
     .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;}
     .product-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
     .product-img{position:relative;padding-top:100%;cursor:pointer;overflow:hidden;}
@@ -61,6 +73,8 @@
     .product-price{font-size:14px;font-weight:700;}
     .add-btn{border-radius:10px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.12s;font-family:var(--body);}
     .add-btn:active{transform:scale(0.9);}
+
+    /* DETAIL */
     .back-float{position:fixed;top:16px;left:16px;z-index:20;background:rgba(7,8,15,0.8);border:1px solid var(--border);border-radius:12px;padding:8px 16px;color:var(--muted);font-size:13px;cursor:pointer;backdrop-filter:blur(8px);font-family:var(--body);}
     .detail-img{position:relative;height:320px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
     .detail-img img{width:100%;height:100%;object-fit:cover;}
@@ -77,6 +91,8 @@
     .detail-cart-btn{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--body);}
     .detail-add-btn{flex:3;border:none;border-radius:16px;padding:15px;color:#07080f;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);transition:transform 0.1s;}
     .detail-add-btn:active{transform:scale(0.97);}
+
+    /* CART */
     .cart-list{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
     .cart-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;}
     .cart-thumb{width:60px;height:60px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:28px;}
@@ -93,7 +109,9 @@
     .cart-summary{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
     .cart-summary-label{font-size:12px;color:var(--muted);}
     .cart-total{font-family:var(--font);font-size:28px;color:var(--accent);}
-    .payment-body{padding:20px;display:flex;flex-direction:column;gap:14px;}
+
+    /* PAYMENT */
+    .payment-body{padding:20px;display:flex;flex-direction:column;gap:14px;padding-bottom:40px;}
     .bank-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;}
     .bank-label{font-size:10px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px;}
     .bank-name{font-size:13px;color:var(--muted);margin-bottom:4px;}
@@ -102,14 +120,40 @@
     .amount-box{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:16px;padding:20px;text-align:center;}
     .amount-label{font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
     .amount-value{font-family:var(--font);font-size:40px;color:var(--accent);}
+
+    /* FORM FIELDS */
+    .field-group{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;}
+    .field-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:block;}
+    .field-input{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:var(--body);font-size:15px;color:var(--text);outline:none;transition:border-color 0.2s;}
+    .field-input:focus{border-color:var(--accent);}
+    .field-input::placeholder{color:var(--muted);}
+    .field-textarea{resize:none;min-height:80px;line-height:1.6;}
+    .field-error{font-size:11px;color:#f87171;margin-top:6px;display:none;}
+    .field-error.show{display:block;}
+
+    /* LOCATION BOX */
+    .location-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;}
+    .location-btn{width:100%;background:rgba(167,139,250,0.1);border:1.5px dashed rgba(167,139,250,0.4);border-radius:12px;padding:16px;color:var(--accent);font-family:var(--body);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;}
+    .location-btn:active{transform:scale(0.97);}
+    .location-btn.got{background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.4);color:#34d399;}
+    .location-map{width:100%;height:160px;border-radius:12px;border:1px solid var(--border);margin-top:10px;overflow:hidden;display:none;}
+    .location-map.show{display:block;}
+    .location-map iframe{width:100%;height:100%;border:none;}
+    .location-info{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;line-height:1.6;}
+
+    /* SLIP */
     .slip-label{display:flex;flex-direction:column;align-items:center;gap:10px;border:2px dashed rgba(167,139,250,0.4);border-radius:18px;padding:28px;cursor:pointer;color:var(--accent);background:rgba(167,139,250,0.05);}
     .slip-text{font-size:15px;font-weight:600;}
     .slip-hint{font-size:12px;color:var(--muted);}
     #slip-preview img{width:100%;border-radius:16px;max-height:240px;object-fit:contain;border:1px solid var(--border);margin-bottom:10px;}
+
+    /* BUTTONS */
     .primary-btn{width:100%;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:18px;padding:16px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);box-shadow:0 8px 32px rgba(167,139,250,0.4);transition:transform 0.1s;}
     .primary-btn:active{transform:scale(0.97);}
-    .primary-btn:disabled{opacity:0.5;cursor:not-allowed;}
+    .primary-btn:disabled{opacity:0.45;cursor:not-allowed;}
     .outline-btn{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.35);border-radius:16px;padding:12px 28px;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--body);margin-top:8px;}
+
+    /* SUCCESS */
     .success-icon{font-size:72px;animation:popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);}
     .success-title{font-family:var(--font);font-size:28px;animation:fadeUp 0.5s 0.2s both;}
     .success-sub{font-size:14px;color:var(--muted);line-height:1.8;animation:fadeUp 0.5s 0.3s both;}
@@ -124,8 +168,9 @@
 <div id="root"></div>
 <script type="module">
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc,
-           collection, getDocs, query, where, serverTimestamp, increment }
+  import { getFirestore, doc, getDoc, setDoc, updateDoc,
+           addDoc, collection, getDocs, query, where,
+           serverTimestamp, increment }
     from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   // ══════════════════════════════════════════
@@ -140,12 +185,10 @@
     appId            : "1:407059998090:web:e008bcb4042e574eb7d473",
   };
   const SHOP_ID         = "shop_001";
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxefIw8SqXK6M_CKxqupt7r00dOLqIhe2vmIvnKCpOGmRe3eRCdbCvv_05Xi0t9v_U8/exec";
-  const BANK = {
-    name   : "กสิกรไทย",
-    account: "123-4-56789-0",
-    holder : "บริษัท สกินมาร์ท จำกัด",
-  };
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-mpwRRB25_f4puFlz_-80sFlSI4XJgayp5Cesoal164xdYbkxYIv-zRaxA2JVb5Tu/exec";
+  const BOT_TOKEN       = "8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY"; // ← ใส่ Bot Token
+  const ADMIN_CHAT_ID   = "7234688831";
+  const BANK = { name:"กสิกรไทย", account:"123-4-56789-0", holder:"บริษัท สกินมาร์ท จำกัด" };
 
   // ══════════════════════════════════════════
   //  🔥  FIREBASE + TELEGRAM
@@ -161,7 +204,7 @@
   // ══════════════════════════════════════════
   const fmt = n => "฿" + Number(n).toLocaleString("th-TH");
   const calcTotal = (cart, products) =>
-    cart.reduce((s, i) => {
+    cart.reduce((s,i) => {
       const p = products.find(x => x.id === i.id);
       return s + (p ? p.price * i.qty : 0);
     }, 0);
@@ -171,115 +214,165 @@
   // ══════════════════════════════════════════
   async function fetchBrands() {
     try {
-      const snap = await getDocs(collection(db, "shops", SHOP_ID, "brands"));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch(e) { console.error("fetchBrands:", e); return []; }
+      const snap = await getDocs(collection(db,"shops",SHOP_ID,"brands"));
+      return snap.docs.map(d => ({ id:d.id,...d.data() }));
+    } catch(e) { console.error(e); return []; }
   }
 
   async function fetchProducts() {
     try {
-      const q    = query(collection(db, "shops", SHOP_ID, "products"), where("active","==",true));
+      const q    = query(collection(db,"shops",SHOP_ID,"products"), where("active","==",true));
       const snap = await getDocs(q);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch(e) { console.error("fetchProducts:", e); return []; }
+      return snap.docs.map(d => ({ id:d.id,...d.data() }));
+    } catch(e) { console.error(e); return []; }
   }
 
   async function trackCustomer() {
     if (!TG_USER) return;
     try {
       const chatId = String(TG_USER.id);
-      const ref    = doc(db, "customers", chatId);
+      const ref    = doc(db,"customers",chatId);
       const snap   = await getDoc(ref);
       if (!snap.exists()) {
-        await setDoc(ref, {
-          chatId,
-          firstName  : TG_USER.first_name  || "",
-          lastName   : TG_USER.last_name   || "",
-          username   : TG_USER.username    || "",
-          shopId     : SHOP_ID,
+        await setDoc(ref,{
+          chatId, shopId:SHOP_ID,
+          firstName  : TG_USER.first_name||"",
+          lastName   : TG_USER.last_name||"",
+          username   : TG_USER.username||"",
           firstVisit : serverTimestamp(),
           lastVisit  : serverTimestamp(),
-          visitCount : 1,
-          totalOrders: 0,
-          totalSpent : 0,
+          visitCount : 1, totalOrders:0, totalSpent:0,
         });
       } else {
-        await updateDoc(ref, { lastVisit: serverTimestamp(), visitCount: increment(1) });
+        await updateDoc(ref,{ lastVisit:serverTimestamp(), visitCount:increment(1) });
       }
-      await addDoc(collection(db, "visits"), {
-        chatId, shopId: SHOP_ID, screen: "home", timestamp: serverTimestamp(),
-      });
-    } catch(e) { console.error("trackCustomer:", e); }
+    } catch(e) { console.error(e); }
   }
 
-  async function saveOrder(cart, products) {
+  async function saveOrder(cart, products, customerInfo) {
     const chatId  = TG_USER ? String(TG_USER.id) : "guest";
     const total   = calcTotal(cart, products);
     const orderId = "SM" + Date.now().toString().slice(-6);
     const items   = cart.map(i => {
       const p = products.find(x => x.id === i.id);
-      return { id: i.id, name: p?.name || "", price: p?.price || 0, qty: i.qty };
+      return { id:i.id, name:p?.name||"", price:p?.price||0, qty:i.qty };
     });
     try {
-      await setDoc(doc(db, "orders", orderId), {
+      await setDoc(doc(db,"orders",orderId), {
         orderId, chatId,
-        customerName: ((TG_USER?.first_name || "") + " " + (TG_USER?.last_name || "")).trim(),
-        username    : TG_USER?.username || "",
-        shopId: SHOP_ID, items, total,
-        status: "รอตรวจสอบ", createdAt: serverTimestamp(),
+        customerName: ((TG_USER?.first_name||"")+" "+(TG_USER?.last_name||"")).trim(),
+        username    : TG_USER?.username||"",
+        phone       : customerInfo.phone,
+        address     : customerInfo.address,
+        location    : customerInfo.location || null,
+        shopId:SHOP_ID, items, total,
+        status:"รอตรวจสอบ", createdAt:serverTimestamp(),
       });
       if (TG_USER) {
-        await updateDoc(doc(db, "customers", String(TG_USER.id)), {
-          totalOrders: increment(1), totalSpent: increment(total), lastOrder: serverTimestamp(),
+        await updateDoc(doc(db,"customers",String(TG_USER.id)),{
+          totalOrders:increment(1), totalSpent:increment(total),
+          lastOrder  :serverTimestamp(),
+          phone      : customerInfo.phone,
         });
       }
-    } catch(e) { console.error("saveOrder:", e); }
+    } catch(e) { console.error(e); }
     return orderId;
   }
 
   // ══════════════════════════════════════════
-  //  📡  แจ้ง Bot → แอดมิน
+  //  📸  ส่งสลิป + ข้อมูลลูกค้า → Telegram แอดมิน
   // ══════════════════════════════════════════
-  async function notifyBot(orderId, cart, products) {
-  try {
+  async function sendSlipToAdmin(orderId, slip, cart, products, customerInfo) {
     const total    = calcTotal(cart, products);
     const items    = cart.map(i => {
       const p = products.find(x => x.id === i.id);
-      return `${p?.name} ×${i.qty}`;
-    }).join(", ");
+      return `• ${p?.name} ×${i.qty} = ${fmt(p?.price * i.qty)}`;
+    }).join("\n");
     const customer = TG_USER
       ? `${TG_USER.first_name||""} ${TG_USER.last_name||""}`.trim()
       : "Guest";
-    const chatId   = TG_USER ? String(TG_USER.id) : "guest";
 
-    // ใช้ GET แทน POST เพื่อหลีกเลี่ยง CORS
-    const params = new URLSearchParams({
-      action      : "notify_admin",
-      orderId,
-      chatId,
-      customerName: customer,
-      items,
-      total       : String(total),
+    // สร้าง caption ข้อความ
+    const caption =
+      `🛎️ *ออเดอร์ใหม่!*\n\n` +
+      `📋 เลขออเดอร์: *${orderId}*\n` +
+      `👤 ลูกค้า: ${customer}${TG_USER?.username?" @"+TG_USER.username:""}\n` +
+      `📱 เบอร์โทร: *${customerInfo.phone}*\n` +
+      `📍 ที่อยู่: ${customerInfo.address}\n` +
+      (customerInfo.location
+        ? `🗺️ พิกัด: [ดูแผนที่](https://maps.google.com/?q=${customerInfo.location.lat},${customerInfo.location.lng})\n`
+        : "") +
+      `\n🛍️ รายการ:\n${items}\n\n` +
+      `💰 ยอดรวม: *${fmt(total)}*\n` +
+      `📦 ชำระปลายทาง (COD)`;
+
+    // ปุ่มยืนยัน/ปฏิเสธ
+    const keyboard = JSON.stringify({
+      inline_keyboard: [[
+        { text:"✅ ยืนยันออเดอร์", callback_data:`confirm:${orderId}:${TG_USER?.id||"guest"}` },
+        { text:"❌ ปฏิเสธ",        callback_data:`reject:${orderId}:${TG_USER?.id||"guest"}`  },
+      ]]
     });
 
-    await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
-      method: "GET",
-      mode  : "no-cors",  // ← สำคัญมาก
-    });
+    try {
+      // ส่งรูปสลิป + caption + ปุ่ม
+      const formData = new FormData();
+      formData.append("chat_id",      ADMIN_CHAT_ID);
+      formData.append("caption",      caption);
+      formData.append("parse_mode",   "Markdown");
+      formData.append("reply_markup", keyboard);
 
-  } catch(e) {
-    console.error("notifyBot:", e);
+      // แปลง base64 → Blob
+      const base64 = slip.split(",")[1];
+      const byteArr = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+      const blob    = new Blob([byteArr], { type:"image/jpeg" });
+      formData.append("photo", blob, "slip.jpg");
+
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+        method: "POST",
+        body  : formData,
+      });
+
+      // ถ้ามีพิกัด ส่ง location แยกด้วย
+      if (customerInfo.location) {
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`, {
+          method     : "POST",
+          headers    : { "Content-Type":"application/json" },
+          body       : JSON.stringify({
+            chat_id  : ADMIN_CHAT_ID,
+            latitude : customerInfo.location.lat,
+            longitude: customerInfo.location.lng,
+          }),
+        });
+      }
+
+    } catch(e) {
+      console.error("sendSlipToAdmin:", e);
+      // fallback → ส่งผ่าน Apps Script
+      const params = new URLSearchParams({
+        action: "notify_admin",
+        orderId,
+        chatId      : String(TG_USER?.id||"guest"),
+        customerName: customer,
+        phone       : customerInfo.phone,
+        address     : customerInfo.address,
+        items       : cart.map(i=>{ const p=products.find(x=>x.id===i.id); return `${p?.name} ×${i.qty}`; }).join(", "),
+        total       : String(total),
+      });
+      await fetch(`${APPS_SCRIPT_URL}?${params}`, { method:"GET", mode:"no-cors" });
+    }
   }
-}
 
   // ══════════════════════════════════════════
   //  🎮  STATE
   // ══════════════════════════════════════════
   let S = {
     screen:"splash", brands:[], products:[],
-    cart:[], activeBrand:null, activeProduct:null, orderId:null, slip:null,
+    cart:[], activeBrand:null, activeProduct:null,
+    orderId:null, slip:null,
+    customerInfo:{ phone:"", address:"", location:null },
   };
-  function setState(patch) { S = {...S,...patch}; render(); }
+  function setState(patch) { S={...S,...patch}; render(); }
 
   // ══════════════════════════════════════════
   //  📺  RENDER
@@ -287,13 +380,13 @@
   function render() {
     const root = document.getElementById("root");
     switch(S.screen) {
-      case "splash"  : root.innerHTML = splashHTML();   break;
-      case "home"    : root.innerHTML = homeHTML();     bindHome();     break;
-      case "products": root.innerHTML = prodsHTML();    bindProds();    break;
-      case "detail"  : root.innerHTML = detailHTML();   bindDetail();   break;
-      case "cart"    : root.innerHTML = cartHTML();     bindCart();     break;
-      case "payment" : root.innerHTML = payHTML();      bindPay();      break;
-      case "success" : root.innerHTML = successHTML();  bindSuccess();  break;
+      case "splash"  : root.innerHTML = splashHTML();  break;
+      case "home"    : root.innerHTML = homeHTML();    bindHome();    break;
+      case "products": root.innerHTML = prodsHTML();   bindProds();   break;
+      case "detail"  : root.innerHTML = detailHTML();  bindDetail();  break;
+      case "cart"    : root.innerHTML = cartHTML();    bindCart();    break;
+      case "payment" : root.innerHTML = payHTML();     bindPay();     break;
+      case "success" : root.innerHTML = successHTML(); bindSuccess(); break;
     }
   }
 
@@ -311,9 +404,9 @@
   const homeHTML = () => {
     const greeting  = TG_USER?.first_name ? `สวัสดีค่ะ คุณ${TG_USER.first_name} 👋` : "สวัสดีค่ะ 👋";
     const cartCount = S.cart.reduce((s,i)=>s+i.qty,0);
-    const brandsHTML = S.brands.length === 0
+    const brandsHTML = S.brands.length===0
       ? `<div style="text-align:center;padding:40px;color:var(--muted)">กำลังโหลด...</div>`
-      : S.brands.map((b,i) => {
+      : S.brands.map((b,i)=>{
           const count = S.products.filter(p=>p.brand===b.key).length;
           return `
             <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i*0.07}s">
@@ -340,10 +433,10 @@
   };
 
   const prodsHTML = () => {
-    const b        = S.brands.find(x=>x.key===S.activeBrand)||{};
-    const prods    = S.products.filter(p=>p.brand===S.activeBrand);
-    const cartCount= S.cart.reduce((s,i)=>s+i.qty,0);
-    const html = prods.map((p,i) => {
+    const b         = S.brands.find(x=>x.key===S.activeBrand)||{};
+    const prods     = S.products.filter(p=>p.brand===S.activeBrand);
+    const cartCount = S.cart.reduce((s,i)=>s+i.qty,0);
+    const html = prods.map((p,i)=>{
       const inCart = S.cart.find(c=>c.id===p.id);
       return `
         <div class="product-card" style="animation-delay:${i*0.05}s">
@@ -416,7 +509,7 @@
         <div class="empty-sub">เลือกสินค้าก่อนนะคะ</div>
         <button class="outline-btn" id="back-shop">← เลือกสินค้า</button>
       </div>`;
-    const html = S.cart.map(item => {
+    const html = S.cart.map(item=>{
       const p = S.products.find(x=>x.id===item.id);
       const b = S.brands.find(x=>x.key===p?.brand);
       if (!p) return "";
@@ -453,8 +546,10 @@
       </div>`;
   };
 
+  // ══ PAYMENT HTML (เพิ่มเบอร์โทร + พิกัด + ที่อยู่) ══
   const payHTML = () => {
     const total = calcTotal(S.cart, S.products);
+    const loc   = S.customerInfo?.location;
     return `
       <div class="screen">
         <div class="topbar">
@@ -462,29 +557,79 @@
           <div class="topbar-name">💳 ชำระเงิน</div>
         </div>
         <div class="payment-body">
+
+          <!-- บัญชีธนาคาร -->
           <div class="bank-box">
             <div class="bank-label">บัญชีธนาคาร</div>
             <div class="bank-name">🏦 ${BANK.name}</div>
             <div class="bank-number">${BANK.account}</div>
             <div class="bank-holder">👤 ${BANK.holder}</div>
           </div>
+
+          <!-- ยอดเงิน -->
           <div class="amount-box">
             <div class="amount-label">ยอดที่ต้องโอน</div>
             <div class="amount-value">${fmt(total)}</div>
           </div>
-          <div id="slip-area">
-            <label class="slip-label" for="slip-input">
-              <span style="font-size:36px">📎</span>
-              <span class="slip-text">แนบสลิปโอนเงิน</span>
-              <span class="slip-hint">กดเพื่อเลือกรูปภาพ</span>
-            </label>
-            <input type="file" id="slip-input" accept="image/*" style="display:none"/>
+
+          <!-- 📞 เบอร์โทร -->
+          <div class="field-group">
+            <label class="field-label">📞 เบอร์โทรศัพท์ *</label>
+            <input class="field-input" id="f-phone" type="tel" inputmode="numeric"
+              pattern="[0-9]*" maxlength="10"
+              placeholder="กรอกเบอร์โทร 10 หลัก"
+              value="${S.customerInfo?.phone||""}"
+              oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+            <div class="field-error" id="phone-err">กรุณากรอกเบอร์โทร 10 หลักค่ะ</div>
           </div>
-          <div id="slip-preview" style="display:none">
-            <img id="slip-img" src="" alt="slip"/>
-            <button class="outline-btn" id="change-slip" style="width:100%">เลือกรูปใหม่</button>
+
+          <!-- 📍 พิกัด Location -->
+          <div class="location-box">
+            <label class="field-label">📍 พิกัดที่อยู่บนแผนที่ *</label>
+            <button class="location-btn ${loc?"got":""}" id="get-location">
+              ${loc
+                ? `✅ ได้พิกัดแล้ว — ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`
+                : `📍 แตะเพื่อแชร์ตำแหน่งปัจจุบัน`}
+            </button>
+            <div class="location-map ${loc?"show":""}" id="map-box">
+              ${loc?`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`:""}
+            </div>
+            <div class="location-info">
+              ${loc
+                ? `แอดมินจะใช้พิกัดนี้ในการส่ง Rider ให้ค่ะ`
+                : `ใช้สำหรับให้ Rider มาส่งสินค้าถึงบ้านค่ะ`}
+            </div>
           </div>
-          <button class="primary-btn" id="send-slip" style="display:none">📤 ส่งสลิปยืนยัน</button>
+
+          <!-- 🏠 ที่อยู่ละเอียด -->
+          <div class="field-group">
+            <label class="field-label">🏠 ที่อยู่จัดส่งละเอียด *</label>
+            <textarea class="field-input field-textarea" id="f-address"
+              placeholder="บ้านเลขที่ / หมู่บ้าน / ซอย / ถนน / แขวง-เขต / จังหวัด / รหัสไปรษณีย์&#10;เช่น 123/4 หมู่บ้านกรีนวิล ซ.รัชดา 9 แขวงดินแดง เขตดินแดง กรุงเทพฯ 10400"
+              rows="4">${S.customerInfo?.address||""}</textarea>
+            <div class="field-error" id="addr-err">กรุณากรอกที่อยู่จัดส่งค่ะ</div>
+          </div>
+
+          <!-- แนบสลิป -->
+          <div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">📎 แนบสลิปโอนเงิน *</div>
+            <div id="slip-area">
+              <label class="slip-label" for="slip-input">
+                <span style="font-size:36px">📎</span>
+                <span class="slip-text">แนบสลิปโอนเงิน</span>
+                <span class="slip-hint">กดเพื่อเลือกรูปภาพ</span>
+              </label>
+              <input type="file" id="slip-input" accept="image/*" style="display:none"/>
+            </div>
+            <div id="slip-preview" style="display:none">
+              <img id="slip-img" src="" alt="slip"/>
+              <button class="outline-btn" id="change-slip" style="width:100%">เลือกรูปใหม่</button>
+            </div>
+          </div>
+
+          <!-- ปุ่มส่ง -->
+          <button class="primary-btn" id="send-slip" disabled>📤 ส่งข้อมูลและสลิป</button>
+
         </div>
       </div>`;
   };
@@ -492,8 +637,8 @@
   const successHTML = () => `
     <div class="center">
       <div class="success-icon">🎉</div>
-      <div class="success-title">ส่งสลิปแล้วค่ะ!</div>
-      <div class="success-sub">รอแอดมินตรวจสอบและยืนยัน<br>ภายใน 15-30 นาทีค่ะ 😊</div>
+      <div class="success-title">ส่งข้อมูลแล้วค่ะ!</div>
+      <div class="success-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้ว<br>รอการยืนยันภายใน 15-30 นาทีค่ะ 😊</div>
       ${S.orderId?`<div class="order-id-box"><div class="order-id-label">เลขออเดอร์</div><div class="order-id-value">${S.orderId}</div></div>`:""}
       <button class="outline-btn" id="restart">🔄 สั่งซื้ออีกครั้ง</button>
     </div>`;
@@ -502,77 +647,150 @@
   //  🔗  BIND EVENTS
   // ══════════════════════════════════════════
   function bindHome() {
-    document.querySelectorAll(".brand-card").forEach(el =>
-      el.addEventListener("click", () => setState({ screen:"products", activeBrand:el.dataset.brand })));
-    document.getElementById("fab")?.addEventListener("click", () => setState({ screen:"cart" }));
+    document.querySelectorAll(".brand-card").forEach(el=>
+      el.addEventListener("click",()=>setState({screen:"products",activeBrand:el.dataset.brand})));
+    document.getElementById("fab")?.addEventListener("click",()=>setState({screen:"cart"}));
   }
 
   function bindProds() {
-    document.getElementById("back-home")?.addEventListener("click", () => setState({ screen:"home" }));
-    document.getElementById("fab")?.addEventListener("click", () => setState({ screen:"cart" }));
-    document.querySelectorAll("[data-add]").forEach(el =>
-      el.addEventListener("click", () => addToCart(el.dataset.add)));
-    document.querySelectorAll("[data-pid]").forEach(el =>
-      el.addEventListener("click", () => setState({ screen:"detail", activeProduct:el.dataset.pid })));
+    document.getElementById("back-home")?.addEventListener("click",()=>setState({screen:"home"}));
+    document.getElementById("fab")?.addEventListener("click",()=>setState({screen:"cart"}));
+    document.querySelectorAll("[data-add]").forEach(el=>
+      el.addEventListener("click",()=>addToCart(el.dataset.add)));
+    document.querySelectorAll("[data-pid]").forEach(el=>
+      el.addEventListener("click",()=>setState({screen:"detail",activeProduct:el.dataset.pid})));
   }
 
   function bindDetail() {
-    document.getElementById("back-prod")?.addEventListener("click", () => setState({ screen:"products" }));
-    document.getElementById("go-cart")?.addEventListener("click",  () => setState({ screen:"cart" }));
-    document.getElementById("add-detail")?.addEventListener("click", () => { addToCart(S.activeProduct); setState({}); });
+    document.getElementById("back-prod")?.addEventListener("click",()=>setState({screen:"products"}));
+    document.getElementById("go-cart")?.addEventListener("click",()=>setState({screen:"cart"}));
+    document.getElementById("add-detail")?.addEventListener("click",()=>{addToCart(S.activeProduct);setState({});});
   }
 
   function bindCart() {
-    document.getElementById("back-cont")?.addEventListener("click",  () => setState({ screen:S.activeBrand?"products":"home" }));
-    document.getElementById("back-shop")?.addEventListener("click",  () => setState({ screen:"home" }));
-    document.getElementById("go-pay")?.addEventListener("click",     () => setState({ screen:"payment" }));
-    document.querySelectorAll(".qty-btn.minus").forEach(el =>
-      el.addEventListener("click", () => updateQty(el.dataset.id,-1)));
-    document.querySelectorAll(".qty-btn.plus").forEach(el =>
-      el.addEventListener("click", () => updateQty(el.dataset.id,1)));
+    document.getElementById("back-cont")?.addEventListener("click",()=>setState({screen:S.activeBrand?"products":"home"}));
+    document.getElementById("back-shop")?.addEventListener("click",()=>setState({screen:"home"}));
+    document.getElementById("go-pay")?.addEventListener("click",()=>setState({screen:"payment"}));
+    document.querySelectorAll(".qty-btn.minus").forEach(el=>
+      el.addEventListener("click",()=>updateQty(el.dataset.id,-1)));
+    document.querySelectorAll(".qty-btn.plus").forEach(el=>
+      el.addEventListener("click",()=>updateQty(el.dataset.id,1)));
   }
 
   function bindPay() {
-    document.getElementById("back-cart")?.addEventListener("click", () => setState({ screen:"cart" }));
-    const input    = document.getElementById("slip-input");
-    const preview  = document.getElementById("slip-preview");
-    const slipImg  = document.getElementById("slip-img");
+    document.getElementById("back-cart")?.addEventListener("click",()=>setState({screen:"cart"}));
+
     const sendBtn  = document.getElementById("send-slip");
     const slipArea = document.getElementById("slip-area");
+    const preview  = document.getElementById("slip-preview");
+    const slipImg  = document.getElementById("slip-img");
+    const input    = document.getElementById("slip-input");
 
-    input?.addEventListener("change", e => {
+    // ── ตรวจสอบความครบถ้วนก่อนเปิดปุ่มส่ง ──
+    function checkReady() {
+      const phone   = document.getElementById("f-phone")?.value.trim();
+      const address = document.getElementById("f-address")?.value.trim();
+      const hasLoc  = !!S.customerInfo?.location;
+      const hasSlip = !!S.slip;
+      const ready   = phone.length===10 && address.length>5 && hasLoc && hasSlip;
+      sendBtn.disabled = !ready;
+    }
+
+    document.getElementById("f-phone")?.addEventListener("input", checkReady);
+    document.getElementById("f-address")?.addEventListener("input", checkReady);
+
+    // ── แชร์พิกัด ──
+    document.getElementById("get-location")?.addEventListener("click",()=>{
+      if (!navigator.geolocation) {
+        alert("เบราว์เซอร์นี้ไม่รองรับการแชร์ตำแหน่งค่ะ");
+        return;
+      }
+      const btn = document.getElementById("get-location");
+      btn.textContent = "⏳ กำลังดึงตำแหน่ง...";
+      btn.disabled    = true;
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude };
+          S.customerInfo = { ...S.customerInfo, location:loc };
+
+          btn.className   = "location-btn got";
+          btn.textContent = `✅ ได้พิกัดแล้ว — ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
+          btn.disabled    = false;
+
+          // แสดงแผนที่
+          const mapBox = document.getElementById("map-box");
+          mapBox.innerHTML = `<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`;
+          mapBox.classList.add("show");
+
+          checkReady();
+        },
+        err => {
+          btn.textContent = "❌ ไม่สามารถดึงตำแหน่งได้ กดอีกครั้ง";
+          btn.disabled    = false;
+          console.error(err);
+        },
+        { enableHighAccuracy:true, timeout:10000 }
+      );
+    });
+
+    // ── แนบสลิป ──
+    input?.addEventListener("change", e=>{
       const f = e.target.files[0];
       if (!f) return;
       const r = new FileReader();
-      r.onload = ev => {
+      r.onload = ev=>{
         S.slip = ev.target.result;
         slipImg.src = ev.target.result;
         slipArea.style.display = "none";
         preview.style.display  = "block";
-        sendBtn.style.display  = "block";
+        checkReady();
       };
       r.readAsDataURL(f);
     });
 
-    document.getElementById("change-slip")?.addEventListener("click", () => {
+    document.getElementById("change-slip")?.addEventListener("click",()=>{
       S.slip = null;
       slipArea.style.display = "block";
       preview.style.display  = "none";
-      sendBtn.style.display  = "none";
+      checkReady();
     });
 
-    sendBtn?.addEventListener("click", async () => {
-      if (!S.slip) return;
+    // ── ส่งข้อมูล ──
+    sendBtn?.addEventListener("click", async ()=>{
+      const phone   = document.getElementById("f-phone")?.value.trim();
+      const address = document.getElementById("f-address")?.value.trim();
+
+      // validate
+      let valid = true;
+      if (phone.length!==10) {
+        document.getElementById("phone-err").classList.add("show");
+        valid = false;
+      } else {
+        document.getElementById("phone-err").classList.remove("show");
+      }
+      if (address.length<5) {
+        document.getElementById("addr-err").classList.add("show");
+        valid = false;
+      } else {
+        document.getElementById("addr-err").classList.remove("show");
+      }
+      if (!valid || !S.slip || !S.customerInfo?.location) return;
+
       sendBtn.disabled    = true;
       sendBtn.textContent = "⏳ กำลังส่ง...";
+
+      const customerInfo = { phone, address, location:S.customerInfo.location };
+
       try {
-        const id = await saveOrder(S.cart, S.products);
-        await notifyBot(id, S.cart, S.products);
-        setState({ screen:"success", orderId:id, cart:[] });
+        const id = await saveOrder(S.cart, S.products, customerInfo);
+        await sendSlipToAdmin(id, S.slip, S.cart, S.products, customerInfo);
+        setState({ screen:"success", orderId:id, cart:[], slip:null,
+          customerInfo:{ phone:"", address:"", location:null } });
       } catch(err) {
         console.error(err);
         sendBtn.disabled    = false;
-        sendBtn.textContent = "📤 ส่งสลิปยืนยัน";
+        sendBtn.textContent = "📤 ส่งข้อมูลและสลิป";
         alert("เกิดข้อผิดพลาด กรุณาลองใหม่ค่ะ");
       }
     });
@@ -580,7 +798,7 @@
 
   function bindSuccess() {
     document.getElementById("restart")?.addEventListener("click",
-      () => setState({ screen:"home", cart:[], orderId:null }));
+      ()=>setState({screen:"home",cart:[],orderId:null,slip:null,customerInfo:{phone:"",address:"",location:null}}));
   }
 
   // ══════════════════════════════════════════
@@ -591,14 +809,14 @@
     const newCart = exists
       ? S.cart.map(i=>i.id===id?{...i,qty:i.qty+1}:i)
       : [...S.cart,{id,qty:1}];
-    setState({ cart:newCart });
+    setState({cart:newCart});
   }
 
-  function updateQty(id, delta) {
+  function updateQty(id,delta) {
     const newCart = S.cart
       .map(i=>i.id===id?{...i,qty:i.qty+delta}:i)
       .filter(i=>i.qty>0);
-    setState({ cart:newCart });
+    setState({cart:newCart});
   }
 
   // ══════════════════════════════════════════
@@ -607,12 +825,12 @@
   async function init() {
     render();
     try {
-      const [brands, products] = await Promise.all([fetchBrands(), fetchProducts()]);
+      const [brands,products] = await Promise.all([fetchBrands(),fetchProducts()]);
       S.brands   = brands;
       S.products = products;
       trackCustomer();
-    } catch(err) { console.error("Init:", err); }
-    setTimeout(() => setState({ screen:"home" }), 2000);
+    } catch(err) { console.error(err); }
+    setTimeout(()=>setState({screen:"home"}),2000);
   }
 
   init();
