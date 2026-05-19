@@ -3,552 +3,462 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>SkinMart</title>
+  <title>HENG888</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,200;0,300;0,400;0,500;1,200;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    /* ════════════════════════════════════════
-       DESIGN TOKENS — Dark Luxury
-    ════════════════════════════════════════ */
+    /* ══════════════════════════════════════
+       TOKENS
+    ══════════════════════════════════════ */
     :root {
-      --black  : #080808;
-      --black2 : #0f0f0f;
-      --black3 : #161616;
-      --black4 : #1e1e1e;
-      --black5 : #282828;
-      --border : rgba(255,255,255,0.08);
-      --border2: rgba(255,255,255,0.14);
-      --text   : #f0ece4;
-      --text2  : rgba(240,236,228,0.6);
-      --text3  : rgba(240,236,228,0.35);
-      --gold   : #c9a96e;
-      --gold2  : #e8c98a;
-      --gold3  : rgba(201,169,110,0.15);
-      --gold4  : rgba(201,169,110,0.08);
-      --white  : #f0ece4;
-      --font-th: 'Sarabun', sans-serif;
-      --font-en: 'Cormorant Garamond', Georgia, serif;
-      --r-sm   : 10px;
-      --r-md   : 16px;
-      --r-lg   : 22px;
+      --bg      : #0a0a0a;
+      --bg2     : #111111;
+      --bg3     : #1a1a1a;
+      --bg4     : #222222;
+      --border  : rgba(255,255,255,0.10);
+      --border2 : rgba(255,255,255,0.18);
+      --text    : #f5f5f0;
+      --text2   : rgba(245,245,240,0.55);
+      --text3   : rgba(245,245,240,0.28);
+      --gold    : #d4a847;
+      --gold2   : #f0c860;
+      --gold-bg : rgba(212,168,71,0.10);
+      --gold-bd : rgba(212,168,71,0.25);
+      --red     : #e05555;
+      --green   : #4caf7d;
+      --font    : 'Prompt', sans-serif;
+      --r       : 14px;
+      --r-lg    : 20px;
     }
-
-    /* ════════════════════════════════════════
-       RESET
-    ════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { background: var(--black); overscroll-behavior: none; min-height: 100vh; }
-    body { font-family: var(--font-th); color: var(--text); -webkit-font-smoothing: antialiased; }
+    html, body { background: var(--bg); overscroll-behavior: none; min-height: 100vh; }
+    body { font-family: var(--font); color: var(--text); -webkit-font-smoothing: antialiased; }
     img  { display: block; }
-    button { font-family: var(--font-th); cursor: pointer; }
+    button { font-family: var(--font); cursor: pointer; }
 
-    /* ════════════════════════════════════════
+    /* ══════════════════════════════════════
        ANIMATIONS
-    ════════════════════════════════════════ */
-    @keyframes fadeUp  { from { opacity:0; transform:translateY(22px) } to { opacity:1; transform:translateY(0) } }
-    @keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
-    @keyframes scaleIn { from { opacity:0; transform:scale(.92) } to { opacity:1; transform:scale(1) } }
-    @keyframes slideUp { from { opacity:0; transform:translateY(40px) } to { opacity:1; transform:translateY(0) } }
-    @keyframes glow    { 0%,100%{opacity:.5} 50%{opacity:1} }
-    @keyframes line-in { from { width:0; opacity:0 } to { width:40px; opacity:1 } }
-    @keyframes dot-p   { 0%,100%{opacity:.2} 50%{opacity:.8} }
-    @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(200%)} }
+    ══════════════════════════════════════ */
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+    @keyframes scaleIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes dotP    { 0%,100%{opacity:.2} 50%{opacity:1} }
+    @keyframes lineIn  { from{width:0;opacity:0} to{width:60px;opacity:1} }
 
     #root { min-height: 100vh; }
-    .screen { min-height: 100vh; padding-bottom: 100px; }
 
-    /* ════════════════════════════════════════
-       SPLASH
-    ════════════════════════════════════════ */
-    .splash {
-      height: 100vh;
-      background: var(--black);
+    /* ══════════════════════════════════════
+       COMMON LAYOUT
+    ══════════════════════════════════════ */
+    /* หน้าจอทุกหน้า: content เลื่อนได้ มี bottom bar คงที่ */
+    .page {
+      min-height: 100vh;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
     }
-    /* gold top line */
-    .splash-line-top {
-      width: 0; height: 1px;
+    .page-body {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+    /* Bottom bar — ปุ่มย้อนกลับ + action อยู่ที่นี่เสมอ */
+    .bottom-bar {
+      position: sticky; bottom: 0; left: 0; right: 0;
+      background: rgba(10,10,10,0.97);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding: 14px 18px 28px;
+      display: flex; flex-direction: column; gap: 10px;
+      z-index: 50;
+    }
+    .bottom-bar-row { display: flex; gap: 10px; }
+
+    /* ══════════════════════════════════════
+       BUTTONS — ชัดเจน โครงสร้างเด่น
+    ══════════════════════════════════════ */
+    .btn {
+      border-radius: var(--r);
+      padding: 14px 20px;
+      font-family: var(--font);
+      font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; text-align: center;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn-full   { width: 100%; }
+
+    /* ทอง — Primary Action */
+    .btn-gold {
+      background: var(--gold);
+      color: #0a0a0a; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(212,168,71,.30);
+    }
+    .btn-gold:hover { background: var(--gold2); }
+
+    /* กรอบทอง — Secondary */
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border2);
+      color: var(--text2); font-weight: 500;
+    }
+    .btn-outline:hover { border-color: var(--gold-bd); color: var(--gold); }
+
+    /* ย้อนกลับ — เสมออยู่ล่าง */
+    .btn-back {
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      color: var(--text2); font-weight: 500;
+      font-size: 14px;
+    }
+    .btn-back:hover { border-color: var(--border2); }
+
+    /* ปุ่มเพิ่มตะกร้า */
+    .btn-add-empty  { background: var(--bg3); border: 1.5px solid var(--border2); color: var(--text2); font-size: 13px; padding: 8px 14px; }
+    .btn-add-filled { background: var(--gold); border: 1.5px solid var(--gold); color: #0a0a0a; font-size: 13px; padding: 8px 14px; font-weight: 700; }
+    .btn-add-empty:active, .btn-add-filled:active { transform: scale(.91); }
+
+    /* Disabled */
+    .btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
+
+    /* ══════════════════════════════════════
+       TOPBAR — แค่ข้อมูล ไม่มีปุ่มกลับ
+    ══════════════════════════════════════ */
+    .topbar {
+      padding: 18px 20px 14px;
+      background: rgba(10,10,10,.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); }
+    .topbar-sub   { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 2px; }
+
+    /* ══════════════════════════════════════
+       SPLASH
+    ══════════════════════════════════════ */
+    .splash {
+      height: 100vh; background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0;
+    }
+    .sp-logo {
+      font-size: 52px; font-weight: 800;
+      color: var(--text); letter-spacing: 4px;
+      animation: scaleIn .7s cubic-bezier(.22,1,.36,1) both;
+    }
+    .sp-logo span { color: var(--gold); }
+    .sp-line {
+      width: 0; height: 1px; margin: 20px 0;
       background: linear-gradient(to right, transparent, var(--gold), transparent);
-      animation: line-in 1s .2s both ease;
-      margin-bottom: 40px;
+      animation: lineIn .8s .5s both ease;
     }
-    .splash-logo {
-      font-family: var(--font-en);
-      font-weight: 300; font-style: italic;
-      font-size: 52px; color: var(--white);
-      letter-spacing: 8px;
-      animation: fadeIn .8s .5s both;
+    .sp-tag {
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 4px; color: var(--text3);
+      text-transform: uppercase;
+      animation: fadeIn .6s .6s both;
     }
-    .splash-sub {
-      font-weight: 200; font-size: 10px;
-      letter-spacing: 6px; color: var(--gold);
-      text-transform: uppercase; margin-top: 10px;
+    .sp-dots {
+      display: flex; gap: 8px; margin-top: 36px;
       animation: fadeIn .6s .9s both;
     }
-    .splash-line-bot {
-      width: 0; height: 1px;
-      background: linear-gradient(to right, transparent, var(--gold), transparent);
-      animation: line-in 1s .7s both ease;
-      margin-top: 40px;
-    }
-    .splash-dots {
-      display: flex; gap: 10px; margin-top: 32px;
-      animation: fadeIn .6s 1.1s both;
-    }
     .sp-dot {
-      width: 3px; height: 3px; border-radius: 50%;
-      background: var(--gold);
-      animation: dot-p 1.8s infinite;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--gold); animation: dotP 1.6s infinite;
     }
-    .sp-dot:nth-child(2) { animation-delay: .3s }
-    .sp-dot:nth-child(3) { animation-delay: .6s }
+    .sp-dot:nth-child(2){animation-delay:.28s}
+    .sp-dot:nth-child(3){animation-delay:.56s}
 
-    /* ════════════════════════════════════════
-       HOME — HERO HEADER
-    ════════════════════════════════════════ */
+    /* ══════════════════════════════════════
+       HOME
+    ══════════════════════════════════════ */
     .home-hero {
-      padding: 60px 28px 0;
-      position: relative;
+      padding: 44px 22px 28px;
     }
-    /* ambient glow */
-    .home-hero::before {
-      content: '';
-      position: absolute; top: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(201,169,110,0.06) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .home-eyebrow {
-      font-weight: 200; font-size: 10px;
-      letter-spacing: 5px; color: var(--gold);
-      text-transform: uppercase; margin-bottom: 14px;
-      animation: fadeUp .6s both;
+    .home-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 3px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 10px;
+      animation: fadeUp .5s both;
     }
     .home-title {
-      font-family: var(--font-en);
-      font-weight: 300; font-style: italic;
-      font-size: 38px; color: var(--white);
-      line-height: 1.2;
-      animation: fadeUp .6s .07s both;
+      font-size: 30px; font-weight: 800;
+      color: var(--text); line-height: 1.25;
+      animation: fadeUp .5s .07s both;
     }
-    .home-title span { color: var(--gold); }
     .home-sub {
-      font-weight: 200; font-size: 13px;
-      color: var(--text2); line-height: 1.8;
-      margin-top: 12px;
-      animation: fadeUp .6s .14s both;
+      font-size: 14px; font-weight: 400;
+      color: var(--text2); line-height: 1.7;
+      margin-top: 10px;
+      animation: fadeUp .5s .14s both;
     }
-    /* gold divider */
-    .gold-divider {
-      display: flex; align-items: center; gap: 14px;
-      padding: 32px 28px 20px;
-      animation: fadeUp .6s .18s both;
+    /* gold rule */
+    .home-rule {
+      display: flex; align-items: center; gap: 12px;
+      padding: 22px 22px 14px;
+      animation: fadeUp .5s .18s both;
     }
-    .gd-line { flex: 1; height: 1px; background: var(--border); }
-    .gd-diamond {
-      width: 5px; height: 5px;
-      background: var(--gold); transform: rotate(45deg);
-      opacity: .7;
-    }
-    .gd-text {
-      font-weight: 200; font-size: 9px;
-      letter-spacing: 3.5px; color: var(--text3);
-      text-transform: uppercase;
-    }
+    .hr-line { flex: 1; height: 1px; background: var(--border); }
+    .hr-text  { font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; }
+    .brand-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
 
-    /* ════════════════════════════════════════
-       BRAND CARDS — Luxury Style
-    ════════════════════════════════════════ */
-    .brand-list { padding: 0 18px; display: flex; flex-direction: column; gap: 10px; }
-
+    /* BRAND CARD */
     .brand-card {
-      background: var(--black3);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 20px 22px;
-      display: flex; align-items: center; gap: 18px;
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 18px 20px;
+      display: flex; align-items: center; gap: 16px;
       cursor: pointer; text-align: left; width: 100%;
-      position: relative; overflow: hidden;
-      transition: border-color .3s, transform .2s;
+      transition: border-color .2s, background .2s;
+      animation: fadeUp .5s both;
     }
-    /* shimmer on hover */
-    .brand-card::before {
-      content: '';
-      position: absolute;
-      top: -100%; left: -100%;
-      width: 60%; height: 300%;
-      background: linear-gradient(105deg, transparent 40%, rgba(201,169,110,.04) 50%, transparent 60%);
-      transition: none; pointer-events: none;
-    }
-    .brand-card:hover::before { animation: shimmer .7s ease forwards; }
-    .brand-card:hover  { border-color: var(--border2); }
-    .brand-card:active { transform: scale(.97); }
+    .brand-card:active { background: var(--bg3); transform: scale(.97); }
+    .brand-card:hover  { border-color: var(--gold-bd); }
 
-    /* gold accent left line */
-    .brand-card::after {
-      content: '';
-      position: absolute; left: 0; top: 20%; bottom: 20%;
-      width: 1px;
-      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
-      opacity: 0; transition: opacity .3s;
-    }
-    .brand-card:hover::after { opacity: 1; }
-
-    .b-icon {
-      width: 52px; height: 52px; border-radius: var(--r-sm);
-      background: var(--black4); border: 1px solid var(--border);
+    .bc-icon {
+      width: 56px; height: 56px; border-radius: var(--r);
+      background: var(--bg3); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
-      font-size: 24px; flex-shrink: 0;
-      position: relative; overflow: hidden;
+      font-size: 26px; flex-shrink: 0;
     }
-    .b-body { flex: 1; min-width: 0; }
-    .b-name {
-      font-family: var(--font-en); font-weight: 300; font-style: italic;
-      font-size: 20px; color: var(--white);
-      margin-bottom: 4px; letter-spacing: .5px;
-    }
-    .b-desc { font-weight: 200; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
-    .b-cnt  { font-weight: 300; font-size: 10px; color: var(--gold); letter-spacing: 2px; }
-    .b-chevron { font-size: 16px; color: var(--text3); flex-shrink: 0; transition: color .2s, transform .2s; }
-    .brand-card:hover .b-chevron { color: var(--gold); transform: translateX(3px); }
+    .bc-body  { flex: 1; min-width: 0; }
+    .bc-name  { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .bc-desc  { font-size: 12px; font-weight: 400; color: var(--text2); margin-bottom: 5px; }
+    .bc-count { font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 1px; }
+    .bc-arrow { font-size: 20px; color: var(--text3); flex-shrink: 0; }
 
-    /* ════════════════════════════════════════
-       CART FAB
-    ════════════════════════════════════════ */
+    /* Cart FAB */
     .cart-fab {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: var(--gold);
-      border: none; border-radius: 50px;
-      padding: 14px 30px;
+      background: var(--gold); border: none; border-radius: 50px;
+      padding: 14px 28px;
       display: flex; align-items: center; gap: 10px;
-      color: var(--black); font-family: var(--font-th);
-      font-size: 14px; font-weight: 500;
+      color: #0a0a0a; font-family: var(--font);
+      font-size: 15px; font-weight: 700;
       cursor: pointer; z-index: 50;
-      box-shadow: 0 8px 32px rgba(201,169,110,.3), 0 0 0 1px rgba(201,169,110,.15);
-      animation: slideUp .35s ease both;
-      white-space: nowrap;
+      box-shadow: 0 6px 28px rgba(212,168,71,.35);
+      animation: slideUp .35s ease both; white-space: nowrap;
     }
     .cart-fab:active { transform: translateX(-50%) scale(.96); }
-    .c-badge {
-      background: var(--black);
-      color: var(--gold); border-radius: 20px;
-      padding: 2px 9px; font-size: 12px; font-weight: 600;
+    .fab-badge {
+      background: #0a0a0a; color: var(--gold);
+      border-radius: 20px; padding: 2px 10px;
+      font-size: 13px; font-weight: 700;
     }
 
-    /* ════════════════════════════════════════
-       TOPBAR
-    ════════════════════════════════════════ */
-    .topbar {
-      padding: 20px 20px 16px;
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(8,8,8,.94);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 12px;
-    }
-    .back-btn {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 7px 14px;
-      font-size: 12px; color: var(--text2); letter-spacing: .5px;
-    }
-    .back-btn:active { background: var(--black4); }
-    .t-info { flex: 1; }
-    .t-name-en { font-family: var(--font-en); font-style: italic; font-size: 20px; color: var(--white); }
-    .t-name-th { font-family: var(--font-th); font-size: 15px; font-weight: 400; color: var(--white); }
-    .t-sub  { font-size: 11px; color: var(--text3); margin-top: 1px; letter-spacing: .5px; font-weight: 200; }
-
-    /* ════════════════════════════════════════
-       PRODUCT GRID
-    ════════════════════════════════════════ */
-    .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
-
+    /* ══════════════════════════════════════
+       PRODUCTS GRID
+    ══════════════════════════════════════ */
+    .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
     .prod-card {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-md); overflow: hidden;
-      transition: border-color .3s;
+      background: var(--bg2); border: 1.5px solid var(--border);
+      border-radius: var(--r); overflow: hidden;
+      transition: border-color .2s;
+      animation: fadeUp .45s both;
     }
     .prod-card:hover { border-color: var(--border2); }
 
     .prod-img {
       position: relative; padding-top: 100%; overflow: hidden;
-      background: var(--black4); cursor: pointer;
+      background: var(--bg3); cursor: pointer;
     }
     .prod-img img {
       position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; transition: transform .5s ease;
+      object-fit: cover; transition: transform .4s ease;
     }
-    .prod-card:hover .prod-img img { transform: scale(1.06); }
+    .prod-card:hover .prod-img img { transform: scale(1.05); }
     .prod-icon {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%); font-size: 34px;
     }
     .prod-over {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(8,8,8,.65) 0%, transparent 50%);
+      background: linear-gradient(to top, rgba(10,10,10,.6) 0%, transparent 50%);
     }
     .prod-bdg {
       position: absolute; top: 8px; right: 8px;
-      background: var(--gold); color: var(--black);
+      background: var(--gold); color: #0a0a0a;
       border-radius: 20px; padding: 2px 8px;
-      font-size: 10px; font-weight: 600;
+      font-size: 10px; font-weight: 700;
     }
-    .prod-body { padding: 11px 13px 13px; }
+    .prod-body { padding: 11px 12px 13px; }
     .prod-name {
-      font-size: 12px; font-weight: 300; color: var(--text);
-      line-height: 1.55; margin-bottom: 9px;
+      font-size: 13px; font-weight: 500; color: var(--text);
+      line-height: 1.5; margin-bottom: 9px;
       display: -webkit-box; -webkit-line-clamp: 2;
       -webkit-box-orient: vertical; overflow: hidden;
-      cursor: pointer; min-height: 37px;
+      cursor: pointer; min-height: 40px;
     }
-    .prod-row  { display: flex; justify-content: space-between; align-items: center; }
-    .prod-price { font-family: var(--font-en); font-size: 15px; font-weight: 300; color: var(--gold); }
-    .add-btn {
-      border-radius: 7px; padding: 5px 12px;
-      font-size: 11px; font-weight: 400; letter-spacing: .5px;
-      border: 1px solid; cursor: pointer; transition: all .15s;
-    }
-    .add-btn:active { transform: scale(.9); }
-    .btn-e { background: transparent; border-color: var(--border2); color: var(--text2); }
-    .btn-e:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-f { background: var(--gold); border-color: var(--gold); color: var(--black); font-weight: 500; }
+    .prod-row   { display: flex; justify-content: space-between; align-items: center; }
+    .prod-price { font-size: 15px; font-weight: 700; color: var(--gold); }
 
-    /* ════════════════════════════════════════
+    /* ══════════════════════════════════════
        DETAIL SCREEN
-    ════════════════════════════════════════ */
-    .back-float {
-      position: fixed; top: 16px; left: 16px; z-index: 20;
-      background: rgba(8,8,8,.85);
-      border: 1px solid var(--border); border-radius: var(--r-sm);
-      padding: 8px 16px; font-size: 12px; color: var(--text2);
-      backdrop-filter: blur(12px); letter-spacing: .5px;
-    }
+    ══════════════════════════════════════ */
     .d-hero {
-      position: relative; height: 360px; overflow: hidden;
-      background: var(--black3);
+      position: relative; height: 340px; overflow: hidden;
+      background: var(--bg3);
       display: flex; align-items: center; justify-content: center;
     }
     .d-hero img { width: 100%; height: 100%; object-fit: cover; }
     .d-hero-icon { font-size: 90px; }
     .d-hero-ov {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, var(--black) 0%, transparent 55%);
+      background: linear-gradient(to top, var(--bg) 0%, transparent 55%);
     }
-    .d-body { padding: 0 26px 28px; margin-top: -32px; position: relative; }
+    .d-body { padding: 0 22px 22px; margin-top: -24px; position: relative; }
     .d-tag {
       display: inline-flex; align-items: center; gap: 6px;
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: 20px; padding: 4px 14px;
-      font-size: 10px; color: var(--text3);
-      margin-bottom: 14px; letter-spacing: 1.5px; font-weight: 200;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 11px; font-weight: 500; color: var(--text3);
+      margin-bottom: 14px; letter-spacing: 1px;
     }
-    .d-name {
-      font-family: var(--font-en); font-weight: 300; font-style: italic;
-      font-size: 30px; color: var(--white); line-height: 1.2;
-      margin-bottom: 10px;
+    .d-name  { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1.25; margin-bottom: 8px; }
+    .d-price { font-size: 28px; font-weight: 700; color: var(--gold); margin-bottom: 20px; }
+    .d-info-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px 18px; margin-bottom: 12px;
     }
-    .d-price {
-      font-family: var(--font-en); font-size: 32px; font-weight: 300;
-      color: var(--gold); margin-bottom: 22px;
-    }
-    .d-desc-card {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 18px 20px; margin-bottom: 12px;
-    }
-    .d-desc-lbl {
-      font-size: 9px; color: var(--gold); letter-spacing: 3px;
-      text-transform: uppercase; margin-bottom: 10px; font-weight: 300;
-    }
-    .d-desc { font-size: 13px; color: var(--text2); line-height: 1.9; font-weight: 200; }
+    .d-info-label { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .d-info-text  { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.8; }
     .d-cod {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 12px 16px;
-      font-size: 12px; color: var(--text3); font-weight: 200;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px 16px;
+      font-size: 13px; font-weight: 400; color: var(--text3);
     }
-    .d-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 14px 20px 28px;
-      background: rgba(8,8,8,.96); backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border);
-      display: flex; gap: 10px; z-index: 20;
-    }
-    .d-peek {
-      flex: 1; background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 14px;
-      font-size: 13px; font-weight: 400; color: var(--text2);
-    }
-    .btn-gold {
-      flex: 3; background: var(--gold); border: none;
-      border-radius: var(--r-md); padding: 15px;
-      color: var(--black); font-size: 14px; font-weight: 500;
-      letter-spacing: .5px; transition: transform .1s, background .15s;
-    }
-    .btn-gold:active { transform: scale(.97); }
-    .btn-gold:hover  { background: var(--gold2); }
 
-    /* ════════════════════════════════════════
+    /* ══════════════════════════════════════
        CART SCREEN
-    ════════════════════════════════════════ */
-    .cart-list { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+    ══════════════════════════════════════ */
+    .cart-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
     .cart-item {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 14px;
+      background: var(--bg2); border: 1.5px solid var(--border);
+      border-radius: var(--r); padding: 14px;
       display: flex; gap: 12px; align-items: center;
     }
     .c-thumb {
-      width: 60px; height: 60px; border-radius: var(--r-sm);
-      overflow: hidden; flex-shrink: 0; background: var(--black4);
+      width: 62px; height: 62px; border-radius: var(--r);
+      overflow: hidden; flex-shrink: 0; background: var(--bg3);
       display: flex; align-items: center; justify-content: center; font-size: 26px;
     }
     .c-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .c-info { flex: 1; min-width: 0; }
-    .c-name {
-      font-size: 13px; font-weight: 300; color: var(--text);
-      margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .c-price { font-family: var(--font-en); font-size: 15px; font-weight: 300; color: var(--gold); }
+    .c-name  { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .c-price { font-size: 15px; font-weight: 700; color: var(--gold); }
     .qty-ctrl { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .qty-btn {
-      width: 30px; height: 30px; border-radius: 7px;
+      width: 32px; height: 32px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 17px; border: 1px solid var(--border);
-      background: var(--black4); color: var(--text2);
+      font-size: 18px; border: 1.5px solid var(--border);
+      background: var(--bg3); color: var(--text);
     }
-    .qty-btn:active { background: var(--black5); }
-    .qty-num { font-size: 14px; font-weight: 400; min-width: 22px; text-align: center; color: var(--white); }
-    .cart-bot {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 18px 20px 28px;
-      background: rgba(8,8,8,.97); backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border); z-index: 20;
-    }
-    .c-total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-    .c-total-lbl { font-size: 11px; color: var(--text3); letter-spacing: 2px; font-weight: 200; text-transform: uppercase; }
-    .c-total-val { font-family: var(--font-en); font-size: 30px; font-weight: 300; color: var(--gold); }
-    .c-cod { font-size: 11px; color: var(--text3); text-align: right; margin-bottom: 14px; font-weight: 200; }
-    .btn-gold-full {
-      width: 100%; background: var(--gold); border: none;
-      border-radius: var(--r-md); padding: 16px;
-      color: var(--black); font-size: 14px; font-weight: 500;
-      font-family: var(--font-th); letter-spacing: .5px;
-      transition: background .15s;
-    }
-    .btn-gold-full:active { transform: scale(.98); }
-    .btn-gold-full:hover  { background: var(--gold2); }
+    .qty-btn:active { background: var(--bg4); }
+    .qty-num { font-size: 15px; font-weight: 600; min-width: 24px; text-align: center; }
 
-    /* ════════════════════════════════════════
+    /* Cart summary in bottom bar */
+    .cart-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 4px 4px;
+    }
+    .cart-total-lbl { font-size: 12px; font-weight: 500; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+    .cart-total-val { font-size: 24px; font-weight: 700; color: var(--gold); }
+
+    /* ══════════════════════════════════════
        PAYMENT SCREEN
-    ════════════════════════════════════════ */
-    .pay-body { padding: 22px 18px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 44px; }
-    .sec-card {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 18px 20px;
+    ══════════════════════════════════════ */
+    .pay-list { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .pay-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 18px 20px;
     }
-    .sec-lbl {
-      font-size: 9px; color: var(--gold); letter-spacing: 3px;
-      text-transform: uppercase; margin-bottom: 12px;
-      display: block; font-weight: 300;
-    }
-    .bank-n  { font-size: 12px; color: var(--text3); margin-bottom: 4px; font-weight: 200; }
-    .bank-ac { font-family: 'Courier New', monospace; font-size: 20px; font-weight: 700; color: var(--white); letter-spacing: 2.5px; margin-bottom: 4px; }
-    .bank-h  { font-size: 11px; color: var(--text3); font-weight: 200; }
+    .pay-label { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 12px; display: block; }
+    .bank-n  { font-size: 13px; font-weight: 400; color: var(--text3); margin-bottom: 4px; }
+    .bank-ac { font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: 2.5px; margin-bottom: 4px; }
+    .bank-h  { font-size: 12px; font-weight: 400; color: var(--text3); }
+
     .amt-card {
-      background: var(--gold4); border: 1px solid rgba(201,169,110,.2);
-      border-radius: var(--r-md); padding: 22px; text-align: center;
+      background: var(--gold-bg); border: 1.5px solid var(--gold-bd);
+      border-radius: var(--r); padding: 20px; text-align: center;
     }
-    .amt-lbl { font-size: 9px; color: var(--gold); letter-spacing: 3.5px; text-transform: uppercase; margin-bottom: 10px; font-weight: 300; }
-    .amt-val { font-family: var(--font-en); font-size: 44px; font-weight: 300; color: var(--gold2); }
+    .amt-lbl { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+    .amt-val { font-size: 40px; font-weight: 800; color: var(--gold2); }
+
+    /* Form inputs */
     .f-inp {
-      width: 100%;
-      background: var(--black4); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 12px 15px;
-      font-family: var(--font-th); font-size: 14px; color: var(--text);
-      outline: none; transition: border-color .25s;
+      width: 100%; background: var(--bg3);
+      border: 1.5px solid var(--border); border-radius: var(--r);
+      padding: 13px 15px; font-family: var(--font);
+      font-size: 15px; font-weight: 400; color: var(--text);
+      outline: none; transition: border-color .2s;
     }
-    .f-inp:focus  { border-color: rgba(201,169,110,.4); background: var(--black5); }
+    .f-inp:focus   { border-color: var(--gold-bd); background: var(--bg4); }
     .f-inp::placeholder { color: var(--text3); }
-    .f-ta  { resize: none; min-height: 84px; line-height: 1.7; }
-    .f-err { font-size: 11px; color: #c87a7a; margin-top: 5px; display: none; font-weight: 200; }
+    .f-ta  { resize: none; min-height: 88px; line-height: 1.7; }
+    .f-err { font-size: 12px; font-weight: 400; color: var(--red); margin-top: 5px; display: none; }
     .f-err.show { display: block; }
+
+    /* Location */
     .loc-btn {
-      width: 100%; background: var(--black4);
-      border: 1px dashed var(--border2); border-radius: var(--r-sm);
-      padding: 16px; font-family: var(--font-th); font-size: 13px;
-      color: var(--text2); display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: all .25s; font-weight: 300;
+      width: 100%; background: var(--bg3);
+      border: 1.5px dashed var(--border2); border-radius: var(--r);
+      padding: 16px; font-family: var(--font);
+      font-size: 14px; font-weight: 500; color: var(--text2);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s;
     }
     .loc-btn:active { transform: scale(.98); }
-    .loc-btn.got { background: rgba(122,154,122,.08); border-style: solid; border-color: rgba(122,154,122,.3); color: #7a9a7a; }
-    .loc-map { display: none; width: 100%; height: 160px; border-radius: var(--r-sm); overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
+    .loc-btn.got { background: rgba(76,175,125,.08); border-style: solid; border-color: rgba(76,175,125,.35); color: var(--green); }
+    .loc-map { display: none; width: 100%; height: 160px; border-radius: var(--r); overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
     .loc-map.show { display: block; }
     .loc-map iframe { width: 100%; height: 100%; border: none; }
-    .loc-hint { font-size: 11px; color: var(--text3); margin-top: 6px; text-align: center; line-height: 1.6; font-weight: 200; }
-    .slip-zone {
-      border: 1px dashed var(--border2); border-radius: var(--r-md);
-      padding: 30px; cursor: pointer; text-align: center;
-      background: var(--black4); transition: border-color .25s;
-    }
-    .slip-zone:hover { border-color: rgba(201,169,110,.25); }
-    .slip-ico  { font-size: 28px; margin-bottom: 10px; }
-    .slip-txt  { font-size: 13px; font-weight: 300; color: var(--text2); }
-    .slip-hint { font-size: 11px; color: var(--text3); margin-top: 4px; font-weight: 200; }
-    #slip-img  { width: 100%; border-radius: var(--r-md); max-height: 220px; object-fit: contain; margin-bottom: 10px; border: 1px solid var(--border); }
-    .btn-outline-gold {
-      width: 100%; background: transparent;
-      border: 1px solid rgba(201,169,110,.3); border-radius: var(--r-md);
-      padding: 12px; font-family: var(--font-th);
-      font-size: 13px; color: var(--gold); margin-top: 8px; font-weight: 300;
-    }
+    .loc-hint { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 6px; text-align: center; line-height: 1.6; }
 
-    /* ════════════════════════════════════════
-       SUCCESS
-    ════════════════════════════════════════ */
+    /* Slip upload */
+    .slip-zone {
+      border: 1.5px dashed var(--border2); border-radius: var(--r);
+      padding: 28px; cursor: pointer; text-align: center;
+      background: var(--bg3); transition: border-color .2s;
+    }
+    .slip-zone:hover { border-color: var(--gold-bd); }
+    .slip-ico  { font-size: 30px; margin-bottom: 8px; }
+    .slip-txt  { font-size: 14px; font-weight: 500; color: var(--text2); }
+    .slip-hint { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 4px; }
+    #slip-img  { width: 100%; border-radius: var(--r); max-height: 220px; object-fit: contain; margin-bottom: 10px; border: 1px solid var(--border); }
+
+    /* ══════════════════════════════════════
+       SUCCESS SCREEN
+    ══════════════════════════════════════ */
     .suc-wrap {
       height: 100vh; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 18px; padding: 36px; text-align: center;
-      background: var(--black);
+      background: var(--bg);
     }
     .suc-ring {
       width: 80px; height: 80px; border-radius: 50%;
-      border: 1px solid rgba(201,169,110,.3);
+      border: 1.5px solid var(--gold-bd);
+      background: var(--gold-bg);
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px; background: var(--gold4);
-      animation: scaleIn .55s cubic-bezier(.22,1,.36,1);
+      font-size: 32px;
+      animation: scaleIn .5s cubic-bezier(.22,1,.36,1);
     }
-    .suc-title {
-      font-family: var(--font-en); font-weight: 300; font-style: italic;
-      font-size: 28px; color: var(--white);
-      animation: fadeUp .5s .15s both;
-    }
-    .suc-line {
-      width: 40px; height: 1px;
-      background: linear-gradient(to right, transparent, var(--gold), transparent);
-      animation: fadeUp .5s .2s both;
-    }
-    .suc-sub {
-      font-size: 13px; color: var(--text2); font-weight: 200;
-      line-height: 1.9; animation: fadeUp .5s .25s both;
-    }
-    .ord-box {
-      background: var(--black3); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 16px 32px;
-      text-align: center; animation: fadeUp .5s .32s both;
-    }
-    .ord-lbl { font-size: 9px; color: var(--gold); margin-bottom: 6px; letter-spacing: 3px; text-transform: uppercase; font-weight: 200; }
-    .ord-val { font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700; color: var(--white); }
+    .suc-title { font-size: 24px; font-weight: 800; color: var(--text); animation: fadeUp .5s .15s both; }
+    .suc-line  { width: 40px; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); animation: fadeUp .5s .2s both; }
+    .suc-sub   { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.8; animation: fadeUp .5s .25s both; }
+    .ord-box   { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 32px; text-align: center; animation: fadeUp .5s .3s both; }
+    .ord-lbl   { font-size: 10px; font-weight: 600; color: var(--gold); margin-bottom: 6px; letter-spacing: 2.5px; text-transform: uppercase; }
+    .ord-val   { font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
 
     /* EMPTY */
-    .empty-wrap {
-      height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 14px; padding: 36px; text-align: center;
-    }
-    .empty-ico  { font-size: 48px; opacity: .5; }
-    .empty-t    { font-family: var(--font-en); font-style: italic; font-size: 22px; color: var(--white); }
-    .empty-s    { font-size: 13px; color: var(--text3); font-weight: 200; }
+    .empty-wrap { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 36px; text-align: center; }
+    .empty-ico  { font-size: 52px; opacity: .4; }
+    .empty-t    { font-size: 20px; font-weight: 700; color: var(--text); }
+    .empty-s    { font-size: 13px; font-weight: 400; color: var(--text3); }
   </style>
 </head>
 <body>
@@ -557,13 +467,13 @@
   import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import{getFirestore,doc,getDoc,setDoc,updateDoc,addDoc,collection,getDocs,query,where,serverTimestamp,increment}from"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-  /* CONFIG */
+  /* ── CONFIG ── */
   const FC={apiKey:"AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",authDomain:"shop-th.firebaseapp.com",projectId:"shop-th",storageBucket:"shop-th.firebasestorage.app",messagingSenderId:"407059998090",appId:"1:407059998090:web:e008bcb4042e574eb7d473"};
   const SHOP="shop_001";
   const ASU="https://script.google.com/macros/s/AKfycbxGJhJous-opXRgprkwO3TlP1MkOPpb-7pgfmq_f0YcWR-88rBiXjXtIDQ41SHprEFV/exec";
-  const BOT="ใส่ Bot Token ที่นี่";
+  const BOT="8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
   const ADMIN="7234688831";
-  const BANK={n:"กสิกรไทย",a:"123-4-56789-0",h:"บริษัท สกินมาร์ท จำกัด"};
+  const BANK={n:"กสิกรไทย",a:"123-4-56789-0",h:"HENG888 CO., LTD."};
 
   const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
@@ -572,203 +482,432 @@
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
   const tot=(cart,ps)=>cart.reduce((s,i)=>{const p=ps.find(x=>x.id===i.id);return s+(p?p.price*i.qty:0);},0);
 
+  /* ── FIREBASE ── */
   async function fBr(){try{const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
   async function fPr(){try{const q=query(collection(db,"shops",SHOP,"products"),where("active","==",true));const s=await getDocs(q);return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
   async function track(){if(!U)return;try{const cid=String(U.id);const r=doc(db,"customers",cid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{chatId:cid,shopId:SHOP,firstName:U.first_name||"",lastName:U.last_name||"",username:U.username||"",firstVisit:serverTimestamp(),lastVisit:serverTimestamp(),visitCount:1,totalOrders:0,totalSpent:0});else await updateDoc(r,{lastVisit:serverTimestamp(),visitCount:increment(1)});}catch{}}
+  async function checkAdmin(){if(!U)return false;try{const s=await getDoc(doc(db,"admins",String(U.id)));return s.exists()&&s.data().active===true;}catch{return false;}}
+  async function saveOrd(cart,ps,info){const cid=U?String(U.id):"guest";const total=tot(cart,ps);const oid="HG"+Date.now().toString().slice(-6);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return{id:i.id,name:p?.name||"",price:p?.price||0,qty:i.qty};});try{await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});if(U)await updateDoc(doc(db,"customers",String(U.id)),{totalOrders:increment(1),totalSpent:increment(total),lastOrder:serverTimestamp(),phone:info.phone});}catch{}return oid;}
+  async function sendSlip(oid,slip,cart,ps,info){const total=tot(cart,ps);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return`• ${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";const cap=`🛎️ *ออเดอร์ใหม่! HENG888*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ชำระปลายทาง (COD)`;const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});try{const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});if(info.location)await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});}catch(e){const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);return`${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});}}
 
-  async function saveOrd(cart,ps,info){
-    const cid=U?String(U.id):"guest";const total=tot(cart,ps);const oid="SM"+Date.now().toString().slice(-6);
-    const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return{id:i.id,name:p?.name||"",price:p?.price||0,qty:i.qty};});
-    try{await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});
-    if(U)await updateDoc(doc(db,"customers",String(U.id)),{totalOrders:increment(1),totalSpent:increment(total),lastOrder:serverTimestamp(),phone:info.phone});}catch{}
-    return oid;
-  }
-
-  async function sendSlip(oid,slip,cart,ps,info){
-    const total=tot(cart,ps);
-    const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return`• ${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");
-    const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";
-    const cap=`🛎️ *ออเดอร์ใหม่!*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ชำระปลายทาง (COD)`;
-    const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});
-    try{
-      const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);
-      const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-      fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");
-      await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});
-      if(info.location)await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});
-    }catch(e){
-      const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);return`${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});
-      await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});
-    }
-  }
-
-  /* STATE */
+  /* ── STATE ── */
   let S={screen:"splash",brands:[],products:[],cart:[],activeBrand:null,activeProduct:null,orderId:null,slip:null,info:{phone:"",address:"",location:null}};
-  function set(p){S={...S,...p};render();}
+  const set=p=>{S={...S,...p};render();};
 
-  /* RENDER */
+  /* ── RENDER ── */
   function render(){
     const r=document.getElementById("root");
     switch(S.screen){
-      case"splash":r.innerHTML=hSp();break;
-      case"home":r.innerHTML=hHo();bHo();break;
+      case"splash"  :r.innerHTML=hSp();break;
+      case"home"    :r.innerHTML=hHo();bHo();break;
       case"products":r.innerHTML=hPr();bPr();break;
-      case"detail":r.innerHTML=hDe();bDe();break;
-      case"cart":r.innerHTML=hCa();bCa();break;
-      case"payment":r.innerHTML=hPa();bPa();break;
-      case"success":r.innerHTML=hSu();bSu();break;
+      case"detail"  :r.innerHTML=hDe();bDe();break;
+      case"cart"    :r.innerHTML=hCa();bCa();break;
+      case"payment" :r.innerHTML=hPa();bPa();break;
+      case"success" :r.innerHTML=hSu();bSu();break;
     }
   }
 
-  /* SPLASH */
-  const hSp=()=>`<div class="splash"><div class="splash-line-top"></div><div class="splash-logo">SkinMart</div><div class="splash-sub">Luxury Skincare</div><div class="splash-line-bot"></div><div class="splash-dots"><div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div></div></div>`;
+  /* ══════════════════════════════════════
+     TEMPLATES
+  ══════════════════════════════════════ */
 
-  /* HOME */
+  /* SPLASH */
+  const hSp=()=>`
+    <div class="splash">
+      <div class="sp-logo">HENG<span>888</span></div>
+      <div class="sp-line"></div>
+      <div class="sp-tag">Men's Exclusive Fragrance</div>
+      <div class="sp-dots">
+        <div class="sp-dot"></div>
+        <div class="sp-dot"></div>
+        <div class="sp-dot"></div>
+      </div>
+    </div>`;
+
+  /* HOME — ไม่มีปุ่มย้อนกลับ (หน้าแรก) */
   const hHo=()=>{
-    const name=U?.first_name;const cc=S.cart.reduce((s,i)=>s+i.qty,0);
+    const name=U?.first_name;
+    const cc=S.cart.reduce((s,i)=>s+i.qty,0);
     const bh=S.brands.length===0
-      ?`<div style="text-align:center;padding:48px;color:var(--text3);font-size:13px;font-weight:200">กำลังโหลด...</div>`
+      ?`<div style="text-align:center;padding:48px;color:var(--text3);font-size:14px">กำลังโหลด...</div>`
       :S.brands.map((b,i)=>{
           const cnt=S.products.filter(p=>p.brand===b.key).length;
-          return`<button class="brand-card" data-brand="${b.key}" style="animation:fadeUp .6s ${i*.09}s both"><div class="b-icon" style="background:${b.color}10">${b.emoji}</div><div class="b-body"><div class="b-name">${b.name}</div><div class="b-desc">${b.desc||""}</div><div class="b-cnt">${cnt} ITEMS</div></div><div class="b-chevron">›</div></button>`;
+          return`
+            <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i*.08}s">
+              <div class="bc-icon">${b.emoji}</div>
+              <div class="bc-body">
+                <div class="bc-name">${b.name}</div>
+                <div class="bc-desc">${b.desc||""}</div>
+                <div class="bc-count">${cnt} รายการ</div>
+              </div>
+              <div class="bc-arrow">›</div>
+            </button>`;
         }).join("");
-    return`<div class="screen"><div class="home-hero"><div class="home-eyebrow">${name?`Welcome, ${name}`:"Welcome"}</div><div class="home-title">ความงาม<br><span>ระดับ Luxury</span></div><div class="home-sub">สกินแคร์คัดสรรพิเศษ · ส่งถึงมือ · จ่ายปลายทาง</div></div><div class="gold-divider"><div class="gd-line"></div><div class="gd-diamond"></div><div class="gd-text">เลือกแบรนด์</div><div class="gd-diamond"></div><div class="gd-line"></div></div><div class="brand-list">${bh}</div>${cc>0?`<button class="cart-fab" id="fab">🛒 ตะกร้า <span class="c-badge">${cc}</span></button>`:""}</div>`;
+    return`
+      <div class="page">
+        <div class="page-body">
+          <div class="home-hero">
+            <div class="home-label">${name?`สวัสดีครับ ${name}`:"Welcome"}</div>
+            <div class="home-title">เลือกกลิ่นที่ใช่\nสำหรับคุณ</div>
+            <div class="home-sub">น้ำหอมผู้ชายคัดสรรพิเศษ · จ่ายปลายทาง ไม่ต้องโอนก่อน</div>
+          </div>
+          <div class="home-rule">
+            <div class="hr-line"></div>
+            <div class="hr-text">เลือกแบรนด์</div>
+            <div class="hr-line"></div>
+          </div>
+          <div class="brand-list">${bh}</div>
+        </div>
+        ${cc>0?`
+          <button class="cart-fab" id="fab">
+            🛒 ดูตะกร้า <span class="fab-badge">${cc}</span>
+          </button>`:""}
+      </div>`;
   };
 
-  /* PRODUCTS */
+  /* PRODUCTS — ปุ่มกลับอยู่ล่าง */
   const hPr=()=>{
     const b=S.brands.find(x=>x.key===S.activeBrand)||{};
     const ps=S.products.filter(p=>p.brand===S.activeBrand);
     const cc=S.cart.reduce((s,i)=>s+i.qty,0);
     const html=ps.map((p,i)=>{
       const ic=S.cart.find(c=>c.id===p.id);
-      return`<div class="prod-card" style="animation:fadeUp .5s ${i*.05}s both"><div class="prod-img" data-pid="${p.id}">${p.imageUrl?`<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>`:`<div class="prod-icon">${b.emoji}</div>`}<div class="prod-over"></div>${ic?`<div class="prod-bdg">×${ic.qty}</div>`:""}</div><div class="prod-body"><div class="prod-name" data-pid="${p.id}">${p.name}</div><div class="prod-row"><span class="prod-price">${fmt(p.price)}</span><button class="add-btn ${ic?"btn-f":"btn-e"}" data-add="${p.id}">${ic?`✓${ic.qty}`:"+"}</button></div></div></div>`;
-    }).join("")||`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text3);font-weight:200">ยังไม่มีสินค้าค่ะ</div>`;
-    return`<div class="screen"><div class="topbar"><button class="back-btn" id="bh">← กลับ</button><div class="t-info"><div class="t-name-en">${b.name}</div><div class="t-sub">${ps.length} รายการ</div></div></div><div class="prod-grid">${html}</div>${cc>0?`<button class="cart-fab" id="fab">🛒 ตะกร้า (${cc})</button>`:""}</div>`;
+      return`
+        <div class="prod-card" style="animation-delay:${i*.05}s">
+          <div class="prod-img" data-pid="${p.id}">
+            ${p.imageUrl?`<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>`:""}
+            <div class="prod-icon" style="${p.imageUrl?"display:none":""}">${b.emoji||"🫧"}</div>
+            <div class="prod-over"></div>
+            ${ic?`<div class="prod-bdg">×${ic.qty}</div>`:""}
+          </div>
+          <div class="prod-body">
+            <div class="prod-name" data-pid="${p.id}">${p.name}</div>
+            <div class="prod-row">
+              <span class="prod-price">${fmt(p.price)}</span>
+              <button class="btn btn-add-${ic?"filled":"empty"}" data-add="${p.id}">
+                ${ic?`✓ ${ic.qty}`:"+ เพิ่ม"}
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join("")||`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text3)">ยังไม่มีสินค้าครับ</div>`;
+    return`
+      <div class="page">
+        <div class="topbar">
+          <div class="topbar-title">${b.name||""}</div>
+          <div class="topbar-sub">${ps.length} รายการ</div>
+        </div>
+        <div class="page-body">
+          <div class="prod-grid">${html}</div>
+        </div>
+        <div class="bottom-bar">
+          ${cc>0?`<button class="btn btn-gold btn-full" id="go-cart">🛒 ดูตะกร้า (${cc} ชิ้น)</button>`:""}
+          <button class="btn btn-back btn-full" id="bk-home">← กลับหน้าหลัก</button>
+        </div>
+      </div>`;
   };
 
-  /* DETAIL */
+  /* DETAIL — ปุ่มกลับอยู่ล่าง */
   const hDe=()=>{
-    const p=S.products.find(x=>x.id===S.activeProduct);const b=S.brands.find(x=>x.key===p?.brand)||{};
-    const ic=S.cart.find(c=>c.id===p?.id);const cc=S.cart.reduce((s,i)=>s+i.qty,0);
+    const p=S.products.find(x=>x.id===S.activeProduct);
+    const b=S.brands.find(x=>x.key===p?.brand)||{};
+    const ic=S.cart.find(c=>c.id===p?.id);
+    const cc=S.cart.reduce((s,i)=>s+i.qty,0);
     if(!p)return hHo();
-    return`<div class="screen"><button class="back-float" id="bp">← กลับ</button><div class="d-hero" style="background:${b.color}10">${p.imageUrl?`<img src="${p.imageUrl}" alt="${p.name}"/>`:`<div class="d-hero-icon">${b.emoji}</div>`}<div class="d-hero-ov"></div></div><div class="d-body"><div class="d-tag">${b.emoji}&nbsp;&nbsp;${b.name}</div><div class="d-name">${p.name}</div><div class="d-price">${fmt(p.price)}</div>${p.description?`<div class="d-desc-card"><div class="d-desc-lbl">Product Details</div><div class="d-desc">${p.description}</div></div>`:""}<div class="d-cod">📦 ชำระเงินสดปลายทาง (COD) — ไม่ต้องโอนก่อน</div></div><div class="d-bar">${cc>0?`<button class="d-peek" id="gc">🛒 ${cc}</button>`:""}<button class="btn-gold" id="ad">${ic?`✅ เพิ่มอีก (${ic.qty})`:"+ เพิ่มลงตะกร้า"}</button></div></div>`;
+    return`
+      <div class="page">
+        <div class="page-body">
+          <div class="d-hero" style="background:${b.color||"#1a1a1a"}18">
+            ${p.imageUrl?`<img src="${p.imageUrl}" alt="${p.name}"/>`:`<div class="d-hero-icon">${b.emoji||"🫧"}</div>`}
+            <div class="d-hero-ov"></div>
+          </div>
+          <div class="d-body">
+            <div class="d-tag">${b.emoji||""} ${b.name||""}</div>
+            <div class="d-name">${p.name}</div>
+            <div class="d-price">${fmt(p.price)}</div>
+            ${p.description?`
+              <div class="d-info-card">
+                <div class="d-info-label">รายละเอียด</div>
+                <div class="d-info-text">${p.description}</div>
+              </div>`:""}
+            <div class="d-cod">📦 ชำระเงินสดปลายทาง (COD) — ไม่ต้องโอนก่อน</div>
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <button class="btn btn-gold btn-full" id="add-d">
+            ${ic?`✓ เพิ่มอีก (มีแล้ว ${ic.qty} ชิ้น)`:"🛒 เพิ่มลงตะกร้า"}
+          </button>
+          <div class="bottom-bar-row">
+            ${cc>0?`<button class="btn btn-outline" id="go-cart" style="flex:1">ดูตะกร้า (${cc})</button>`:""}
+            <button class="btn btn-back" id="bk-prod" style="flex:1">← กลับ</button>
+          </div>
+        </div>
+      </div>`;
   };
 
-  /* CART */
+  /* CART — ปุ่มกลับอยู่ล่าง */
   const hCa=()=>{
     const total=tot(S.cart,S.products);
-    if(S.cart.length===0)return`<div class="empty-wrap"><div class="empty-ico">🛒</div><div class="empty-t">ตะกร้าว่างค่ะ</div><div class="empty-s">เลือกสินค้าที่ต้องการก่อนนะคะ</div><button class="btn-outline-gold" id="bs" style="max-width:200px;margin-top:4px">← เลือกสินค้า</button></div>`;
-    const html=S.cart.map(item=>{const p=S.products.find(x=>x.id===item.id);const b=S.brands.find(x=>x.key===p?.brand);if(!p)return"";return`<div class="cart-item"><div class="c-thumb" style="background:${b?.color}10">${p.imageUrl?`<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>`:`<span>${b?.emoji}</span>`}</div><div class="c-info"><div class="c-name">${p.name}</div><div class="c-price">${fmt(p.price*item.qty)}</div></div><div class="qty-ctrl"><button class="qty-btn" data-mi="${item.id}">−</button><span class="qty-num">${item.qty}</span><button class="qty-btn" data-pl="${item.id}">+</button></div></div>`;}).join("");
-    return`<div class="screen"><div class="topbar"><button class="back-btn" id="bco">← เลือกต่อ</button><div class="t-info"><div class="t-name-th">ตะกร้าสินค้า</div></div></div><div class="cart-list">${html}</div><div class="cart-bot"><div class="c-total-row"><span class="c-total-lbl">Total</span><span class="c-total-val">${fmt(total)}</span></div><div class="c-cod">📦 ชำระเงินสดปลายทาง</div><button class="btn-gold-full" id="gp">ยืนยันสั่งซื้อ — ${fmt(total)}</button></div></div>`;
+    if(S.cart.length===0)return`
+      <div class="empty-wrap">
+        <div class="empty-ico">🛒</div>
+        <div class="empty-t">ตะกร้าว่างครับ</div>
+        <div class="empty-s">เลือกสินค้าที่ต้องการก่อนนะครับ</div>
+        <button class="btn btn-back" id="bk-home" style="margin-top:8px;min-width:180px">← กลับเลือกสินค้า</button>
+      </div>`;
+    const html=S.cart.map(item=>{
+      const p=S.products.find(x=>x.id===item.id);
+      const b=S.brands.find(x=>x.key===p?.brand);
+      if(!p)return"";
+      return`
+        <div class="cart-item">
+          <div class="c-thumb" style="background:${b?.color||"#1a1a1a"}10">
+            ${p.imageUrl?`<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.display='none'"/>`:`<span>${b?.emoji||"🫧"}</span>`}
+          </div>
+          <div class="c-info">
+            <div class="c-name">${p.name}</div>
+            <div class="c-price">${fmt(p.price*item.qty)}</div>
+          </div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" data-mi="${item.id}">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" data-pl="${item.id}">+</button>
+          </div>
+        </div>`;
+    }).join("");
+    return`
+      <div class="page">
+        <div class="topbar">
+          <div class="topbar-title">ตะกร้าสินค้า</div>
+          <div class="topbar-sub">รายการที่เลือก</div>
+        </div>
+        <div class="page-body">
+          <div class="cart-list">${html}</div>
+        </div>
+        <div class="bottom-bar">
+          <div class="cart-total-row">
+            <span class="cart-total-lbl">ยอดรวม</span>
+            <span class="cart-total-val">${fmt(total)}</span>
+          </div>
+          <button class="btn btn-gold btn-full" id="go-pay">ยืนยันสั่งซื้อ — ${fmt(total)}</button>
+          <button class="btn btn-back btn-full" id="bk-prod2">← เลือกสินค้าเพิ่ม</button>
+        </div>
+      </div>`;
   };
 
-  /* PAYMENT */
+  /* PAYMENT — ปุ่มกลับอยู่ล่าง */
   const hPa=()=>{
     const total=tot(S.cart,S.products);const loc=S.info?.location;
-    return`<div class="screen"><div class="topbar"><button class="back-btn" id="bca">← กลับ</button><div class="t-info"><div class="t-name-th">ชำระเงิน</div></div></div><div class="pay-body"><div class="sec-card"><span class="sec-lbl">Bank Account</span><div class="bank-n">🏦 ${BANK.n}</div><div class="bank-ac">${BANK.a}</div><div class="bank-h">👤 ${BANK.h}</div></div><div class="amt-card"><div class="amt-lbl">Amount Due</div><div class="amt-val">${fmt(total)}</div></div><div class="sec-card"><span class="sec-lbl">📞 เบอร์โทรศัพท์ *</span><input class="f-inp" id="fp" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="กรอกเบอร์โทร 10 หลัก" value="${S.info?.phone||""}" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/><div class="f-err" id="ep">กรุณากรอกเบอร์โทร 10 หลักค่ะ</div></div><div class="sec-card"><span class="sec-lbl">📍 พิกัดที่อยู่ *</span><button class="loc-btn ${loc?"got":""}" id="gl">${loc?`✅ ได้พิกัดแล้ว — ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`:"📍 แตะเพื่อแชร์ตำแหน่งปัจจุบัน"}</button><div class="loc-map ${loc?"show":""}" id="mb">${loc?`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`:""}</div><div class="loc-hint">${loc?"แอดมินจะใช้พิกัดนี้ส่ง Rider ให้ค่ะ":"ใช้สำหรับให้ Rider มาส่งสินค้าถึงบ้านค่ะ"}</div></div><div class="sec-card"><span class="sec-lbl">🏠 ที่อยู่จัดส่งละเอียด *</span><textarea class="f-inp f-ta" id="fa" placeholder="บ้านเลขที่ / ซอย / ถนน / แขวง / เขต / จังหวัด / รหัสไปรษณีย์" rows="4">${S.info?.address||""}</textarea><div class="f-err" id="ea">กรุณากรอกที่อยู่จัดส่งค่ะ</div></div><div class="sec-card"><span class="sec-lbl">📎 สลิปโอนเงิน *</span><div id="sa"><label class="slip-zone" for="si"><div class="slip-ico">📎</div><div class="slip-txt">แนบสลิปโอนเงิน</div><div class="slip-hint">กดเพื่อเลือกรูปภาพ</div></label><input type="file" id="si" accept="image/*" style="display:none"/></div><div id="sp" style="display:none"><img id="sim" src="" alt="slip"/><button class="btn-outline-gold" id="cs">เลือกรูปใหม่</button></div></div><button class="btn-gold-full" id="sb" disabled style="opacity:.4">📤 ส่งข้อมูลและสลิป</button></div></div>`;
+    return`
+      <div class="page">
+        <div class="topbar">
+          <div class="topbar-title">ชำระเงิน</div>
+          <div class="topbar-sub">กรอกข้อมูลให้ครบก่อนส่งค่ะ</div>
+        </div>
+        <div class="page-body">
+          <div class="pay-list">
+            <div class="pay-card">
+              <span class="pay-label">บัญชีธนาคาร</span>
+              <div class="bank-n">🏦 ${BANK.n}</div>
+              <div class="bank-ac">${BANK.a}</div>
+              <div class="bank-h">👤 ${BANK.h}</div>
+            </div>
+            <div class="amt-card">
+              <div class="amt-lbl">ยอดที่ต้องโอน</div>
+              <div class="amt-val">${fmt(total)}</div>
+            </div>
+            <div class="pay-card">
+              <span class="pay-label">📞 เบอร์โทรศัพท์ *</span>
+              <input class="f-inp" id="fp" type="tel" inputmode="numeric"
+                pattern="[0-9]*" maxlength="10"
+                placeholder="กรอกเบอร์โทร 10 หลัก"
+                value="${S.info?.phone||""}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+              <div class="f-err" id="ep">กรุณากรอกเบอร์โทร 10 หลักครับ</div>
+            </div>
+            <div class="pay-card">
+              <span class="pay-label">📍 พิกัดที่อยู่จัดส่ง *</span>
+              <button class="loc-btn ${loc?"got":""}" id="gl">
+                ${loc?`✅ ได้พิกัดแล้ว — ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`:"📍 แตะเพื่อแชร์ตำแหน่งปัจจุบัน"}
+              </button>
+              <div class="loc-map ${loc?"show":""}" id="mb">
+                ${loc?`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`:""}
+              </div>
+              <div class="loc-hint">${loc?"ใช้พิกัดนี้ส่ง Rider ให้ครับ":"ใช้สำหรับให้ Rider มาส่งสินค้าถึงบ้านครับ"}</div>
+            </div>
+            <div class="pay-card">
+              <span class="pay-label">🏠 ที่อยู่จัดส่งละเอียด *</span>
+              <textarea class="f-inp f-ta" id="fa"
+                placeholder="บ้านเลขที่ / ซอย / ถนน / แขวง / เขต / จังหวัด / รหัสไปรษณีย์"
+                rows="4">${S.info?.address||""}</textarea>
+              <div class="f-err" id="ea">กรุณากรอกที่อยู่จัดส่งครับ</div>
+            </div>
+            <div class="pay-card">
+              <span class="pay-label">📎 สลิปโอนเงิน *</span>
+              <div id="sa">
+                <label class="slip-zone" for="si">
+                  <div class="slip-ico">📎</div>
+                  <div class="slip-txt">แนบสลิปโอนเงิน</div>
+                  <div class="slip-hint">กดเพื่อเลือกรูปภาพ</div>
+                </label>
+                <input type="file" id="si" accept="image/*" style="display:none"/>
+              </div>
+              <div id="sp" style="display:none">
+                <img id="sim" src="" alt="slip"/>
+                <button class="btn btn-outline btn-full" id="cs" style="margin-top:8px">เลือกรูปใหม่</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <button class="btn btn-gold btn-full" id="sb" disabled>📤 ส่งข้อมูลและสลิป</button>
+          <button class="btn btn-back btn-full" id="bk-cart">← กลับหน้าตะกร้า</button>
+        </div>
+      </div>`;
   };
 
   /* SUCCESS */
-  const hSu=()=>`<div class="suc-wrap"><div class="suc-ring">✓</div><div class="suc-title">ส่งข้อมูลแล้วค่ะ</div><div class="suc-line"></div><div class="suc-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้ว<br>รอการยืนยันภายใน 15–30 นาทีค่ะ</div>${S.orderId?`<div class="ord-box"><div class="ord-lbl">Order No.</div><div class="ord-val">${S.orderId}</div></div>`:""}<button class="btn-outline-gold" id="rs" style="max-width:220px">สั่งซื้ออีกครั้ง</button></div>`;
+  const hSu=()=>`
+    <div class="suc-wrap">
+      <div class="suc-ring">✓</div>
+      <div class="suc-title">ส่งข้อมูลเรียบร้อยครับ!</div>
+      <div class="suc-line"></div>
+      <div class="suc-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้ว<br>รอการยืนยันภายใน 15-30 นาทีครับ</div>
+      ${S.orderId?`
+        <div class="ord-box">
+          <div class="ord-lbl">Order No.</div>
+          <div class="ord-val">${S.orderId}</div>
+        </div>`:""}
+      <button class="btn btn-outline" id="rs" style="min-width:200px;margin-top:4px">สั่งซื้ออีกครั้ง</button>
+    </div>`;
 
-  /* BIND */
+  /* ══════════════════════════════════════
+     BIND EVENTS
+  ══════════════════════════════════════ */
   function bHo(){
     document.querySelectorAll(".brand-card").forEach(el=>el.addEventListener("click",()=>set({screen:"products",activeBrand:el.dataset.brand})));
     document.getElementById("fab")?.addEventListener("click",()=>set({screen:"cart"}));
   }
   function bPr(){
-    document.getElementById("bh")?.addEventListener("click",()=>set({screen:"home"}));
-    document.getElementById("fab")?.addEventListener("click",()=>set({screen:"cart"}));
+    document.getElementById("bk-home")?.addEventListener("click",()=>set({screen:"home"}));
+    document.getElementById("go-cart")?.addEventListener("click",()=>set({screen:"cart"}));
     document.querySelectorAll("[data-add]").forEach(el=>el.addEventListener("click",()=>addC(el.dataset.add)));
     document.querySelectorAll("[data-pid]").forEach(el=>el.addEventListener("click",()=>set({screen:"detail",activeProduct:el.dataset.pid})));
   }
   function bDe(){
-    document.getElementById("bp")?.addEventListener("click",()=>set({screen:"products"}));
-    document.getElementById("gc")?.addEventListener("click",()=>set({screen:"cart"}));
-    document.getElementById("ad")?.addEventListener("click",()=>{addC(S.activeProduct);set({});});
+    document.getElementById("bk-prod")?.addEventListener("click",()=>set({screen:"products"}));
+    document.getElementById("go-cart")?.addEventListener("click",()=>set({screen:"cart"}));
+    document.getElementById("add-d")?.addEventListener("click",()=>{addC(S.activeProduct);set({});});
   }
   function bCa(){
-    document.getElementById("bco")?.addEventListener("click",()=>set({screen:S.activeBrand?"products":"home"}));
-    document.getElementById("bs")?.addEventListener("click",()=>set({screen:"home"}));
-    document.getElementById("gp")?.addEventListener("click",()=>set({screen:"payment"}));
+    document.getElementById("bk-home")?.addEventListener("click",()=>set({screen:"home"}));
+    document.getElementById("bk-prod2")?.addEventListener("click",()=>set({screen:S.activeBrand?"products":"home"}));
+    document.getElementById("go-pay")?.addEventListener("click",()=>set({screen:"payment"}));
     document.querySelectorAll("[data-mi]").forEach(el=>el.addEventListener("click",()=>upQ(el.dataset.mi,-1)));
     document.querySelectorAll("[data-pl]").forEach(el=>el.addEventListener("click",()=>upQ(el.dataset.pl,1)));
   }
   function bPa(){
-    document.getElementById("bca")?.addEventListener("click",()=>set({screen:"cart"}));
+    document.getElementById("bk-cart")?.addEventListener("click",()=>set({screen:"cart"}));
     const sb=document.getElementById("sb");
-    const sa=document.getElementById("sa");const sp=document.getElementById("sp");
-    const sim=document.getElementById("sim");const si=document.getElementById("si");
-    function chk(){const ph=document.getElementById("fp")?.value.trim()||"";const ad=document.getElementById("fa")?.value.trim()||"";const rdy=ph.length===10&&ad.length>5&&!!S.info?.location&&!!S.slip;sb.disabled=!rdy;sb.style.opacity=rdy?"1":".4";}
+    const sa=document.getElementById("sa");
+    const sp=document.getElementById("sp");
+    const sim=document.getElementById("sim");
+    const si=document.getElementById("si");
+
+    function chk(){
+      const ph=document.getElementById("fp")?.value.trim()||"";
+      const ad=document.getElementById("fa")?.value.trim()||"";
+      const rdy=ph.length===10&&ad.length>5&&!!S.info?.location&&!!S.slip;
+      sb.disabled=!rdy;
+      sb.style.opacity=rdy?"1":".35";
+    }
     document.getElementById("fp")?.addEventListener("input",chk);
     document.getElementById("fa")?.addEventListener("input",chk);
+
     document.getElementById("gl")?.addEventListener("click",()=>{
-      if(!navigator.geolocation){alert("ไม่รองรับการแชร์ตำแหน่งค่ะ");return;}
-      const btn=document.getElementById("gl");btn.textContent="⏳ กำลังดึงตำแหน่ง...";btn.disabled=true;
-      navigator.geolocation.getCurrentPosition(pos=>{
-        const loc={lat:pos.coords.latitude,lng:pos.coords.longitude};S.info={...S.info,location:loc};
-        btn.className="loc-btn got";btn.textContent=`✅ ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;btn.disabled=false;
-        const mb=document.getElementById("mb");mb.innerHTML=`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`;mb.classList.add("show");chk();
-      },()=>{btn.textContent="❌ ดึงไม่ได้ กดอีกครั้ง";btn.disabled=false;},{enableHighAccuracy:true,timeout:10000});
+      if(!navigator.geolocation){alert("ไม่รองรับการแชร์ตำแหน่งครับ");return;}
+      const btn=document.getElementById("gl");
+      btn.textContent="⏳ กำลังดึงตำแหน่ง...";btn.disabled=true;
+      navigator.geolocation.getCurrentPosition(
+        pos=>{
+          const loc={lat:pos.coords.latitude,lng:pos.coords.longitude};
+          S.info={...S.info,location:loc};
+          btn.className="loc-btn got";
+          btn.textContent=`✅ ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
+          btn.disabled=false;
+          const mb=document.getElementById("mb");
+          mb.innerHTML=`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`;
+          mb.classList.add("show");chk();
+        },
+        ()=>{btn.textContent="❌ ดึงไม่ได้ กดอีกครั้ง";btn.disabled=false;},
+        {enableHighAccuracy:true,timeout:10000}
+      );
     });
-    si?.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{S.slip=ev.target.result;sim.src=ev.target.result;sa.style.display="none";sp.style.display="block";chk();};r.readAsDataURL(f);});
-    document.getElementById("cs")?.addEventListener("click",()=>{S.slip=null;sa.style.display="block";sp.style.display="none";chk();});
+
+    si?.addEventListener("change",e=>{
+      const f=e.target.files[0];if(!f)return;
+      const r=new FileReader();
+      r.onload=ev=>{
+        S.slip=ev.target.result;
+        sim.src=ev.target.result;
+        sa.style.display="none";sp.style.display="block";chk();
+      };
+      r.readAsDataURL(f);
+    });
+    document.getElementById("cs")?.addEventListener("click",()=>{
+      S.slip=null;sa.style.display="block";sp.style.display="none";chk();
+    });
+
     sb?.addEventListener("click",async()=>{
-      const ph=document.getElementById("fp")?.value.trim();const ad=document.getElementById("fa")?.value.trim();
+      const ph=document.getElementById("fp")?.value.trim();
+      const ad=document.getElementById("fa")?.value.trim();
       let ok=true;
-      if(ph.length!==10){document.getElementById("ep").classList.add("show");ok=false;}else document.getElementById("ep").classList.remove("show");
-      if(ad.length<5){document.getElementById("ea").classList.add("show");ok=false;}else document.getElementById("ea").classList.remove("show");
+      if(ph.length!==10){document.getElementById("ep").classList.add("show");ok=false;}
+      else document.getElementById("ep").classList.remove("show");
+      if(ad.length<5){document.getElementById("ea").classList.add("show");ok=false;}
+      else document.getElementById("ea").classList.remove("show");
       if(!ok||!S.slip||!S.info?.location)return;
       sb.disabled=true;sb.textContent="⏳ กำลังส่ง...";
       const info={phone:ph,address:ad,location:S.info.location};
-      try{const id=await saveOrd(S.cart,S.products,info);await sendSlip(id,S.slip,S.cart,S.products,info);set({screen:"success",orderId:id,cart:[],slip:null,info:{phone:"",address:"",location:null}});}
-      catch(e){sb.disabled=false;sb.textContent="📤 ส่งข้อมูลและสลิป";alert("เกิดข้อผิดพลาด กรุณาลองใหม่ค่ะ");}
+      try{
+        const id=await saveOrd(S.cart,S.products,info);
+        await sendSlip(id,S.slip,S.cart,S.products,info);
+        set({screen:"success",orderId:id,cart:[],slip:null,info:{phone:"",address:"",location:null}});
+      }catch(e){
+        sb.disabled=false;sb.textContent="📤 ส่งข้อมูลและสลิป";
+        alert("เกิดข้อผิดพลาด กรุณาลองใหม่ครับ");
+      }
     });
   }
-  function bSu(){document.getElementById("rs")?.addEventListener("click",()=>set({screen:"home",cart:[],orderId:null,slip:null,info:{phone:"",address:"",location:null}}));}
+  function bSu(){
+    document.getElementById("rs")?.addEventListener("click",()=>set({screen:"home",cart:[],orderId:null,slip:null,info:{phone:"",address:"",location:null}}));
+  }
 
+  /* ── CART LOGIC ── */
   function addC(id){const ex=S.cart.find(i=>i.id===id);set({cart:ex?S.cart.map(i=>i.id===id?{...i,qty:i.qty+1}:i):[...S.cart,{id,qty:1}]});}
   function upQ(id,d){set({cart:S.cart.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0)});}
 
-  // ══════════════════════════════════════════
-  //  🔐  เช็ค Admin Role จาก Firestore
-  // ══════════════════════════════════════════
+  /* ── ADMIN CHECK ── */
   async function checkAdmin(){
-    if (!U) return false;
-    try {
-      const snap = await getDoc(doc(db,"admins",String(U.id)));
-      return snap.exists() && snap.data().active === true;
-    } catch { return false; }
+    if(!U)return false;
+    try{const s=await getDoc(doc(db,"admins",String(U.id)));return s.exists()&&s.data().active===true;}
+    catch{return false;}
   }
 
-  // ══════════════════════════════════════════
-  //  🚀  INIT — เช็ค role ก่อนเปิดหน้า
-  // ══════════════════════════════════════════
+  /* ── INIT ── */
   async function init(){
-    render(); // แสดง splash ก่อน
-    try {
-      // โหลดข้อมูลสินค้า + เช็ค admin พร้อมกัน
-      const [b, p, isAdmin] = await Promise.all([
-        fBr(), fPr(), checkAdmin()
-      ]);
-      S.brands   = b;
-      S.products = p;
-      track();
-
-      setTimeout(() => {
-        if (isAdmin) {
-          // เป็นแอดมิน → redirect ไป admin.html ทันที
-          window.location.href = "admin.html";
-        } else {
-          // ลูกค้าทั่วไป → เปิดหน้าร้านปกติ
-          set({ screen:"home" });
-        }
-      }, 2400);
-
-    } catch(e) {
-      console.error("init error:", e);
-      setTimeout(() => set({ screen:"home" }), 2400);
+    render();
+    try{
+      const[b,p,isAdmin]=await Promise.all([fBr(),fPr(),checkAdmin()]);
+      S.brands=b;S.products=p;track();
+      setTimeout(()=>{
+        if(isAdmin){window.location.href="admin.html";}
+        else{set({screen:"home"});}
+      },2400);
+    }catch(e){
+      console.error(e);
+      setTimeout(()=>set({screen:"home"}),2400);
     }
   }
   init();
