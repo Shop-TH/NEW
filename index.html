@@ -203,33 +203,85 @@
     }
     .hr-line { flex: 1; height: 1px; background: var(--border); }
     .hr-text  { font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; }
-    .brand-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .brand-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 14px; }
 
-    /* BRAND CARD */
+    /* BRAND CARD — Full-width centered logo style */
     .brand-card {
       background: var(--bg2);
       border: 1.5px solid var(--border);
       border-radius: var(--r-lg);
-      padding: 18px 20px;
-      display: flex; align-items: center; gap: 16px;
-      cursor: pointer; text-align: left; width: 100%;
-      transition: border-color .2s, background .2s;
+      width: 100%; cursor: pointer;
+      transition: border-color .25s, transform .15s, box-shadow .25s;
       animation: fadeUp .5s both;
+      overflow: hidden; position: relative;
+      display: block; text-align: center;
     }
-    .brand-card:active { background: var(--bg3); transform: scale(.97); }
-    .brand-card:hover  { border-color: var(--gold-bd); }
+    .brand-card:active { transform: scale(.97); }
+    .brand-card:hover  {
+      border-color: var(--gold-bd);
+      box-shadow: 0 6px 28px rgba(212,168,71,.15);
+    }
 
-    .bc-icon {
-      width: 56px; height: 56px; border-radius: var(--r);
-      background: var(--bg3); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; flex-shrink: 0;
+    /* พื้นหลังรูป logo พร่ามัว */
+    .bc-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      filter: blur(12px) brightness(.25) saturate(.6);
+      transform: scale(1.1);
+      transition: filter .3s;
     }
-    .bc-body  { flex: 1; min-width: 0; }
-    .bc-name  { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-    .bc-desc  { font-size: 12px; font-weight: 400; color: var(--text2); margin-bottom: 5px; }
-    .bc-count { font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 1px; }
-    .bc-arrow { font-size: 20px; color: var(--text3); flex-shrink: 0; }
+    .brand-card:hover .bc-bg { filter: blur(10px) brightness(.32) saturate(.7); }
+
+    /* overlay gradient */
+    .bc-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,10,10,.3) 0%, rgba(10,10,10,.75) 100%);
+    }
+
+    /* content กลางการ์ด */
+    .bc-content {
+      position: relative; z-index: 2;
+      padding: 28px 20px 24px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 14px;
+    }
+
+    /* logo รูปแบรนด์ */
+    .bc-logo {
+      width: 88px; height: 88px; border-radius: 20px;
+      overflow: hidden; flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,.15);
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+    }
+    .bc-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ชื่อแบรนด์ใหญ่ตรงกลาง */
+    .bc-name  {
+      font-size: 26px; font-weight: 800;
+      color: var(--text); letter-spacing: 1px;
+      text-shadow: 0 2px 12px rgba(0,0,0,.6);
+    }
+    .bc-desc  {
+      font-size: 13px; font-weight: 400;
+      color: rgba(245,245,240,.65); line-height: 1.5;
+    }
+    .bc-footer {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%;
+    }
+    .bc-count {
+      flex: 1; font-size: 12px; font-weight: 500;
+      color: var(--gold); letter-spacing: 1px; text-align: left;
+    }
+    .bc-btn {
+      background: var(--gold); color: #0a0a0a;
+      border: none; border-radius: 10px;
+      padding: 8px 18px; font-family: var(--font);
+      font-size: 13px; font-weight: 700;
+    }
 
     /* Cart FAB */
     .cart-fab {
@@ -533,15 +585,27 @@
       ?`<div style="text-align:center;padding:48px;color:var(--text3);font-size:14px">กำลังโหลด...</div>`
       :S.brands.map((b,i)=>{
           const cnt=S.products.filter(p=>p.brand===b.key).length;
+          const logoSrc = b.logoUrl || "";
+          const bgStyle = logoSrc
+            ? `background-image:url('${logoSrc}')`
+            : `background:${b.color||"#333"}`;
           return`
             <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i*.08}s">
-              <div class="bc-icon">${b.emoji}</div>
-              <div class="bc-body">
+              <div class="bc-bg" style="${bgStyle}"></div>
+              <div class="bc-overlay"></div>
+              <div class="bc-content">
+                <div class="bc-logo">
+                  ${logoSrc
+                    ? `<img src="${logoSrc}" alt="${b.name}" onerror="this.style.display='none'"/>`
+                    : b.emoji||"🫧"}
+                </div>
                 <div class="bc-name">${b.name}</div>
-                <div class="bc-desc">${b.desc||""}</div>
-                <div class="bc-count">${cnt} รายการ</div>
+                ${b.desc?`<div class="bc-desc">${b.desc}</div>`:""}
+                <div class="bc-footer">
+                  <span class="bc-count">${cnt} รายการ</span>
+                  <span class="bc-btn">เลือก →</span>
+                </div>
               </div>
-              <div class="bc-arrow">›</div>
             </button>`;
         }).join("");
     return`
