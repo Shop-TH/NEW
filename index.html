@@ -19,12 +19,12 @@
       --border  : rgba(255,255,255,0.10);
       --border2 : rgba(255,255,255,0.18);
       --text    : #f5f5f0;
-      --text2   : rgba(245,245,240,0.55);
-      --text3   : rgba(245,245,240,0.28);
+      --text2   : rgba(245,245,240,0.60);
+      --text3   : rgba(245,245,240,0.32);
       --gold    : #d4a847;
       --gold2   : #f0c860;
       --gold-bg : rgba(212,168,71,0.10);
-      --gold-bd : rgba(212,168,71,0.25);
+      --gold-bd : rgba(212,168,71,0.28);
       --red     : #e05555;
       --green   : #4caf7d;
       --font    : 'Prompt', sans-serif;
@@ -33,9 +33,10 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { background: var(--bg); overscroll-behavior: none; min-height: 100vh; }
+    /* ✅ Font เดียวทั้งหมด — Prompt */
     body { font-family: var(--font); color: var(--text); -webkit-font-smoothing: antialiased; }
     img  { display: block; }
-    button { font-family: var(--font); cursor: pointer; }
+    button, input, textarea, select { font-family: var(--font); cursor: pointer; }
 
     /* ══════════════════════════════════════
        ANIMATIONS
@@ -46,458 +47,311 @@
     @keyframes slideUp { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:translateY(0)} }
     @keyframes dotP    { 0%,100%{opacity:.2} 50%{opacity:1} }
     @keyframes lineIn  { from{width:0;opacity:0} to{width:60px;opacity:1} }
+    @keyframes checkPop{ 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
 
     #root { min-height: 100vh; }
 
     /* ══════════════════════════════════════
-       COMMON LAYOUT
+       LAYOUT
     ══════════════════════════════════════ */
-    /* หน้าจอทุกหน้า: content เลื่อนได้ มี bottom bar คงที่ */
-    .page {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-    }
-    .page-body {
-      flex: 1;
-      overflow-y: auto;
-      padding-bottom: 20px;
-    }
-    /* Bottom bar — ปุ่มย้อนกลับ + action อยู่ที่นี่เสมอ */
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+    .page-body { flex: 1; overflow-y: auto; padding-bottom: 20px; }
     .bottom-bar {
       position: sticky; bottom: 0; left: 0; right: 0;
-      background: rgba(10,10,10,0.97);
-      backdrop-filter: blur(16px);
+      background: rgba(10,10,10,0.98);
+      backdrop-filter: blur(20px);
       border-top: 1px solid var(--border);
-      padding: 14px 18px 28px;
+      padding: 14px 18px 32px;
       display: flex; flex-direction: column; gap: 10px;
       z-index: 50;
     }
     .bottom-bar-row { display: flex; gap: 10px; }
 
     /* ══════════════════════════════════════
-       BUTTONS — ชัดเจน โครงสร้างเด่น
+       BUTTONS
     ══════════════════════════════════════ */
     .btn {
-      border-radius: var(--r);
-      padding: 14px 20px;
-      font-family: var(--font);
-      font-size: 15px; font-weight: 600;
+      border-radius: var(--r); padding: 15px 20px;
+      font-family: var(--font); font-size: 16px; font-weight: 600;
       border: none; cursor: pointer;
       transition: opacity .15s, transform .1s;
       display: flex; align-items: center; justify-content: center;
-      gap: 8px; text-align: center;
+      gap: 8px; text-align: center; line-height: 1;
     }
     .btn:active { transform: scale(.96); }
     .btn-full   { width: 100%; }
-
-    /* ทอง — Primary Action */
-    .btn-gold {
-      background: var(--gold);
-      color: #0a0a0a; font-weight: 700;
-      box-shadow: 0 4px 20px rgba(212,168,71,.30);
-    }
+    .btn-gold   { background: var(--gold); color: #0a0a0a; font-weight: 700; box-shadow: 0 4px 24px rgba(212,168,71,.35); }
     .btn-gold:hover { background: var(--gold2); }
-
-    /* กรอบทอง — Secondary */
-    .btn-outline {
-      background: transparent;
-      border: 1.5px solid var(--border2);
-      color: var(--text2); font-weight: 500;
-    }
-    .btn-outline:hover { border-color: var(--gold-bd); color: var(--gold); }
-
-    /* ย้อนกลับ — เสมออยู่ล่าง */
-    .btn-back {
-      background: var(--bg3);
-      border: 1.5px solid var(--border2);
-      color: var(--text2); font-weight: 500;
-      font-size: 14px;
-    }
-    .btn-back:hover { border-color: var(--border2); }
-
-    /* ปุ่มเพิ่มตะกร้า */
+    .btn-outline { background: transparent; border: 1.5px solid var(--border2); color: var(--text2); font-weight: 500; }
+    .btn-back   { background: var(--bg3); border: 1.5px solid var(--border2); color: var(--text2); font-weight: 500; font-size: 15px; }
     .btn-add-empty  { background: var(--bg3); border: 1.5px solid var(--border2); color: var(--text2); font-size: 13px; padding: 8px 14px; }
     .btn-add-filled { background: var(--gold); border: 1.5px solid var(--gold); color: #0a0a0a; font-size: 13px; padding: 8px 14px; font-weight: 700; }
     .btn-add-empty:active, .btn-add-filled:active { transform: scale(.91); }
-
-    /* Disabled */
-    .btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
+    .btn:disabled { opacity: .30; cursor: not-allowed; transform: none !important; }
 
     /* ══════════════════════════════════════
-       TOPBAR — แค่ข้อมูล ไม่มีปุ่มกลับ
+       TOPBAR
     ══════════════════════════════════════ */
     .topbar {
       padding: 18px 20px 14px;
-      background: rgba(10,10,10,.95);
+      background: rgba(10,10,10,.96);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 10;
     }
     .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); }
-    .topbar-sub   { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 2px; }
+    .topbar-sub   { font-size: 13px; font-weight: 400; color: var(--text3); margin-top: 3px; }
 
     /* ══════════════════════════════════════
        SPLASH
     ══════════════════════════════════════ */
-    .splash {
-      height: 100vh; background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 0;
-    }
-    .sp-logo {
-      font-size: 52px; font-weight: 800;
-      color: var(--text); letter-spacing: 4px;
-      animation: scaleIn .7s cubic-bezier(.22,1,.36,1) both;
-    }
+    .splash { height: 100vh; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .sp-logo { font-size: 52px; font-weight: 800; color: var(--text); letter-spacing: 4px; animation: scaleIn .7s cubic-bezier(.22,1,.36,1) both; }
     .sp-logo span { color: var(--gold); }
-    .sp-line {
-      width: 0; height: 1px; margin: 20px 0;
-      background: linear-gradient(to right, transparent, var(--gold), transparent);
-      animation: lineIn .8s .5s both ease;
-    }
-    .sp-tag {
-      font-size: 11px; font-weight: 400;
-      letter-spacing: 4px; color: var(--text3);
-      text-transform: uppercase;
-      animation: fadeIn .6s .6s both;
-    }
-    .sp-dots {
-      display: flex; gap: 8px; margin-top: 36px;
-      animation: fadeIn .6s .9s both;
-    }
-    .sp-dot {
-      width: 4px; height: 4px; border-radius: 50%;
-      background: var(--gold); animation: dotP 1.6s infinite;
-    }
-    .sp-dot:nth-child(2){animation-delay:.28s}
-    .sp-dot:nth-child(3){animation-delay:.56s}
+    .sp-line { width: 0; height: 1px; margin: 20px 0; background: linear-gradient(to right, transparent, var(--gold), transparent); animation: lineIn .8s .5s both ease; }
+    .sp-tag  { font-size: 11px; font-weight: 400; letter-spacing: 4px; color: var(--text3); text-transform: uppercase; animation: fadeIn .6s .6s both; }
+    .sp-dots { display: flex; gap: 8px; margin-top: 36px; animation: fadeIn .6s .9s both; }
+    .sp-dot  { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); animation: dotP 1.6s infinite; }
+    .sp-dot:nth-child(2){animation-delay:.28s} .sp-dot:nth-child(3){animation-delay:.56s}
 
     /* ══════════════════════════════════════
        HOME
     ══════════════════════════════════════ */
-    .home-hero {
-      padding: 44px 22px 28px;
-    }
-    .home-label {
-      font-size: 11px; font-weight: 500;
-      letter-spacing: 3px; color: var(--gold);
-      text-transform: uppercase; margin-bottom: 10px;
-      animation: fadeUp .5s both;
-    }
-    .home-title {
-      font-size: 30px; font-weight: 800;
-      color: var(--text); line-height: 1.25;
-      animation: fadeUp .5s .07s both;
-    }
-    .home-sub {
-      font-size: 14px; font-weight: 400;
-      color: var(--text2); line-height: 1.7;
-      margin-top: 10px;
-      animation: fadeUp .5s .14s both;
-    }
-    /* gold rule */
-    .home-rule {
-      display: flex; align-items: center; gap: 12px;
-      padding: 22px 22px 14px;
-      animation: fadeUp .5s .18s both;
-    }
-    .hr-line { flex: 1; height: 1px; background: var(--border); }
-    .hr-text  { font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--text3); text-transform: uppercase; }
+    .home-hero  { padding: 44px 22px 28px; }
+    .home-label { font-size: 11px; font-weight: 500; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; animation: fadeUp .5s both; }
+    .home-title { font-size: 30px; font-weight: 800; color: var(--text); line-height: 1.25; animation: fadeUp .5s .07s both; }
+    .home-sub   { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.7; margin-top: 10px; animation: fadeUp .5s .14s both; }
     .brand-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
 
     /* BRAND CARD — Style H */
     .brand-card {
-      width: 100%; height: 110px;
-      border-radius: var(--r-lg);
-      overflow: hidden; position: relative;
-      display: block; cursor: pointer;
+      width: 100%; height: 110px; border-radius: var(--r-lg);
+      overflow: hidden; position: relative; display: block; cursor: pointer;
       background: linear-gradient(135deg, #111111, #161616);
-      border: none;
-      animation: fadeUp .5s both;
-      transition: transform .15s;
+      border: none; animation: fadeUp .5s both; transition: transform .15s;
     }
     .brand-card:active { transform: scale(.97); }
+    .bc-top-line  { position: absolute; top: 0; left: 0; width: 60%; height: 2px; background: linear-gradient(to right, #d4a847, rgba(212,168,71,.1)); }
+    .bc-bot-line  { position: absolute; bottom: 0; left: 0; width: 40px; height: 1.5px; background: linear-gradient(to right, #d4a847, transparent); }
+    .bc-content   { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); }
+    .bc-label     { font-size: 10px; font-weight: 400; color: rgba(212,168,71,.55); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
+    .bc-name      { font-size: 30px; font-weight: 800; color: var(--text); letter-spacing: 1px; line-height: 1; }
+    .bc-logo-right { position: absolute; right: 0; top: 0; bottom: 0; width: 100px; background: linear-gradient(to left, rgba(212,168,71,.05), transparent); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .bc-logo-right img { width: 80px; height: 80px; object-fit: contain; opacity: .55; filter: grayscale(20%); }
+    .bc-logo-right-emoji { font-size: 44px; opacity: .18; }
 
-    /* เส้นทองบนซ้าย */
-    .bc-top-line {
-      position: absolute; top: 0; left: 0;
-      width: 60%; height: 2px;
-      background: linear-gradient(to right, #d4a847, rgba(212,168,71,.1));
-    }
-
-    /* เส้นทองล่างซ้าย */
-    .bc-bot-line {
-      position: absolute; bottom: 0; left: 0;
-      width: 40px; height: 1.5px;
-      background: linear-gradient(to right, #d4a847, transparent);
-    }
-
-    /* ข้อความซ้ายกลาง */
-    .bc-content {
-      position: absolute; left: 20px; top: 50%;
-      transform: translateY(-50%);
-    }
-    .bc-label {
-      font-size: 10px; font-weight: 400;
-      color: rgba(212,168,71,.55);
-      letter-spacing: 4px; text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .bc-name {
-      font-size: 30px; font-weight: 800;
-      color: var(--text); letter-spacing: 1px;
-      line-height: 1;
-    }
-
-    /* Logo มุมขวา จาง */
-    .bc-logo-right {
-      position: absolute; right: 0; top: 0; bottom: 0;
-      width: 100px;
-      background: linear-gradient(to left, rgba(212,168,71,.05), transparent);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-    .bc-logo-right img {
-      width: 80px; height: 80px;
-      object-fit: contain;
-      opacity: .55;
-      filter: grayscale(20%);
-    }
-    .bc-logo-right-emoji {
-      font-size: 44px; opacity: .18;
-    }
-
-    /* Cart FAB */
-    .cart-fab {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: var(--gold); border: none; border-radius: 50px;
-      padding: 14px 28px;
-      display: flex; align-items: center; gap: 10px;
-      color: #0a0a0a; font-family: var(--font);
-      font-size: 15px; font-weight: 700;
-      cursor: pointer; z-index: 50;
-      box-shadow: 0 6px 28px rgba(212,168,71,.35);
-      animation: slideUp .35s ease both; white-space: nowrap;
-    }
+    /* CART FAB */
+    .cart-fab { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--gold); border: none; border-radius: 50px; padding: 14px 28px; display: flex; align-items: center; gap: 10px; color: #0a0a0a; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; z-index: 50; box-shadow: 0 6px 28px rgba(212,168,71,.35); animation: slideUp .35s ease both; white-space: nowrap; }
     .cart-fab:active { transform: translateX(-50%) scale(.96); }
-    .fab-badge {
-      background: #0a0a0a; color: var(--gold);
-      border-radius: 20px; padding: 2px 10px;
-      font-size: 13px; font-weight: 700;
-    }
+    .fab-badge { background: #0a0a0a; color: var(--gold); border-radius: 20px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
 
     /* ══════════════════════════════════════
-       PRODUCTS GRID
+       PRODUCTS
     ══════════════════════════════════════ */
     .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
-    .prod-card {
-      background: var(--bg2); border: 1.5px solid var(--border);
-      border-radius: var(--r); overflow: hidden;
-      transition: border-color .2s;
-      animation: fadeUp .45s both;
-    }
+    .prod-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--r); overflow: hidden; transition: border-color .2s; animation: fadeUp .45s both; }
     .prod-card:hover { border-color: var(--border2); }
-
-    .prod-img {
-      position: relative; padding-top: 100%; overflow: hidden;
-      background: var(--bg3); cursor: pointer;
-    }
-    .prod-img img {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; transition: transform .4s ease;
-    }
+    .prod-img  { position: relative; padding-top: 100%; overflow: hidden; background: var(--bg3); cursor: pointer; }
+    .prod-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
     .prod-card:hover .prod-img img { transform: scale(1.05); }
-    .prod-icon {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%,-50%); font-size: 34px;
-    }
-    .prod-over {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(10,10,10,.6) 0%, transparent 50%);
-    }
-    .prod-bdg {
-      position: absolute; top: 8px; right: 8px;
-      background: var(--gold); color: #0a0a0a;
-      border-radius: 20px; padding: 2px 8px;
-      font-size: 10px; font-weight: 700;
-    }
+    .prod-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 34px; }
+    .prod-over { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,10,.6) 0%, transparent 50%); }
+    .prod-bdg  { position: absolute; top: 8px; right: 8px; background: var(--gold); color: #0a0a0a; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
     .prod-body { padding: 11px 12px 13px; }
-    .prod-name {
-      font-size: 13px; font-weight: 500; color: var(--text);
-      line-height: 1.5; margin-bottom: 9px;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden;
-      cursor: pointer; min-height: 40px;
-    }
-    .prod-row   { display: flex; justify-content: space-between; align-items: center; }
+    .prod-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.5; margin-bottom: 9px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; min-height: 40px; }
+    .prod-row  { display: flex; justify-content: space-between; align-items: center; }
     .prod-price { font-size: 15px; font-weight: 700; color: var(--gold); }
 
     /* ══════════════════════════════════════
-       DETAIL SCREEN
+       DETAIL
     ══════════════════════════════════════ */
-    .d-hero {
-      position: relative; height: 340px; overflow: hidden;
-      background: var(--bg3);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .d-hero { position: relative; height: 340px; overflow: hidden; background: var(--bg3); display: flex; align-items: center; justify-content: center; }
     .d-hero img { width: 100%; height: 100%; object-fit: cover; }
     .d-hero-icon { font-size: 90px; }
-    .d-hero-ov {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, var(--bg) 0%, transparent 55%);
-    }
+    .d-hero-ov { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 0%, transparent 55%); }
     .d-body { padding: 0 22px 22px; margin-top: -24px; position: relative; }
-    .d-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 20px; padding: 5px 14px;
-      font-size: 11px; font-weight: 500; color: var(--text3);
-      margin-bottom: 14px; letter-spacing: 1px;
-    }
+    .d-tag  { display: inline-flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 14px; letter-spacing: 1px; }
     .d-name  { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1.25; margin-bottom: 8px; }
     .d-price { font-size: 28px; font-weight: 700; color: var(--gold); margin-bottom: 20px; }
-    .d-info-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 16px 18px; margin-bottom: 12px;
-    }
+    .d-info-card  { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; margin-bottom: 12px; }
     .d-info-label { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; }
     .d-info-text  { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.8; }
-    .d-cod {
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 12px 16px;
-      font-size: 13px; font-weight: 400; color: var(--text3);
-    }
+    .d-cod { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; font-size: 13px; font-weight: 400; color: var(--text3); }
 
     /* ══════════════════════════════════════
-       CART SCREEN
+       CART
     ══════════════════════════════════════ */
     .cart-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .cart-item {
-      background: var(--bg2); border: 1.5px solid var(--border);
-      border-radius: var(--r); padding: 14px;
-      display: flex; gap: 12px; align-items: center;
-    }
-    .c-thumb {
-      width: 62px; height: 62px; border-radius: var(--r);
-      overflow: hidden; flex-shrink: 0; background: var(--bg3);
-      display: flex; align-items: center; justify-content: center; font-size: 26px;
-    }
+    .cart-item { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--r); padding: 14px; display: flex; gap: 12px; align-items: center; }
+    .c-thumb { width: 62px; height: 62px; border-radius: var(--r); overflow: hidden; flex-shrink: 0; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 26px; }
     .c-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .c-info { flex: 1; min-width: 0; }
+    .c-info  { flex: 1; min-width: 0; }
     .c-name  { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .c-price { font-size: 15px; font-weight: 700; color: var(--gold); }
     .qty-ctrl { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .qty-btn {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; border: 1.5px solid var(--border);
-      background: var(--bg3); color: var(--text);
-    }
+    .qty-btn  { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1.5px solid var(--border); background: var(--bg3); color: var(--text); }
     .qty-btn:active { background: var(--bg4); }
-    .qty-num { font-size: 15px; font-weight: 600; min-width: 24px; text-align: center; }
-
-    /* Cart summary in bottom bar */
-    .cart-total-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0 4px 4px;
-    }
+    .qty-num  { font-size: 15px; font-weight: 600; min-width: 24px; text-align: center; }
+    .cart-total-row { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 4px; }
     .cart-total-lbl { font-size: 12px; font-weight: 500; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
-    .cart-total-val { font-size: 24px; font-weight: 700; color: var(--gold); }
+    .cart-total-val { font-size: 26px; font-weight: 700; color: var(--gold); }
 
     /* ══════════════════════════════════════
-       PAYMENT SCREEN
+       PAYMENT — ปรับใหม่ทั้งหมด
     ══════════════════════════════════════ */
     .pay-list { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-    .pay-card {
+
+    /* กล่องธนาคาร */
+    .bank-box {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 18px 20px;
+      border-radius: var(--r-lg); padding: 18px 20px;
     }
-    .pay-label { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 12px; display: block; }
-    .bank-n  { font-size: 13px; font-weight: 400; color: var(--text3); margin-bottom: 4px; }
-    .bank-ac { font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: 2.5px; margin-bottom: 4px; }
-    .bank-h  { font-size: 12px; font-weight: 400; color: var(--text3); }
+    .bank-sec-lbl {
+      font-size: 11px; font-weight: 600; color: var(--gold);
+      letter-spacing: 3px; text-transform: uppercase;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .bank-sec-lbl::after { content:''; flex:1; height:1px; background:var(--gold-bd); }
+    .bank-row { display: flex; align-items: center; gap: 12px; }
+    .bank-icon { font-size: 28px; }
+    .bank-detail { flex: 1; }
+    .bank-name   { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 2px; }
+    .bank-number { font-family: var(--font); font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: 1px; margin-bottom: 2px; }
+    .bank-holder { font-size: 12px; font-weight: 400; color: var(--text3); }
 
-    .amt-card {
+    /* กล่องยอดเงิน */
+    .amt-box {
       background: var(--gold-bg); border: 1.5px solid var(--gold-bd);
-      border-radius: var(--r); padding: 20px; text-align: center;
+      border-radius: var(--r-lg); padding: 20px; text-align: center;
     }
-    .amt-lbl { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
-    .amt-val { font-size: 40px; font-weight: 800; color: var(--gold2); }
+    .amt-lbl { font-size: 12px; font-weight: 600; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+    .amt-val { font-size: 44px; font-weight: 800; color: var(--gold2); line-height: 1; }
+    .amt-note { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 8px; }
 
-    /* Form inputs */
-    .f-inp {
+    /* กล่องฟอร์ม */
+    .field-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 18px 20px;
+    }
+    .field-header {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 12px;
+    }
+    .field-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .field-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .field-desc  { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 3px; line-height: 1.5; }
+    .field-input {
       width: 100%; background: var(--bg3);
       border: 1.5px solid var(--border); border-radius: var(--r);
-      padding: 13px 15px; font-family: var(--font);
-      font-size: 15px; font-weight: 400; color: var(--text);
+      padding: 14px 16px; font-family: var(--font);
+      font-size: 16px; font-weight: 500; color: var(--text);
       outline: none; transition: border-color .2s;
     }
-    .f-inp:focus   { border-color: var(--gold-bd); background: var(--bg4); }
-    .f-inp::placeholder { color: var(--text3); }
-    .f-ta  { resize: none; min-height: 88px; line-height: 1.7; }
-    .f-err { font-size: 12px; font-weight: 400; color: var(--red); margin-top: 5px; display: none; }
-    .f-err.show { display: block; }
+    .field-input:focus { border-color: var(--gold-bd); background: var(--bg4); }
+    .field-input::placeholder { color: var(--text3); font-weight: 400; font-size: 14px; }
+    .field-textarea { resize: none; min-height: 96px; line-height: 1.7; font-size: 15px; }
+    .field-err {
+      font-size: 13px; font-weight: 500; color: var(--red);
+      margin-top: 8px; display: none;
+      padding: 8px 12px; background: rgba(224,85,85,.08);
+      border-radius: 8px; border: 1px solid rgba(224,85,85,.2);
+    }
+    .field-err.show { display: block; }
 
     /* Location */
     .loc-btn {
       width: 100%; background: var(--bg3);
       border: 1.5px dashed var(--border2); border-radius: var(--r);
       padding: 16px; font-family: var(--font);
-      font-size: 14px; font-weight: 500; color: var(--text2);
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 15px; font-weight: 500; color: var(--text2);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
       transition: all .2s;
     }
     .loc-btn:active { transform: scale(.98); }
-    .loc-btn.got { background: rgba(76,175,125,.08); border-style: solid; border-color: rgba(76,175,125,.35); color: var(--green); }
-    .loc-map { display: none; width: 100%; height: 160px; border-radius: var(--r); overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
+    .loc-btn.got { background: rgba(76,175,125,.08); border-style: solid; border-color: rgba(76,175,125,.4); color: var(--green); font-weight: 600; }
+    .loc-map { display: none; width: 100%; height: 180px; border-radius: var(--r); overflow: hidden; margin-top: 12px; border: 1px solid var(--border); }
     .loc-map.show { display: block; }
     .loc-map iframe { width: 100%; height: 100%; border: none; }
-    .loc-hint { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 6px; text-align: center; line-height: 1.6; }
+    .loc-note { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 8px; text-align: center; line-height: 1.6; }
 
-    /* Slip upload */
-    .slip-zone {
+    /* Slip — แสดงเป็น icon เล็ก */
+    .slip-upload-btn {
+      width: 100%; background: var(--bg3);
       border: 1.5px dashed var(--border2); border-radius: var(--r);
-      padding: 28px; cursor: pointer; text-align: center;
-      background: var(--bg3); transition: border-color .2s;
+      padding: 18px 16px; font-family: var(--font);
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: border-color .2s;
     }
-    .slip-zone:hover { border-color: var(--gold-bd); }
-    .slip-ico  { font-size: 30px; margin-bottom: 8px; }
-    .slip-txt  { font-size: 14px; font-weight: 500; color: var(--text2); }
-    .slip-hint { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 4px; }
-    #slip-img  {
-      width: 100%; border-radius: var(--r);
-      max-height: 38vh;
-      object-fit: contain;
-      object-position: center;
-      margin-bottom: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg3);
-      display: block;
+    .slip-upload-btn:hover { border-color: var(--gold-bd); }
+    .slip-upload-ico { font-size: 28px; flex-shrink: 0; }
+    .slip-upload-txt { font-size: 15px; font-weight: 600; color: var(--text2); }
+    .slip-upload-sub { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 2px; }
+
+    /* preview เล็ก — ไอคอน */
+    .slip-preview-row {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--bg3); border: 1.5px solid rgba(76,175,125,.35);
+      border-radius: var(--r); padding: 12px 14px;
+    }
+    .slip-thumb {
+      width: 56px; height: 56px; border-radius: 10px;
+      overflow: hidden; flex-shrink: 0;
+      border: 1px solid var(--border); background: var(--bg4);
+    }
+    .slip-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .slip-preview-info { flex: 1; min-width: 0; }
+    .slip-preview-ok   { font-size: 14px; font-weight: 600; color: var(--green); }
+    .slip-preview-name { font-size: 12px; font-weight: 400; color: var(--text3); margin-top: 2px; }
+    .slip-change-btn {
+      background: var(--bg4); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px;
+      font-family: var(--font); font-size: 12px; font-weight: 500; color: var(--text2);
+      flex-shrink: 0;
     }
 
     /* ══════════════════════════════════════
-       SUCCESS SCREEN
+       SUCCESS
     ══════════════════════════════════════ */
-    .suc-wrap {
-      height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 18px; padding: 36px; text-align: center;
-      background: var(--bg);
+    .suc-wrap  { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 36px; text-align: center; background: var(--bg); }
+    .suc-check { width: 80px; height: 80px; border-radius: 50%; background: var(--gold-bg); border: 1.5px solid var(--gold-bd); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; animation: checkPop .5s cubic-bezier(.22,1,.36,1); }
+    .suc-check-icon { font-size: 36px; }
+    .suc-title { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 8px; animation: fadeUp .5s .1s both; }
+    .suc-sub   { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.8; margin-bottom: 24px; animation: fadeUp .5s .15s both; }
+
+    /* order card */
+    .suc-order-card {
+      width: 100%; background: var(--bg2);
+      border: 1px solid var(--border); border-radius: var(--r-lg);
+      overflow: hidden; margin-bottom: 16px;
+      animation: fadeUp .5s .2s both;
     }
-    .suc-ring {
-      width: 80px; height: 80px; border-radius: 50%;
-      border: 1.5px solid var(--gold-bd);
-      background: var(--gold-bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
-      animation: scaleIn .5s cubic-bezier(.22,1,.36,1);
+    .suc-order-header {
+      background: var(--gold-bg); border-bottom: 1px solid var(--gold-bd);
+      padding: 14px 20px;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .suc-title { font-size: 24px; font-weight: 800; color: var(--text); animation: fadeUp .5s .15s both; }
-    .suc-line  { width: 40px; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); animation: fadeUp .5s .2s both; }
-    .suc-sub   { font-size: 14px; font-weight: 400; color: var(--text2); line-height: 1.8; animation: fadeUp .5s .25s both; }
-    .ord-box   { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 32px; text-align: center; animation: fadeUp .5s .3s both; }
-    .ord-lbl   { font-size: 10px; font-weight: 600; color: var(--gold); margin-bottom: 6px; letter-spacing: 2.5px; text-transform: uppercase; }
-    .ord-val   { font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
+    .suc-order-id-lbl { font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+    .suc-order-id-val { font-family: var(--font); font-size: 20px; font-weight: 800; color: var(--gold); }
+    .suc-order-rows { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .suc-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .suc-row-lbl { font-size: 13px; font-weight: 400; color: var(--text3); flex-shrink: 0; }
+    .suc-row-val { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; }
+    .suc-divider { height: 1px; background: var(--border); }
+    .suc-total-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-top: 1px solid var(--border); }
+    .suc-total-lbl { font-size: 14px; font-weight: 500; color: var(--text2); }
+    .suc-total-val { font-size: 22px; font-weight: 800; color: var(--gold); }
+
+    .suc-steps {
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 16px 20px;
+      margin-bottom: 16px; text-align: left;
+      animation: fadeUp .5s .25s both;
+    }
+    .suc-steps-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
+    .suc-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .suc-step:last-child { margin-bottom: 0; }
+    .suc-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--gold-bg); border: 1px solid var(--gold-bd); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+    .suc-step-txt { font-size: 13px; font-weight: 400; color: var(--text2); line-height: 1.6; }
 
     /* EMPTY */
     .empty-wrap { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 36px; text-align: center; }
@@ -514,30 +368,76 @@
 
   /* ── CONFIG ── */
   const FC={apiKey:"AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",authDomain:"shop-th.firebaseapp.com",projectId:"shop-th",storageBucket:"shop-th.firebasestorage.app",messagingSenderId:"407059998090",appId:"1:407059998090:web:e008bcb4042e574eb7d473"};
-  const SHOP="shop_001";
-  const ASU="ttps://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
-  const BOT="8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
-  const ADMIN="7234688831";
-  const BANK={n:"กสิกรไทย",a:"123-4-56789-0",h:"HENG888 CO., LTD."};
+  const SHOP  = "shop_001";
+  const ASU   = "https://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
+  const BOT   = "8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
+  const ADMIN = "7234688831";
+  const BANK  = { n:"กสิกรไทย", a:"123-4-56789-0", h:"HENG888 CO., LTD." };
 
-  const app=initializeApp(FC);const db=getFirestore(app);
-  const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
-  if(tg)tg.expand();
+  const app = initializeApp(FC);
+  const db  = getFirestore(app);
+  const tg  = window.Telegram?.WebApp;
+  const U   = tg?.initDataUnsafe?.user || null;
+  if(tg) tg.expand();
 
-  const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
-  const tot=(cart,ps)=>cart.reduce((s,i)=>{const p=ps.find(x=>x.id===i.id);return s+(p?p.price*i.qty:0);},0);
+  const fmt = n => "฿" + Number(n).toLocaleString("th-TH");
+  const tot = (cart,ps) => cart.reduce((s,i)=>{ const p=ps.find(x=>x.id===i.id); return s+(p?p.price*i.qty:0); },0);
 
   /* ── FIREBASE ── */
   async function fBr(){try{const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
   async function fPr(){try{const q=query(collection(db,"shops",SHOP,"products"),where("active","==",true));const s=await getDocs(q);return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
   async function track(){if(!U)return;try{const cid=String(U.id);const r=doc(db,"customers",cid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{chatId:cid,shopId:SHOP,firstName:U.first_name||"",lastName:U.last_name||"",username:U.username||"",firstVisit:serverTimestamp(),lastVisit:serverTimestamp(),visitCount:1,totalOrders:0,totalSpent:0});else await updateDoc(r,{lastVisit:serverTimestamp(),visitCount:increment(1)});}catch{}}
-  async function checkAdmin(){if(!U)return false;try{const s=await getDoc(doc(db,"admins",String(U.id)));return s.exists()&&s.data().active===true;}catch{return false;}}
-  async function saveOrd(cart,ps,info){const cid=U?String(U.id):"guest";const total=tot(cart,ps);const oid="HG"+Date.now().toString().slice(-6);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return{id:i.id,name:p?.name||"",price:p?.price||0,qty:i.qty};});try{await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});if(U)await updateDoc(doc(db,"customers",String(U.id)),{totalOrders:increment(1),totalSpent:increment(total),lastOrder:serverTimestamp(),phone:info.phone});}catch{}return oid;}
-  async function sendSlip(oid,slip,cart,ps,info){const total=tot(cart,ps);const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const brandName=b?.name?`[${b.name}] `:"";return`• ${brandName}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";const cap=`🛎️ *ออเดอร์ใหม่! HENG888*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ชำระปลายทาง (COD)`;const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});try{const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});if(info.location)await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});}catch(e){const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const brandName=b?.name?`[${b.name}] `:"";return`${brandName}${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});}}
+
+  // ✅ checkAdmin แยกออกมา ไม่อยู่ใน Promise.all
+  async function checkAdmin(){
+    if(!U) return false;
+    try{
+      // timeout 5 วินาที ถ้า Firestore ช้า → return false ทันที
+      const timeout = new Promise(r => setTimeout(()=>r(false), 5000));
+      const check   = getDoc(doc(db,"admins",String(U.id))).then(s=>s.exists()&&s.data().active===true).catch(()=>false);
+      return await Promise.race([check, timeout]);
+    }catch{ return false; }
+  }
+
+  async function saveOrd(cart,ps,info){
+    const cid=U?String(U.id):"guest";
+    const total=tot(cart,ps);
+    const oid="HG"+Date.now().toString().slice(-6);
+    const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);return{id:i.id,name:p?.name||"",price:p?.price||0,qty:i.qty};});
+    try{
+      await setDoc(doc(db,"orders",oid),{orderId:oid,chatId:cid,customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim(),username:U?.username||"",phone:info.phone,address:info.address,note:info.note||"",location:info.location||null,shopId:SHOP,items,total,status:"รอตรวจสอบ",createdAt:serverTimestamp()});
+      if(U) await updateDoc(doc(db,"customers",String(U.id)),{totalOrders:increment(1),totalSpent:increment(total),lastOrder:serverTimestamp(),phone:info.phone});
+    }catch{}
+    return oid;
+  }
+
+  async function sendSlip(oid,slip,cart,ps,info){
+    const total=tot(cart,ps);
+    const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const bn=b?.name?`[${b.name}] `:"";return`• ${bn}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");
+    const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";
+    const cap=`🛎️ *ออเดอร์ใหม่! HENG888*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.note?`💬 หมายเหตุ: ${info.note}\n`:""} ${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ค่าส่งชำระปลายทาง`;
+    const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});
+    try{
+      const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);
+      const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");
+      await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});
+      if(info.location) await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});
+    }catch(e){
+      const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const bn=b?.name?`[${b.name}] `:"";return`${bn}${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});
+      await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});
+    }
+  }
 
   /* ── STATE ── */
-  let S={screen:"splash",brands:[],products:[],cart:[],activeBrand:null,activeProduct:null,orderId:null,slip:null,info:{phone:"",address:"",location:null}};
-  const set=p=>{S={...S,...p};render();};
+  let S = {
+    screen:"splash", brands:[], products:[], cart:[],
+    activeBrand:null, activeProduct:null,
+    orderId:null, slip:null, slipName:"",
+    info:{ phone:"", address:"", location:null, note:"" },
+    orderSnapshot: null, // เก็บข้อมูลออเดอร์ไว้แสดงหน้า success
+  };
+  const set = p => { S={...S,...p}; render(); };
 
   /* ── RENDER ── */
   function render(){
@@ -557,27 +457,20 @@
      TEMPLATES
   ══════════════════════════════════════ */
 
-  /* SPLASH */
   const hSp=()=>`
     <div class="splash">
       <div class="sp-logo">HENG<span>888</span></div>
       <div class="sp-line"></div>
       <div class="sp-tag">Men's Exclusive Fragrance</div>
-      <div class="sp-dots">
-        <div class="sp-dot"></div>
-        <div class="sp-dot"></div>
-        <div class="sp-dot"></div>
-      </div>
+      <div class="sp-dots"><div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div></div>
     </div>`;
 
-  /* HOME — ไม่มีปุ่มย้อนกลับ (หน้าแรก) */
   const hHo=()=>{
-    const name=U?.first_name;
-    const cc=S.cart.reduce((s,i)=>s+i.qty,0);
+    const name=U?.first_name;const cc=S.cart.reduce((s,i)=>s+i.qty,0);
     const bh=S.brands.length===0
       ?`<div style="text-align:center;padding:48px;color:var(--text3);font-size:14px">กำลังโหลด...</div>`
       :S.brands.map((b,i)=>{
-          const logoSrc = b.logoUrl || "";
+          const logoSrc=b.logoUrl||"";
           return`
             <button class="brand-card" data-brand="${b.key}" style="animation-delay:${i*.08}s">
               <div class="bc-top-line"></div>
@@ -586,9 +479,8 @@
                 <div class="bc-name">${b.name}</div>
               </div>
               <div class="bc-logo-right">
-                ${logoSrc
-                  ? `<img src="${logoSrc}" alt="${b.name}" onerror="this.style.display='none'"/>`
-                  : `<div class="bc-logo-right-emoji">${b.emoji||"🫧"}</div>`}
+                ${logoSrc?`<img src="${logoSrc}" alt="${b.name}" onerror="this.style.display='none'"/>`:
+                `<div class="bc-logo-right-emoji">${b.emoji||"🫧"}</div>`}
               </div>
               <div class="bc-bot-line"></div>
             </button>`;
@@ -598,7 +490,7 @@
         <div class="page-body">
           <div class="home-hero">
             <div class="home-label">${name?`Welcome ${name}`:"Welcome"}</div>
-            <div class="home-title">เลือกกลิ่นที่ใช่\nสำหรับคุณ</div>
+            <div class="home-title">เลือกกลิ่นที่ใช่<br>สำหรับคุณ</div>
             <div class="home-sub">สินค้าพรีเมียม ส่งด่วน รอรับได้เลย</div>
           </div>
           <div style="padding:28px 22px 16px">
@@ -607,14 +499,10 @@
           </div>
           <div class="brand-list">${bh}</div>
         </div>
-        ${cc>0?`
-          <button class="cart-fab" id="fab">
-            🛒 ดูตะกร้า <span class="fab-badge">${cc}</span>
-          </button>`:""}
+        ${cc>0?`<button class="cart-fab" id="fab">🛒 ดูตะกร้า <span class="fab-badge">${cc}</span></button>`:""}
       </div>`;
   };
 
-  /* PRODUCTS — ปุ่มกลับอยู่ล่าง */
   const hPr=()=>{
     const b=S.brands.find(x=>x.key===S.activeBrand)||{};
     const ps=S.products.filter(p=>p.brand===S.activeBrand);
@@ -633,9 +521,7 @@
             <div class="prod-name" data-pid="${p.id}">${p.name}</div>
             <div class="prod-row">
               <span class="prod-price">${fmt(p.price)}</span>
-              <button class="btn btn-add-${ic?"filled":"empty"}" data-add="${p.id}">
-                ${ic?`✓ ${ic.qty}`:"+ เพิ่ม"}
-              </button>
+              <button class="btn btn-add-${ic?"filled":"empty"}" data-add="${p.id}">${ic?`✓ ${ic.qty}`:"+ เพิ่ม"}</button>
             </div>
           </div>
         </div>`;
@@ -646,9 +532,7 @@
           <div class="topbar-title">${b.name||""}</div>
           <div class="topbar-sub">${ps.length} รายการ</div>
         </div>
-        <div class="page-body">
-          <div class="prod-grid">${html}</div>
-        </div>
+        <div class="page-body"><div class="prod-grid">${html}</div></div>
         <div class="bottom-bar">
           ${cc>0?`<button class="btn btn-gold btn-full" id="go-cart">🛒 ดูตะกร้า (${cc} ชิ้น)</button>`:""}
           <button class="btn btn-back btn-full" id="bk-home">← กลับหน้าหลัก</button>
@@ -656,7 +540,6 @@
       </div>`;
   };
 
-  /* DETAIL — ปุ่มกลับอยู่ล่าง */
   const hDe=()=>{
     const p=S.products.find(x=>x.id===S.activeProduct);
     const b=S.brands.find(x=>x.key===p?.brand)||{};
@@ -674,18 +557,12 @@
             <div class="d-tag">${b.emoji||""} ${b.name||""}</div>
             <div class="d-name">${p.name}</div>
             <div class="d-price">${fmt(p.price)}</div>
-            ${p.description?`
-              <div class="d-info-card">
-                <div class="d-info-label">รายละเอียด</div>
-                <div class="d-info-text">${p.description}</div>
-              </div>`:""}
+            ${p.description?`<div class="d-info-card"><div class="d-info-label">รายละเอียด</div><div class="d-info-text">${p.description}</div></div>`:""}
             <div class="d-cod">📦 ส่งด่วน รอรับได้เลย</div>
           </div>
         </div>
         <div class="bottom-bar">
-          <button class="btn btn-gold btn-full" id="add-d">
-            ${ic?`✓ เพิ่มอีก (มีแล้ว ${ic.qty} ชิ้น)`:"🛒 เพิ่มลงตะกร้า"}
-          </button>
+          <button class="btn btn-gold btn-full" id="add-d">${ic?`✓ เพิ่มอีก (มีแล้ว ${ic.qty} ชิ้น)`:"🛒 เพิ่มลงตะกร้า"}</button>
           <div class="bottom-bar-row">
             ${cc>0?`<button class="btn btn-outline" id="go-cart" style="flex:1">ดูตะกร้า (${cc})</button>`:""}
             <button class="btn btn-back" id="bk-prod" style="flex:1">← กลับ</button>
@@ -694,7 +571,6 @@
       </div>`;
   };
 
-  /* CART — ปุ่มกลับอยู่ล่าง */
   const hCa=()=>{
     const total=tot(S.cart,S.products);
     if(S.cart.length===0)return`
@@ -705,8 +581,7 @@
         <button class="btn btn-back" id="bk-home" style="margin-top:8px;min-width:180px">← กลับเลือกสินค้า</button>
       </div>`;
     const html=S.cart.map(item=>{
-      const p=S.products.find(x=>x.id===item.id);
-      const b=S.brands.find(x=>x.key===p?.brand);
+      const p=S.products.find(x=>x.id===item.id);const b=S.brands.find(x=>x.key===p?.brand);
       if(!p)return"";
       return`
         <div class="cart-item">
@@ -730,9 +605,7 @@
           <div class="topbar-title">ตะกร้าสินค้า</div>
           <div class="topbar-sub">รายการที่เลือก</div>
         </div>
-        <div class="page-body">
-          <div class="cart-list">${html}</div>
-        </div>
+        <div class="page-body"><div class="cart-list">${html}</div></div>
         <div class="bottom-bar">
           <div class="cart-total-row">
             <span class="cart-total-lbl">ยอดรวม</span>
@@ -744,68 +617,198 @@
       </div>`;
   };
 
-  /* PAYMENT — ปุ่มกลับอยู่ล่าง */
+  /* PAYMENT — ปรับใหม่ทั้งหมด */
   const hPa=()=>{
     const total=tot(S.cart,S.products);const loc=S.info?.location;
+    const hasSlip=!!S.slip;
     return`
       <div class="page">
         <div class="topbar">
           <div class="topbar-title">ชำระเงิน</div>
-          <div class="topbar-sub">กรอกข้อมูลให้ครบก่อนส่งค่ะ</div>
+          <div class="topbar-sub">กรอกข้อมูลให้ครบทุกช่อง</div>
         </div>
         <div class="page-body">
           <div class="pay-list">
-            <div class="pay-card">
-              <span class="pay-label">บัญชีธนาคาร</span>
-              <div class="bank-n">🏦 ${BANK.n}</div>
-              <div class="bank-ac">${BANK.a}</div>
-              <div class="bank-h">👤 ${BANK.h}</div>
+
+            <!-- บัญชีธนาคาร -->
+            <div class="bank-box">
+              <div class="bank-sec-lbl">โอนเงินมาที่</div>
+              <div class="bank-row">
+                <div class="bank-icon">🏦</div>
+                <div class="bank-detail">
+                  <div class="bank-name">${BANK.n}</div>
+                  <div class="bank-number" id="bank-num" onclick="
+                    navigator.clipboard.writeText('${BANK.a}').then(()=>{
+                      const el=document.getElementById('bank-num');
+                      const orig=el.innerHTML;
+                      el.innerHTML='✅ คัดลอกแล้ว!';
+                      el.style.color='var(--green)';
+                      setTimeout(()=>{el.innerHTML=orig;el.style.color='';},2000);
+                    }).catch(()=>{
+                      const el=document.getElementById('bank-num');
+                      el.select?.();window.getSelection()?.selectAllChildren(el);
+                    })"
+                    style="cursor:pointer;user-select:all;-webkit-user-select:all;display:flex;align-items:center;gap:8px">
+                    ${BANK.a}
+                    <span style="font-size:11px;font-weight:500;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:6px;padding:2px 8px;letter-spacing:.5px">แตะคัดลอก</span>
+                  </div>
+                  <div class="bank-holder">ชื่อบัญชี: ${BANK.h}</div>
+                </div>
+              </div>
             </div>
-            <div class="amt-card">
+
+            <!-- ยอดเงิน -->
+            <div class="amt-box">
               <div class="amt-lbl">ยอดที่ต้องโอน</div>
               <div class="amt-val">${fmt(total)}</div>
+              <div class="amt-note">โอนให้ตรงยอด เพื่อการยืนยันที่รวดเร็ว</div>
             </div>
-            <div class="pay-card">
-              <span class="pay-label">📞 เบอร์โทรศัพท์ *</span>
-              <input class="f-inp" id="fp" type="tel" inputmode="numeric"
+
+            <!-- เบอร์โทร -->
+            <div class="field-box">
+              <div class="field-header">
+                <div class="field-icon">📞</div>
+                <div>
+                  <div class="field-title">เบอร์โทรศัพท์ <span style="color:var(--red)">*</span></div>
+                  <div class="field-desc">กรอกเบอร์มือถือ 10 หลัก ไม่ต้องใส่ขีด<br>เช่น 0812345678</div>
+                </div>
+              </div>
+              <input class="field-input" id="fp" type="tel" inputmode="numeric"
                 pattern="[0-9]*" maxlength="10"
-                placeholder="กรอกเบอร์โทร 10 หลัก"
+                placeholder="0 8 1 2 3 4 5 6 7 8"
                 value="${S.info?.phone||""}"
                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
-              <div class="f-err" id="ep">กรุณากรอกเบอร์โทร 10 หลักครับ</div>
+              <div class="field-err" id="ep">⚠️ กรุณากรอกเบอร์โทร 10 หลัก ตัวเลขเท่านั้นครับ</div>
             </div>
-            <div class="pay-card">
-              <span class="pay-label">📍 พิกัดที่อยู่จัดส่ง *</span>
+
+            <!-- พิกัด — แก้ไขได้ -->
+            <div class="field-box">
+              <div class="field-header">
+                <div class="field-icon">📍</div>
+                <div>
+                  <div class="field-title">พิกัดที่อยู่ <span style="color:var(--red)">*</span></div>
+                  <div class="field-desc">กดแชร์ตำแหน่งปัจจุบัน เพื่อให้ Rider<br>นำทางมาส่งสินค้าได้อย่างแม่นยำ</div>
+                </div>
+              </div>
               <button class="loc-btn ${loc?"got":""}" id="gl">
-                ${loc?`✅ ได้พิกัดแล้ว — ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`:"📍 แตะเพื่อแชร์ตำแหน่งปัจจุบัน"}
+                ${loc?`✅ บันทึกพิกัดแล้ว (${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)})`:`📍 กดเพื่อแชร์ตำแหน่งปัจจุบัน`}
               </button>
               <div class="loc-map ${loc?"show":""}" id="mb">
                 ${loc?`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`:""}
               </div>
-              <div class="loc-hint">${loc?"ใช้พิกัดนี้ส่ง Rider ให้ครับ":"ใช้สำหรับให้ Rider มาส่งสินค้าถึงบ้านครับ"}</div>
+              <div class="loc-note" id="loc-note-txt">
+                ${loc?"✅ Rider จะใช้พิกัดนี้ในการนำทางมาส่งครับ":"อนุญาตการเข้าถึงตำแหน่งเมื่อเบราว์เซอร์ขอครับ"}
+              </div>
+              ${loc?`
+              <!-- แก้ไขพิกัดด้วยตนเอง กรณีปิด GPS -->
+              <div style="margin-top:10px;background:var(--bg3);border-radius:var(--r);padding:12px 14px">
+                <div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:8px">📌 หรือกรอกพิกัดเองด้วยตนเอง (ถ้า GPS ไม่แม่นยำ)</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input class="field-input" id="lat-in" type="number" step="0.00001"
+                    placeholder="Latitude เช่น 13.75398"
+                    value="${loc.lat}" style="flex:1;font-size:13px;padding:10px 12px"/>
+                  <input class="field-input" id="lng-in" type="number" step="0.00001"
+                    placeholder="Longitude เช่น 100.50144"
+                    value="${loc.lng}" style="flex:1;font-size:13px;padding:10px 12px"/>
+                  <button onclick="
+                    const lat=parseFloat(document.getElementById('lat-in').value);
+                    const lng=parseFloat(document.getElementById('lng-in').value);
+                    if(isNaN(lat)||isNaN(lng))return;
+                    S.info={...S.info,location:{lat,lng}};
+                    document.getElementById('mb').innerHTML='<iframe src=\\'https://maps.google.com/maps?q='+lat+','+lng+'&z=16&output=embed\\' allowfullscreen></iframe>';
+                    document.getElementById('mb').classList.add('show');
+                    document.getElementById('loc-note-txt').textContent='✅ อัปเดตพิกัดแล้ว ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';
+                  " style="background:var(--gold);color:#0a0a0a;border:none;border-radius:var(--r);padding:10px 14px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
+                    อัปเดต
+                  </button>
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-top:6px">หาพิกัดได้จาก Google Maps → กดค้างที่ตำแหน่ง → คัดลอกตัวเลข</div>
+              </div>`:
+              `<div style="margin-top:10px;background:var(--bg3);border-radius:var(--r);padding:10px 14px">
+                <div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px">📌 ถ้า GPS ปิดอยู่ กรอกพิกัดเองได้ที่นี่</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input class="field-input" id="lat-in" type="number" step="0.00001"
+                    placeholder="Latitude เช่น 13.75398" style="flex:1;font-size:13px;padding:10px 12px"/>
+                  <input class="field-input" id="lng-in" type="number" step="0.00001"
+                    placeholder="Longitude เช่น 100.50144" style="flex:1;font-size:13px;padding:10px 12px"/>
+                  <button id="manual-loc" style="background:var(--gold);color:#0a0a0a;border:none;border-radius:var(--r);padding:10px 14px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
+                    ยืนยัน
+                  </button>
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-top:6px">หาพิกัดได้จาก Google Maps → กดค้างที่ตำแหน่ง → คัดลอกตัวเลข</div>
+              </div>`}
             </div>
-            <div class="pay-card">
-              <span class="pay-label">🏠 ที่อยู่จัดส่งละเอียด *</span>
-              <textarea class="f-inp f-ta" id="fa"
-                placeholder="บ้านเลขที่ / ซอย / ถนน / แขวง / เขต / จังหวัด / รหัสไปรษณีย์"
-                rows="4">${S.info?.address||""}</textarea>
-              <div class="f-err" id="ea">กรุณากรอกที่อยู่จัดส่งครับ</div>
+
+            <!-- ที่อยู่ละเอียด -->
+            <div class="field-box">
+              <div class="field-header">
+                <div class="field-icon">🏠</div>
+                <div>
+                  <div class="field-title">ที่อยู่จัดส่ง <span style="color:var(--red)">*</span></div>
+                  <div class="field-desc">กรอกให้ครบ เพื่อให้ Rider ค้นหาง่าย</div>
+                </div>
+              </div>
+              <textarea class="field-input field-textarea" id="fa"
+                placeholder="ตัวอย่างที่ 1 (บ้าน/ทาวน์เฮาส์):
+123/4 หมู่บ้านกรีนวิลล์ ซ.รัชดา 9 ถ.รัชดาภิเษก แขวงดินแดง เขตดินแดง กรุงเทพฯ 10400
+
+ตัวอย่างที่ 2 (คอนโด):
+ห้อง 1203 ชั้น 12 คอนโด The Base พระราม 9 ซ.พระราม 9 ซอย 43 แขวงบางกะปิ เขตห้วยขวาง กรุงเทพฯ 10310"
+                rows="5">${S.info?.address||""}</textarea>
+              <div class="field-err" id="ea">⚠️ กรุณากรอกที่อยู่จัดส่งให้ครบถ้วนครับ</div>
             </div>
-            <div class="pay-card">
-              <span class="pay-label">📎 สลิปโอนเงิน *</span>
+
+            <!-- หมายเหตุสำหรับ Rider (ไม่บังคับ) -->
+            <div class="field-box">
+              <div class="field-header">
+                <div class="field-icon">💬</div>
+                <div>
+                  <div class="field-title">หมายเหตุสำหรับ Rider
+                    <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:6px">(ไม่บังคับ)</span>
+                  </div>
+                  <div class="field-desc">แจ้งข้อมูลเพิ่มเติมให้ Rider ทราบ</div>
+                </div>
+              </div>
+              <textarea class="field-input field-textarea" id="fn"
+                placeholder="ตัวอย่าง:
+• ฝากไว้ที่ป้อม รปภ. ได้เลยครับ
+• วางที่โต๊ะรับพัสดุหน้าลิฟต์ชั้น 1
+• โทรแจ้งก่อนถึง 10 นาที
+• ประตูรหัส กด 1234 ได้เลยครับ"
+                rows="3">${S.info?.note||""}</textarea>
+            </div>
+
+            <!-- สลิป -->
+            <div class="field-box">
+              <div class="field-header">
+                <div class="field-icon">🧾</div>
+                <div>
+                  <div class="field-title">สลิปโอนเงิน <span style="color:var(--red)">*</span></div>
+                  <div class="field-desc">ถ่ายภาพหรือ Screenshot สลิปการโอนเงิน<br>รองรับ JPG, PNG ทุกขนาด</div>
+                </div>
+              </div>
               <div id="sa">
-                <label class="slip-zone" for="si">
-                  <div class="slip-ico">📎</div>
-                  <div class="slip-txt">แนบสลิปโอนเงิน</div>
-                  <div class="slip-hint">กดเพื่อเลือกรูปภาพ</div>
+                <label class="slip-upload-btn" for="si">
+                  <div class="slip-upload-ico">📎</div>
+                  <div>
+                    <div class="slip-upload-txt">แนบสลิปโอนเงิน</div>
+                    <div class="slip-upload-sub">กดเพื่อเลือกรูปจากอัลบั้ม</div>
+                  </div>
                 </label>
                 <input type="file" id="si" accept="image/*" style="display:none"/>
               </div>
               <div id="sp" style="display:none">
-                <img id="sim" src="" alt="slip"/>
-                <button class="btn btn-outline btn-full" id="cs" style="margin-top:8px">เลือกรูปใหม่</button>
+                <div class="slip-preview-row">
+                  <div class="slip-thumb"><img id="sim" src="" alt="slip"/></div>
+                  <div class="slip-preview-info">
+                    <div class="slip-preview-ok">✅ แนบสลิปแล้ว</div>
+                    <div class="slip-preview-name" id="slip-fname"></div>
+                  </div>
+                  <button class="slip-change-btn" id="cs">เปลี่ยน</button>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
         <div class="bottom-bar">
@@ -815,24 +818,59 @@
       </div>`;
   };
 
-  /* SUCCESS */
-  const hSu=()=>`
-    <div class="suc-wrap">
-      <div class="suc-ring">✓</div>
-      <div class="suc-title">ส่งข้อมูลเรียบร้อยครับ!</div>
-      <div class="suc-line"></div>
-      <div class="suc-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้ว<br>รอการยืนยันภายใน 15-30 นาทีครับ</div>
-      ${S.orderId?`
-        <div class="ord-box">
-          <div class="ord-lbl">Order No.</div>
-          <div class="ord-val">${S.orderId}</div>
-        </div>`:""}
-      <button class="btn btn-outline" id="rs" style="min-width:200px;margin-top:4px">สั่งซื้ออีกครั้ง</button>
-    </div>`;
+  /* SUCCESS — แสดงสรุปออเดอร์สวยงาม */
+  const hSu=()=>{
+    const snap=S.orderSnapshot;
+    const itemsHtml=(snap?.items||[]).map(i=>`
+      <div class="suc-row">
+        <span class="suc-row-lbl">${i.name}</span>
+        <span class="suc-row-val">×${i.qty} = ${fmt(i.price*i.qty)}</span>
+      </div>`).join("");
+    return`
+      <div class="suc-wrap">
+        <div class="suc-check"><div class="suc-check-icon">✓</div></div>
+        <div class="suc-title">ส่งข้อมูลเรียบร้อยแล้ว!</div>
+        <div class="suc-sub">แอดมินได้รับสลิปและข้อมูลจัดส่งแล้วครับ</div>
 
-  /* ══════════════════════════════════════
-     BIND EVENTS
-  ══════════════════════════════════════ */
+        ${snap?`
+        <div class="suc-order-card">
+          <div class="suc-order-header">
+            <div>
+              <div class="suc-order-id-lbl">เลขออเดอร์</div>
+              <div class="suc-order-id-val">${snap.orderId}</div>
+            </div>
+            <div style="font-size:22px">🛍️</div>
+          </div>
+          <div class="suc-order-rows">
+            <div class="suc-row">
+              <span class="suc-row-lbl">👤 ชื่อลูกค้า</span>
+              <span class="suc-row-val">${snap.customerName||"-"}</span>
+            </div>
+            <div class="suc-row">
+              <span class="suc-row-lbl">📞 เบอร์โทร</span>
+              <span class="suc-row-val">${snap.phone}</span>
+            </div>
+            <div class="suc-divider"></div>
+            ${itemsHtml}
+          </div>
+          <div class="suc-total-row">
+            <span class="suc-total-lbl">ยอดรวม</span>
+            <span class="suc-total-val">${fmt(snap.total)}</span>
+          </div>
+        </div>`:`<div class="ord-box" style="margin-bottom:16px"><div style="font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px">ORDER NO.</div><div style="font-size:20px;font-weight:800">${S.orderId}</div></div>`}
+
+        <div class="suc-steps">
+          <div class="suc-steps-title">ขั้นตอนถัดไป</div>
+          <div class="suc-step"><div class="suc-step-num">1</div><div class="suc-step-txt">แอดมินตรวจสอบสลิปและยืนยันออเดอร์ภายใน 15-30 นาที</div></div>
+          <div class="suc-step"><div class="suc-step-num">2</div><div class="suc-step-txt">คุณจะได้รับข้อความยืนยันผ่าน Telegram</div></div>
+          <div class="suc-step"><div class="suc-step-num">3</div><div class="suc-step-txt">Rider จะมาส่งถึงบ้าน ชำระค่าส่งปลายทาง</div></div>
+        </div>
+
+        <button class="btn btn-outline btn-full" id="rs">สั่งซื้ออีกครั้ง</button>
+      </div>`;
+  };
+
+  /* ══ BIND ══ */
   function bHo(){
     document.querySelectorAll(".brand-card").forEach(el=>el.addEventListener("click",()=>set({screen:"products",activeBrand:el.dataset.brand})));
     document.getElementById("fab")?.addEventListener("click",()=>set({screen:"cart"}));
@@ -867,11 +905,28 @@
       const ph=document.getElementById("fp")?.value.trim()||"";
       const ad=document.getElementById("fa")?.value.trim()||"";
       const rdy=ph.length===10&&ad.length>5&&!!S.info?.location&&!!S.slip;
-      sb.disabled=!rdy;
-      sb.style.opacity=rdy?"1":".35";
+      sb.disabled=!rdy;sb.style.opacity=rdy?"1":".30";
     }
     document.getElementById("fp")?.addEventListener("input",chk);
     document.getElementById("fa")?.addEventListener("input",chk);
+
+    // กรอกพิกัดเองด้วยตนเอง (กรณีปิด GPS)
+    document.getElementById("manual-loc")?.addEventListener("click",()=>{
+      const lat=parseFloat(document.getElementById("lat-in")?.value);
+      const lng=parseFloat(document.getElementById("lng-in")?.value);
+      if(isNaN(lat)||isNaN(lng)||lat<-90||lat>90||lng<-180||lng>180){
+        alert("พิกัดไม่ถูกต้องครับ กรุณาตรวจสอบอีกครั้ง");return;
+      }
+      S.info={...S.info,location:{lat,lng}};
+      const mb=document.getElementById("mb");
+      mb.innerHTML=`<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed" allowfullscreen></iframe>`;
+      mb.classList.add("show");
+      const btn=document.getElementById("gl");
+      if(btn){btn.className="loc-btn got";btn.textContent=`✅ บันทึกพิกัดแล้ว (${lat.toFixed(4)}, ${lng.toFixed(4)})`;}
+      const note=document.getElementById("loc-note-txt");
+      if(note)note.textContent="✅ อัปเดตพิกัดแล้วครับ";
+      chk();
+    });
 
     document.getElementById("gl")?.addEventListener("click",()=>{
       if(!navigator.geolocation){alert("ไม่รองรับการแชร์ตำแหน่งครับ");return;}
@@ -882,13 +937,13 @@
           const loc={lat:pos.coords.latitude,lng:pos.coords.longitude};
           S.info={...S.info,location:loc};
           btn.className="loc-btn got";
-          btn.textContent=`✅ ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
+          btn.textContent=`✅ บันทึกพิกัดแล้ว (${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)})`;
           btn.disabled=false;
           const mb=document.getElementById("mb");
           mb.innerHTML=`<iframe src="https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed" allowfullscreen></iframe>`;
           mb.classList.add("show");chk();
         },
-        ()=>{btn.textContent="❌ ดึงไม่ได้ กดอีกครั้ง";btn.disabled=false;},
+        ()=>{btn.textContent="❌ ดึงตำแหน่งไม่ได้ กดอีกครั้ง";btn.disabled=false;},
         {enableHighAccuracy:true,timeout:10000}
       );
     });
@@ -898,13 +953,17 @@
       const r=new FileReader();
       r.onload=ev=>{
         S.slip=ev.target.result;
+        S.slipName=f.name;
         sim.src=ev.target.result;
+        const fn=document.getElementById("slip-fname");
+        if(fn)fn.textContent=f.name.length>24?f.name.slice(0,24)+"...":f.name;
         sa.style.display="none";sp.style.display="block";chk();
       };
       r.readAsDataURL(f);
     });
     document.getElementById("cs")?.addEventListener("click",()=>{
-      S.slip=null;sa.style.display="block";sp.style.display="none";chk();
+      S.slip=null;S.slipName="";
+      sa.style.display="block";sp.style.display="none";chk();
     });
 
     sb?.addEventListener("click",async()=>{
@@ -917,11 +976,19 @@
       else document.getElementById("ea").classList.remove("show");
       if(!ok||!S.slip||!S.info?.location)return;
       sb.disabled=true;sb.textContent="⏳ กำลังส่ง...";
-      const info={phone:ph,address:ad,location:S.info.location};
+      const info={phone:ph,address:ad,location:S.info.location,note:document.getElementById("fn")?.value.trim()||""};
       try{
         const id=await saveOrd(S.cart,S.products,info);
         await sendSlip(id,S.slip,S.cart,S.products,info);
-        set({screen:"success",orderId:id,cart:[],slip:null,info:{phone:"",address:"",location:null}});
+        // เก็บ snapshot ไว้แสดงหน้า success
+        const snap={
+          orderId:id,
+          customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim()||"-",
+          phone:ph,
+          items:S.cart.map(i=>{const p=S.products.find(x=>x.id===i.id);return{name:p?.name||"",price:p?.price||0,qty:i.qty};}),
+          total:tot(S.cart,S.products),
+        };
+        set({screen:"success",orderId:id,cart:[],slip:null,slipName:"",info:{phone:"",address:"",location:null,note:""},orderSnapshot:snap});
       }catch(e){
         sb.disabled=false;sb.textContent="📤 ส่งข้อมูลและสลิป";
         alert("เกิดข้อผิดพลาด กรุณาลองใหม่ครับ");
@@ -929,25 +996,33 @@
     });
   }
   function bSu(){
-    document.getElementById("rs")?.addEventListener("click",()=>set({screen:"home",cart:[],orderId:null,slip:null,info:{phone:"",address:"",location:null}}));
+    document.getElementById("rs")?.addEventListener("click",()=>set({screen:"home",cart:[],orderId:null,slip:null,slipName:"",info:{phone:"",address:"",location:null,note:""},orderSnapshot:null}));
   }
 
   /* ── CART LOGIC ── */
   function addC(id){const ex=S.cart.find(i=>i.id===id);set({cart:ex?S.cart.map(i=>i.id===id?{...i,qty:i.qty+1}:i):[...S.cart,{id,qty:1}]});}
   function upQ(id,d){set({cart:S.cart.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0)});}
 
-  /* ── INIT ── */
+  /* ── INIT — แยก checkAdmin ออกจาก Promise.all ── */
   async function init(){
-    render();
+    render(); // แสดง splash ทันที
     try{
-      const[b,p,isAdmin]=await Promise.all([fBr(),fPr(),checkAdmin()]);
-      S.brands=b;S.products=p;track();
+      // ① โหลดสินค้าก่อน — ลูกค้าเห็นหน้าร้านได้เลย
+      const[b,p]=await Promise.all([fBr(),fPr()]);
+      S.brands=b; S.products=p;
+      track();
+
+      // ② เช็ค admin แยก พร้อม timeout 5 วินาที
+      const isAdmin = await checkAdmin();
+
       setTimeout(()=>{
-        if(isAdmin){window.location.href="admin.html";}
-        else{set({screen:"home"});}
+        if(isAdmin){ window.location.href="admin.html"; }
+        else       { set({screen:"home"}); }
       },2400);
+
     }catch(e){
-      console.error(e);
+      console.error("init error:",e);
+      // ถ้า error ใดๆ → เปิดหน้าร้านปกติ ไม่หน้าว่าง
       setTimeout(()=>set({screen:"home"}),2400);
     }
   }
