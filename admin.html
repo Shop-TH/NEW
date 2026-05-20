@@ -689,7 +689,9 @@
       </div>`;
   }
 
-  const BOT_TOKEN = "8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
+  // ✅ ไม่มี Bot Token ใน Frontend — ส่งผ่าน Apps Script แทน
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
+  const ADMIN_SECRET    = "heng888-admin-2024"; // ← ต้องตรงกับใน Apps Script
 
   /* ══ BIND MAIN ══ */
   function bindMain(){
@@ -722,7 +724,7 @@
       const orderId= el.dataset.oid;
       const link   = document.getElementById(`trk-${docId}`)?.value.trim();
 
-      if(!link)                  return toast("กรุณาวางลิงก์ติดตามก่อนครับ","error");
+      if(!link)                    return toast("กรุณาวางลิงก์ติดตามก่อนครับ","error");
       if(!link.startsWith("http")) return toast("ลิงก์ต้องขึ้นต้นด้วย http ครับ","error");
       if(!chatId||chatId==="guest") return toast("ไม่พบ Chat ID ลูกค้าครับ","error");
 
@@ -732,30 +734,34 @@
         // ① บันทึก trackingUrl ลง Firestore
         await updateDoc(doc(db,"orders",docId),{trackingUrl:link});
 
-        // ② ส่งข้อความตรงไปหาลูกค้าผ่าน Telegram Bot API
-        const res = await fetch(
-          `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-          {
-            method : "POST",
-            headers: {"Content-Type":"application/json"},
-            body   : JSON.stringify({
-              chat_id   : chatId,
-              parse_mode: "Markdown",
-              text:
-                `🛵 *Rider กำลังมาส่งสินค้าค่ะ!*\n\n` +
-                `📋 เลขออเดอร์: *${orderId}*\n\n` +
-                `🔗 ติดตามสถานะการจัดส่ง:\n${link}\n\n` +
-                `กรุณาเตรียมเงินสดไว้ชำระค่าส่งด้วยนะคะ 😊`,
-            }),
-          }
-        );
+        // ② ✅ ส่งผ่าน Apps Script — ไม่มี Bot Token ใน Frontend
+        const res = await fetch(APPS_SCRIPT_URL,{
+          method : "POST",
+          headers: {"Content-Type":"application/x-www-form-urlencoded"},
+          body   : new URLSearchParams({
+            action  : "send_tracking",
+            secret  : ADMIN_SECRET,
+            chatId,
+            orderId,
+            link,
+          }).toString(),
+        });
         const result = await res.json();
-        if(!result.ok) throw new Error(result.description||"Telegram error");
+        if(result.ok===false) throw new Error(result.error||"Apps Script error");
 
         S.orders=await loadOrders(); set({tab:"orders"});
         toast("✅ ส่งลิงก์ติดตามให้ลูกค้าแล้วค่ะ");
       }catch(e){
         console.error(e);
+        // fallback GET
+        const p=new URLSearchParams({
+          action:"send_tracking", secret:ADMIN_SECRET,
+          chatId, orderId, link,
+        });
+        await fetch(`${APPS_SCRIPT_URL}?${p}`,{method:"GET",mode:"no-cors"});
+        S.orders=await loadOrders(); set({tab:"orders"});
+        toast("✅ ส่งลิงก์ติดตามแล้วค่ะ");
+      }
         el.disabled=false; el.textContent="📤 ส่งให้ลูกค้า";
         toast("ส่งไม่ได้: "+e.message,"error");
       }
