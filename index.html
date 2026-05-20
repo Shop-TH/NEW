@@ -390,34 +390,16 @@
   async function fPr(){try{const q=query(collection(db,"shops",SHOP,"products"),where("active","==",true));const s=await getDocs(q);return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
   async function track(){if(!U)return;try{const cid=String(U.id);const r=doc(db,"customers",cid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{chatId:cid,shopId:SHOP,firstName:U.first_name||"",lastName:U.last_name||"",username:U.username||"",firstVisit:serverTimestamp(),lastVisit:serverTimestamp(),visitCount:1,totalOrders:0,totalSpent:0});else await updateDoc(r,{lastVisit:serverTimestamp(),visitCount:increment(1)});}catch{}}
 
-  // checkAdmin — timeout 8 วินาที ป้องกันแอดมินเห็นหน้าร้าน
-  async function checkAdmin(){
-    if(!U){
-      console.log("[checkAdmin] ❌ ไม่มี TG_USER — เปิดจากเบราว์เซอร์?");
-      return false;
-    }
-    console.log("[checkAdmin] 🔍 เช็ค chatId:", String(U.id));
-    try{
-      const timeout = new Promise(r => setTimeout(()=>{
-        console.log("[checkAdmin] ⏰ timeout 8s");
-        r(false);
-      }, 8000));
-      const check = getDoc(doc(db,"admins",String(U.id)))
-        .then(s => {
-          console.log("[checkAdmin] Firestore result — exists:", s.exists(), "| active:", s.data()?.active);
-          return s.exists() && s.data().active === true;
-        })
-        .catch(e => {
-          console.log("[checkAdmin] ❌ Firestore error:", e.message);
-          return false;
-        });
-      const result = await Promise.race([check, timeout]);
-      console.log("[checkAdmin] ✅ result:", result);
-      return result;
-    }catch(e){
-      console.log("[checkAdmin] ❌ catch:", e.message);
-      return false;
-    }
+  // ✅ เช็ค Admin โดยเทียบ Chat ID ตรงๆ — ไม่ต้องรอ Firestore
+  // เร็วทันที ไม่มี timeout ไม่ขึ้นกับ network
+  const ADMIN_IDS = ["7234688831"]; // เพิ่ม Chat ID แอดมินได้ที่นี่
+
+  function checkAdmin(){
+    if(!U) return false;
+    const cid = String(U.id);
+    const isAdmin = ADMIN_IDS.includes(cid);
+    console.log("[checkAdmin] chatId:", cid, "→ isAdmin:", isAdmin);
+    return isAdmin;
   }
 
   async function saveOrd(cart,ps,info){
@@ -1004,25 +986,29 @@
   /* ── INIT ── */
   async function init(){
     render();
-    console.log("[init] TG_USER:", U ? `id=${U.id} name=${U.first_name}` : "null");
+
+    // ① เช็ค admin ทันที ไม่ต้องรอ network
+    const isAdmin = checkAdmin();
+
+    if(isAdmin){
+      // แอดมิน → redirect ทันทีหลัง splash
+      try{
+        const[b,p]=await Promise.all([fBr(),fPr()]);
+        S.brands=b; S.products=p;
+      }catch{}
+      setTimeout(()=>{ window.location.href="admin.html"; },2400);
+      return;
+    }
+
+    // ② ลูกค้า → โหลดสินค้าแล้วเปิดหน้าร้าน
     try{
-      const[b,p,isAdmin]=await Promise.all([fBr(),fPr(),checkAdmin()]);
+      const[b,p]=await Promise.all([fBr(),fPr()]);
       S.brands=b; S.products=p;
-      console.log("[init] brands:", b.length, "| products:", p.length, "| isAdmin:", isAdmin);
       track();
-      setTimeout(()=>{
-        if(isAdmin){
-          console.log("[init] → redirect admin.html");
-          window.location.href="admin.html";
-        }else{
-          console.log("[init] → home screen");
-          set({screen:"home"});
-        }
-      },2400);
     }catch(e){
       console.error("[init] error:",e);
-      setTimeout(()=>set({screen:"home"}),2400);
     }
+    setTimeout(()=>set({screen:"home"}),2400);
   }
   init();
 </script>
