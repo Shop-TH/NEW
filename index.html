@@ -681,7 +681,7 @@
               <div class="field-err" id="ep">⚠️ กรุณากรอกเบอร์โทร 10 หลัก ตัวเลขเท่านั้นครับ</div>
             </div>
 
-            <!-- พิกัด — แก้ไขได้ -->
+            <!-- พิกัด -->
             <div class="field-box">
               <div class="field-header">
                 <div class="field-icon">📍</div>
@@ -699,44 +699,6 @@
               <div class="loc-note" id="loc-note-txt">
                 ${loc?"✅ Rider จะใช้พิกัดนี้ในการนำทางมาส่งครับ":"อนุญาตการเข้าถึงตำแหน่งเมื่อเบราว์เซอร์ขอครับ"}
               </div>
-              ${loc?`
-              <!-- แก้ไขพิกัดด้วยตนเอง กรณีปิด GPS -->
-              <div style="margin-top:10px;background:var(--bg3);border-radius:var(--r);padding:12px 14px">
-                <div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:8px">📌 หรือกรอกพิกัดเองด้วยตนเอง (ถ้า GPS ไม่แม่นยำ)</div>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <input class="field-input" id="lat-in" type="number" step="0.00001"
-                    placeholder="Latitude เช่น 13.75398"
-                    value="${loc.lat}" style="flex:1;font-size:13px;padding:10px 12px"/>
-                  <input class="field-input" id="lng-in" type="number" step="0.00001"
-                    placeholder="Longitude เช่น 100.50144"
-                    value="${loc.lng}" style="flex:1;font-size:13px;padding:10px 12px"/>
-                  <button onclick="
-                    const lat=parseFloat(document.getElementById('lat-in').value);
-                    const lng=parseFloat(document.getElementById('lng-in').value);
-                    if(isNaN(lat)||isNaN(lng))return;
-                    S.info={...S.info,location:{lat,lng}};
-                    document.getElementById('mb').innerHTML='<iframe src=\\'https://maps.google.com/maps?q='+lat+','+lng+'&z=16&output=embed\\' allowfullscreen></iframe>';
-                    document.getElementById('mb').classList.add('show');
-                    document.getElementById('loc-note-txt').textContent='✅ อัปเดตพิกัดแล้ว ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';
-                  " style="background:var(--gold);color:#0a0a0a;border:none;border-radius:var(--r);padding:10px 14px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
-                    อัปเดต
-                  </button>
-                </div>
-                <div style="font-size:11px;color:var(--text3);margin-top:6px">หาพิกัดได้จาก Google Maps → กดค้างที่ตำแหน่ง → คัดลอกตัวเลข</div>
-              </div>`:
-              `<div style="margin-top:10px;background:var(--bg3);border-radius:var(--r);padding:10px 14px">
-                <div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px">📌 ถ้า GPS ปิดอยู่ กรอกพิกัดเองได้ที่นี่</div>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <input class="field-input" id="lat-in" type="number" step="0.00001"
-                    placeholder="Latitude เช่น 13.75398" style="flex:1;font-size:13px;padding:10px 12px"/>
-                  <input class="field-input" id="lng-in" type="number" step="0.00001"
-                    placeholder="Longitude เช่น 100.50144" style="flex:1;font-size:13px;padding:10px 12px"/>
-                  <button id="manual-loc" style="background:var(--gold);color:#0a0a0a;border:none;border-radius:var(--r);padding:10px 14px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
-                    ยืนยัน
-                  </button>
-                </div>
-                <div style="font-size:11px;color:var(--text3);margin-top:6px">หาพิกัดได้จาก Google Maps → กดค้างที่ตำแหน่ง → คัดลอกตัวเลข</div>
-              </div>`}
             </div>
 
             <!-- ที่อยู่ละเอียด -->
@@ -909,24 +871,6 @@
     }
     document.getElementById("fp")?.addEventListener("input",chk);
     document.getElementById("fa")?.addEventListener("input",chk);
-
-    // กรอกพิกัดเองด้วยตนเอง (กรณีปิด GPS)
-    document.getElementById("manual-loc")?.addEventListener("click",()=>{
-      const lat=parseFloat(document.getElementById("lat-in")?.value);
-      const lng=parseFloat(document.getElementById("lng-in")?.value);
-      if(isNaN(lat)||isNaN(lng)||lat<-90||lat>90||lng<-180||lng>180){
-        alert("พิกัดไม่ถูกต้องครับ กรุณาตรวจสอบอีกครั้ง");return;
-      }
-      S.info={...S.info,location:{lat,lng}};
-      const mb=document.getElementById("mb");
-      mb.innerHTML=`<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed" allowfullscreen></iframe>`;
-      mb.classList.add("show");
-      const btn=document.getElementById("gl");
-      if(btn){btn.className="loc-btn got";btn.textContent=`✅ บันทึกพิกัดแล้ว (${lat.toFixed(4)}, ${lng.toFixed(4)})`;}
-      const note=document.getElementById("loc-note-txt");
-      if(note)note.textContent="✅ อัปเดตพิกัดแล้วครับ";
-      chk();
-    });
 
     document.getElementById("gl")?.addEventListener("click",()=>{
       if(!navigator.geolocation){alert("ไม่รองรับการแชร์ตำแหน่งครับ");return;}
