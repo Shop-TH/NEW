@@ -785,7 +785,10 @@
     const snap=S.orderSnapshot;
     const itemsHtml=(snap?.items||[]).map(i=>`
       <div class="suc-row">
-        <span class="suc-row-lbl">${i.name}</span>
+        <span class="suc-row-lbl">
+          ${i.brand?`<span style="font-size:10px;color:var(--gold);font-weight:600;letter-spacing:1px;display:block;margin-bottom:2px">${i.brand}</span>`:""}
+          ${i.name}
+        </span>
         <span class="suc-row-val">×${i.qty} = ${fmt(i.price*i.qty)}</span>
       </div>`).join("");
     return`
@@ -929,7 +932,11 @@
           orderId:id,
           customerName:((U?.first_name||"")+" "+(U?.last_name||"")).trim()||"-",
           phone:ph,
-          items:S.cart.map(i=>{const p=S.products.find(x=>x.id===i.id);return{name:p?.name||"",price:p?.price||0,qty:i.qty};}),
+          items:S.cart.map(i=>{
+            const p=S.products.find(x=>x.id===i.id);
+            const b=S.brands.find(x=>x.key===p?.brand);
+            return{name:p?.name||"",brand:b?.name||"",price:p?.price||0,qty:i.qty};
+          }),
           total:tot(S.cart,S.products),
         };
         set({screen:"success",orderId:id,cart:[],slip:null,slipName:"",info:{phone:"",address:"",location:null,note:""},orderSnapshot:snap});
