@@ -390,15 +390,34 @@
   async function fPr(){try{const q=query(collection(db,"shops",SHOP,"products"),where("active","==",true));const s=await getDocs(q);return s.docs.map(d=>({id:d.id,...d.data()}));}catch{return[];}}
   async function track(){if(!U)return;try{const cid=String(U.id);const r=doc(db,"customers",cid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{chatId:cid,shopId:SHOP,firstName:U.first_name||"",lastName:U.last_name||"",username:U.username||"",firstVisit:serverTimestamp(),lastVisit:serverTimestamp(),visitCount:1,totalOrders:0,totalSpent:0});else await updateDoc(r,{lastVisit:serverTimestamp(),visitCount:increment(1)});}catch{}}
 
-  // ✅ checkAdmin แยกออกมา ไม่อยู่ใน Promise.all
+  // checkAdmin — timeout 8 วินาที ป้องกันแอดมินเห็นหน้าร้าน
   async function checkAdmin(){
-    if(!U) return false;
+    if(!U){
+      console.log("[checkAdmin] ❌ ไม่มี TG_USER — เปิดจากเบราว์เซอร์?");
+      return false;
+    }
+    console.log("[checkAdmin] 🔍 เช็ค chatId:", String(U.id));
     try{
-      // timeout 5 วินาที ถ้า Firestore ช้า → return false ทันที
-      const timeout = new Promise(r => setTimeout(()=>r(false), 5000));
-      const check   = getDoc(doc(db,"admins",String(U.id))).then(s=>s.exists()&&s.data().active===true).catch(()=>false);
-      return await Promise.race([check, timeout]);
-    }catch{ return false; }
+      const timeout = new Promise(r => setTimeout(()=>{
+        console.log("[checkAdmin] ⏰ timeout 8s");
+        r(false);
+      }, 8000));
+      const check = getDoc(doc(db,"admins",String(U.id)))
+        .then(s => {
+          console.log("[checkAdmin] Firestore result — exists:", s.exists(), "| active:", s.data()?.active);
+          return s.exists() && s.data().active === true;
+        })
+        .catch(e => {
+          console.log("[checkAdmin] ❌ Firestore error:", e.message);
+          return false;
+        });
+      const result = await Promise.race([check, timeout]);
+      console.log("[checkAdmin] ✅ result:", result);
+      return result;
+    }catch(e){
+      console.log("[checkAdmin] ❌ catch:", e.message);
+      return false;
+    }
   }
 
   async function saveOrd(cart,ps,info){
@@ -413,25 +432,28 @@
     return oid;
   }
 
+  // ✅ ส่งแจ้งแอดมินผ่าน Apps Script — text เท่านั้น ไม่ส่ง base64
+  // สลิปเก็บใน Firebase Storage ผ่าน saveOrd แล้ว
   async function sendSlip(oid,slip,cart,ps,info){
-    const total=tot(cart,ps);
-    const items=cart.map(i=>{
-      const p=ps.find(x=>x.id===i.id);
-      const b=S.brands.find(x=>x.key===p?.brand);
-      const bn=b?.name?`[${b.name}] `:"";
-      return`• ${bn}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;
+    const total    = tot(cart,ps);
+    const items    = cart.map(i=>{
+      const p  = ps.find(x=>x.id===i.id);
+      const b  = S.brands.find(x=>x.key===p?.brand);
+      const bn = b?.name?`[${b.name}] `:"";
+      return `• ${bn}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;
     }).join("\n");
-    const itemsShort=cart.map(i=>{
-      const p=ps.find(x=>x.id===i.id);
-      const b=S.brands.find(x=>x.key===p?.brand);
-      const bn=b?.name?`[${b.name}] `:"";
-      return`${bn}${p?.name} ×${i.qty}`;
+    const itemsShort = cart.map(i=>{
+      const p  = ps.find(x=>x.id===i.id);
+      const b  = S.brands.find(x=>x.key===p?.brand);
+      const bn = b?.name?`[${b.name}] `:"";
+      return `${bn}${p?.name} ×${i.qty}`;
     }).join(", ");
-    const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";
-    const locStr=info.location?`${info.location.lat},${info.location.lng}`:"";
+    const cname  = U ? `${U.first_name||""} ${U.last_name||""}`.trim() : "Guest";
+    const locStr = info.location ? `${info.location.lat},${info.location.lng}` : "";
 
-    // ✅ ส่งทุกอย่างผ่าน Apps Script — ไม่มี Bot Token ใน Frontend
-    const params=new URLSearchParams({
+    // บันทึกสลิป base64 ลง Firebase (ใน saveOrd แล้ว)
+    // แจ้งแอดมินผ่าน Apps Script — ส่งแค่ text ไม่มีรูป เร็วกว่ามาก
+    const params = new URLSearchParams({
       action      : "notify_admin",
       secret      : ADMIN_SECRET,
       orderId     : oid,
@@ -445,27 +467,12 @@
       items,
       itemsShort,
       total       : String(total),
-      slip        : slip, // base64 รูปสลิป
     });
 
-    // POST (ดีกว่า GET เพราะ slip เป็น base64 ยาวมาก)
     try{
-      await fetch(ASU,{
-        method : "POST",
-        headers: {"Content-Type":"application/x-www-form-urlencoded"},
-        body   : params.toString(),
-      });
+      await fetch(`${ASU}?${params}`,{method:"GET",mode:"no-cors"});
     }catch(e){
-      // fallback GET ไม่มีรูปสลิป
-      console.error("sendSlip POST failed, trying GET fallback:",e);
-      const p2=new URLSearchParams({
-        action:"notify_admin", secret:ADMIN_SECRET,
-        orderId:oid, chatId:String(U?.id||"guest"),
-        customerName:cname, phone:info.phone,
-        address:info.address, note:info.note||"",
-        location:locStr, items:itemsShort, total:String(total),
-      });
-      await fetch(`${ASU}?${p2}`,{method:"GET",mode:"no-cors"});
+      console.error("sendSlip error:",e);
     }
   }
 
@@ -994,26 +1001,26 @@
   function addC(id){const ex=S.cart.find(i=>i.id===id);set({cart:ex?S.cart.map(i=>i.id===id?{...i,qty:i.qty+1}:i):[...S.cart,{id,qty:1}]});}
   function upQ(id,d){set({cart:S.cart.map(i=>i.id===id?{...i,qty:i.qty+d}:i).filter(i=>i.qty>0)});}
 
-  /* ── INIT — แยก checkAdmin ออกจาก Promise.all ── */
+  /* ── INIT ── */
   async function init(){
-    render(); // แสดง splash ทันที
+    render();
+    console.log("[init] TG_USER:", U ? `id=${U.id} name=${U.first_name}` : "null");
     try{
-      // ① โหลดสินค้าก่อน — ลูกค้าเห็นหน้าร้านได้เลย
-      const[b,p]=await Promise.all([fBr(),fPr()]);
+      const[b,p,isAdmin]=await Promise.all([fBr(),fPr(),checkAdmin()]);
       S.brands=b; S.products=p;
+      console.log("[init] brands:", b.length, "| products:", p.length, "| isAdmin:", isAdmin);
       track();
-
-      // ② เช็ค admin แยก พร้อม timeout 5 วินาที
-      const isAdmin = await checkAdmin();
-
       setTimeout(()=>{
-        if(isAdmin){ window.location.href="admin.html"; }
-        else       { set({screen:"home"}); }
+        if(isAdmin){
+          console.log("[init] → redirect admin.html");
+          window.location.href="admin.html";
+        }else{
+          console.log("[init] → home screen");
+          set({screen:"home"});
+        }
       },2400);
-
     }catch(e){
-      console.error("init error:",e);
-      // ถ้า error ใดๆ → เปิดหน้าร้านปกติ ไม่หน้าว่าง
+      console.error("[init] error:",e);
       setTimeout(()=>set({screen:"home"}),2400);
     }
   }
