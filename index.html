@@ -369,8 +369,10 @@
   /* ── CONFIG ── */
   const FC={apiKey:"AIzaSyBCykbrwCiWO1eAlj9YgpeJj9JGPc6XEK4",authDomain:"shop-th.firebaseapp.com",projectId:"shop-th",storageBucket:"shop-th.firebasestorage.app",messagingSenderId:"407059998090",appId:"1:407059998090:web:e008bcb4042e574eb7d473"};
   const SHOP  = "shop_001";
-  const ASU   = "https://script.google.com/macros/s/AKfycbyoWJVJkLE_OyjE0UjyVgHyePSIfgu0lucDVg1NZJontY5pjDDxrPp9UY2oRI6WNmuV/exec";
-  const BOT   = "8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
+  // ✅ ไม่มี Bot Token ใน Frontend อีกต่อไป
+  // ส่งทุกอย่างผ่าน Apps Script เท่านั้น
+  const ASU   = "https://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
+  const ADMIN_SECRET = "heng888-admin-2024"; // ← ต้องตรงกับใน Apps Script
   const ADMIN = "7234688831";
   const BANK  = { n:"กสิกรไทย", a:"123-4-56789-0", h:"HENG888 CO., LTD." };
 
@@ -413,19 +415,57 @@
 
   async function sendSlip(oid,slip,cart,ps,info){
     const total=tot(cart,ps);
-    const items=cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const bn=b?.name?`[${b.name}] `:"";return`• ${bn}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;}).join("\n");
+    const items=cart.map(i=>{
+      const p=ps.find(x=>x.id===i.id);
+      const b=S.brands.find(x=>x.key===p?.brand);
+      const bn=b?.name?`[${b.name}] `:"";
+      return`• ${bn}${p?.name} ×${i.qty} = ${fmt(p?.price*i.qty)}`;
+    }).join("\n");
+    const itemsShort=cart.map(i=>{
+      const p=ps.find(x=>x.id===i.id);
+      const b=S.brands.find(x=>x.key===p?.brand);
+      const bn=b?.name?`[${b.name}] `:"";
+      return`${bn}${p?.name} ×${i.qty}`;
+    }).join(", ");
     const cname=U?`${U.first_name||""} ${U.last_name||""}`.trim():"Guest";
-    const cap=`🛎️ *ออเดอร์ใหม่! HENG888*\n\n📋 เลขออเดอร์: *${oid}*\n👤 ลูกค้า: ${cname}${U?.username?" @"+U.username:""}\n📞 เบอร์โทร: *${info.phone}*\n🏠 ที่อยู่: ${info.address}\n${info.note?`💬 หมายเหตุ: ${info.note}\n`:""} ${info.location?`🗺️ [ดูแผนที่](https://maps.google.com/?q=${info.location.lat},${info.location.lng})\n`:""}\n🛍️ รายการ:\n${items}\n\n💰 ยอดรวม: *${fmt(total)}*\n📦 ค่าส่งชำระปลายทาง`;
-    const kb=JSON.stringify({inline_keyboard:[[{text:"✅ ยืนยันออเดอร์",callback_data:`confirm:${oid}:${U?.id||"guest"}`},{text:"❌ ปฏิเสธ",callback_data:`reject:${oid}:${U?.id||"guest"}`}]]});
+    const locStr=info.location?`${info.location.lat},${info.location.lng}`:"";
+
+    // ✅ ส่งทุกอย่างผ่าน Apps Script — ไม่มี Bot Token ใน Frontend
+    const params=new URLSearchParams({
+      action      : "notify_admin",
+      secret      : ADMIN_SECRET,
+      orderId     : oid,
+      chatId      : String(U?.id||"guest"),
+      customerName: cname,
+      username    : U?.username||"",
+      phone       : info.phone,
+      address     : info.address,
+      note        : info.note||"",
+      location    : locStr,
+      items,
+      itemsShort,
+      total       : String(total),
+      slip        : slip, // base64 รูปสลิป
+    });
+
+    // POST (ดีกว่า GET เพราะ slip เป็น base64 ยาวมาก)
     try{
-      const fd=new FormData();fd.append("chat_id",ADMIN);fd.append("caption",cap);fd.append("parse_mode","Markdown");fd.append("reply_markup",kb);
-      const b64=slip.split(",")[1];const byt=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-      fd.append("photo",new Blob([byt],{type:"image/jpeg"}),"slip.jpg");
-      await fetch(`https://api.telegram.org/bot${BOT}/sendPhoto`,{method:"POST",body:fd});
-      if(info.location) await fetch(`https://api.telegram.org/bot${BOT}/sendLocation`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:ADMIN,latitude:info.location.lat,longitude:info.location.lng})});
+      await fetch(ASU,{
+        method : "POST",
+        headers: {"Content-Type":"application/x-www-form-urlencoded"},
+        body   : params.toString(),
+      });
     }catch(e){
-      const p=new URLSearchParams({action:"notify_admin",orderId:oid,chatId:String(U?.id||"guest"),customerName:cname,phone:info.phone,address:info.address,items:cart.map(i=>{const p=ps.find(x=>x.id===i.id);const b=S.brands.find(x=>x.key===p?.brand);const bn=b?.name?`[${b.name}] `:"";return`${bn}${p?.name} ×${i.qty}`;}).join(", "),total:String(total)});
-      await fetch(`${ASU}?${p}`,{method:"GET",mode:"no-cors"});
+      // fallback GET ไม่มีรูปสลิป
+      console.error("sendSlip POST failed, trying GET fallback:",e);
+      const p2=new URLSearchParams({
+        action:"notify_admin", secret:ADMIN_SECRET,
+        orderId:oid, chatId:String(U?.id||"guest"),
+        customerName:cname, phone:info.phone,
+        address:info.address, note:info.note||"",
+        location:locStr, items:itemsShort, total:String(total),
+      });
+      await fetch(`${ASU}?${p2}`,{method:"GET",mode:"no-cors"});
     }
   }
 
