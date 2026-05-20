@@ -54,7 +54,7 @@
     .header{
       background:var(--bg2);
       border-bottom:1px solid var(--border);
-      padding:16px 18px;
+      padding:12px 18px;
       position:sticky;top:0;z-index:100;
       display:flex;align-items:center;justify-content:space-between;
     }
@@ -65,9 +65,34 @@
     .header-badge{background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--gold);}
 
     /* ══ TABS ══ */
-    .tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;position:sticky;top:57px;z-index:99;}
-    .tab{flex:1;padding:13px 6px;border:none;background:transparent;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .2s;}
-    .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+    .tabs{
+      background:var(--bg2);
+      border-bottom:2px solid var(--border);
+      display:flex;
+      position:sticky;
+      top:53px;
+      z-index:99;
+      box-shadow:0 4px 12px rgba(0,0,0,.3);
+    }
+    .tab{
+      flex:1; padding:14px 4px 12px;
+      border:none; background:transparent;
+      font-family:var(--font); font-size:11px; font-weight:600;
+      cursor:pointer; color:var(--text3);
+      border-bottom:3px solid transparent;
+      transition:all .2s;
+      display:flex; flex-direction:column;
+      align-items:center; gap:4px;
+      line-height:1;
+    }
+    .tab-icon  { font-size:20px; }
+    .tab-label { font-size:10px; font-weight:600; letter-spacing:.5px; }
+    .tab.active{
+      color:var(--gold);
+      border-bottom-color:var(--gold);
+      background:rgba(212,168,71,.05);
+    }
+    .tab:active{ transform:scale(.95); }
 
     /* ══ CONTENT ══ */
     .content{padding:14px;padding-bottom:80px;}
@@ -281,7 +306,7 @@
   }
 
   /* ══ STATE ══ */
-  let S={view:"loading",tab:"products",brands:[],products:[],orders:[],modal:null,mdata:{},confirm:null,browserChatId:""};
+  let S={view:"loading",tab:"orders",brands:[],products:[],orders:[],modal:null,mdata:{},confirm:null,browserChatId:""};
   const set=p=>{S={...S,...p};render();};
 
   async function loadAll(){const[b,p,o]=await Promise.all([loadBrands(),loadProducts(),loadOrders()]);S.brands=b;S.products=p;S.orders=o;}
@@ -308,10 +333,18 @@
         <div class="header-badge">${S.products.length} SKU</div>
       </div>
       <div class="tabs">
-        <button class="tab ${S.tab==="products"?"active":""}" data-tab="products">📦 สินค้า</button>
-        <button class="tab ${S.tab==="brands"?"active":""}"   data-tab="brands">🏷️ แบรนด์</button>
-        <button class="tab ${S.tab==="orders"?"active":""}"   data-tab="orders">📋 ออเดอร์</button>
-        <button class="tab ${S.tab==="stats"?"active":""}"    data-tab="stats">📊 ภาพรวม</button>
+        <button class="tab ${S.tab==="orders"?"active":""}"   data-tab="orders">
+          <span class="tab-icon">📋</span><span class="tab-label">ออเดอร์</span>
+        </button>
+        <button class="tab ${S.tab==="brands"?"active":""}"   data-tab="brands">
+          <span class="tab-icon">🏷️</span><span class="tab-label">แบรนด์</span>
+        </button>
+        <button class="tab ${S.tab==="products"?"active":""}" data-tab="products">
+          <span class="tab-icon">📦</span><span class="tab-label">สินค้า</span>
+        </button>
+        <button class="tab ${S.tab==="stats"?"active":""}"    data-tab="stats">
+          <span class="tab-icon">📊</span><span class="tab-label">ภาพรวม</span>
+        </button>
       </div>
       <div class="content">${content}</div>
       ${S.modal?modalHTML():""}
@@ -656,7 +689,7 @@
       </div>`;
   }
 
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
+  const BOT_TOKEN = "8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
 
   /* ══ BIND MAIN ══ */
   function bindMain(){
@@ -682,36 +715,49 @@
     document.querySelectorAll("[data-co]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.co,"ยืนยันแล้ว");S.orders=await loadOrders();set({});toast("✅ ยืนยันออเดอร์แล้ว");}));
     document.querySelectorAll("[data-ro]").forEach(el=>el.addEventListener("click",async()=>{await updateOrder(el.dataset.ro,"ปฏิเสธ");S.orders=await loadOrders();set({});toast("❌ ปฏิเสธออเดอร์แล้ว","error");}));
 
-    // ส่งลิงก์ติดตาม Rider ให้ลูกค้า
+    // ส่งลิงก์ติดตาม Rider ให้ลูกค้า — ส่งตรงผ่าน Telegram Bot API
     document.querySelectorAll("[data-send-trk]").forEach(el=>el.addEventListener("click",async()=>{
       const docId  = el.dataset.sendTrk;
       const chatId = el.dataset.cid;
       const orderId= el.dataset.oid;
       const link   = document.getElementById(`trk-${docId}`)?.value.trim();
 
-      if(!link) return toast("กรุณาวางลิงก์ติดตามก่อนครับ","error");
+      if(!link)                  return toast("กรุณาวางลิงก์ติดตามก่อนครับ","error");
       if(!link.startsWith("http")) return toast("ลิงก์ต้องขึ้นต้นด้วย http ครับ","error");
+      if(!chatId||chatId==="guest") return toast("ไม่พบ Chat ID ลูกค้าครับ","error");
 
       el.disabled=true; el.textContent="⏳ กำลังส่ง...";
 
       try{
-        // บันทึก trackingUrl ลง Firestore
+        // ① บันทึก trackingUrl ลง Firestore
         await updateDoc(doc(db,"orders",docId),{trackingUrl:link});
 
-        // ส่งผ่าน Apps Script → Bot → ลูกค้า
-        const params=new URLSearchParams({
-          action  :"send_tracking",
-          chatId,
-          orderId,
-          link,
-        });
-        await fetch(`${APPS_SCRIPT_URL}?${params}`,{method:"GET",mode:"no-cors"});
+        // ② ส่งข้อความตรงไปหาลูกค้าผ่าน Telegram Bot API
+        const res = await fetch(
+          `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+          {
+            method : "POST",
+            headers: {"Content-Type":"application/json"},
+            body   : JSON.stringify({
+              chat_id   : chatId,
+              parse_mode: "Markdown",
+              text:
+                `🛵 *Rider กำลังมาส่งสินค้าค่ะ!*\n\n` +
+                `📋 เลขออเดอร์: *${orderId}*\n\n` +
+                `🔗 ติดตามสถานะการจัดส่ง:\n${link}\n\n` +
+                `กรุณาเตรียมเงินสดไว้ชำระค่าส่งด้วยนะคะ 😊`,
+            }),
+          }
+        );
+        const result = await res.json();
+        if(!result.ok) throw new Error(result.description||"Telegram error");
 
-        S.orders=await loadOrders();set({});
+        S.orders=await loadOrders(); set({tab:"orders"});
         toast("✅ ส่งลิงก์ติดตามให้ลูกค้าแล้วค่ะ");
       }catch(e){
+        console.error(e);
         el.disabled=false; el.textContent="📤 ส่งให้ลูกค้า";
-        toast("เกิดข้อผิดพลาด กรุณาลองใหม่ครับ","error");
+        toast("ส่งไม่ได้: "+e.message,"error");
       }
     }));
   }
