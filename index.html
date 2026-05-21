@@ -291,7 +291,7 @@
 
   const hPa=()=>{
     const total=tot(S.cart,S.products);const loc=S.info?.location;
-    return`<div class="page"><div class="topbar"><div class="topbar-title">ชำระเงิน</div><div class="topbar-sub">กรอกข้อมูลให้ครบทุกช่อง</div></div><div class="page-body" style="padding-bottom:160px"><div class="pay-list">
+    return`<div class="page"><div class="topbar"><div class="topbar-title">ชำระเงิน</div><div class="topbar-sub">กรอกข้อมูลให้ครบทุกช่อง</div></div><div class="page-body"><div class="pay-list">
     <div class="bank-box"><div class="bank-sec-lbl">โอนเงินมาที่</div><div class="bank-row"><div class="bank-icon">🏦</div><div class="bank-detail"><div class="bank-name">${BANK.n}</div><div class="bank-number" id="bank-num" onclick="navigator.clipboard.writeText('${BANK.a}').then(()=>{const el=document.getElementById('bank-num');const orig=el.innerHTML;el.innerHTML='✅ คัดลอกแล้ว!';el.style.color='var(--green)';setTimeout(()=>{el.innerHTML=orig;el.style.color='';},2000);}).catch(()=>{})" style="cursor:pointer">${BANK.a} <span class="copy-badge">แตะคัดลอก</span></div><div class="bank-holder">ชื่อบัญชี: ${BANK.h}</div></div></div></div>
     <div class="amt-box"><div class="amt-lbl">ยอดที่ต้องโอน</div><div class="amt-val">${fmt(total)}</div><div class="amt-note">โอนให้ตรงยอด เพื่อการยืนยันที่รวดเร็ว</div></div>
     <div class="field-box"><div class="field-header"><div class="field-icon">📞</div><div><div class="field-title">เบอร์โทรศัพท์ <span style="color:var(--red)">*</span></div><div class="field-desc">กรอกเบอร์มือถือ 10 หลัก ไม่ต้องใส่ขีด เช่น 0812345678</div></div></div><input class="field-input" id="fp" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="0 8 1 2 3 4 5 6 7 8" value="${S.info?.phone||""}" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/><div class="field-err" id="ep">⚠️ กรุณากรอกเบอร์โทร 10 หลัก ตัวเลขเท่านั้นครับ</div></div>
@@ -299,7 +299,13 @@
     <div class="field-box"><div class="field-header"><div class="field-icon">🏠</div><div><div class="field-title">ที่อยู่จัดส่ง <span style="color:var(--red)">*</span></div><div class="field-desc">กรอกให้ครบ เพื่อให้ Rider ค้นหาง่าย</div></div></div><textarea class="field-input field-textarea" id="fa" placeholder="ตัวอย่าง (บ้าน): 123/4 หมู่บ้านกรีนวิลล์ ซ.รัชดา 9 แขวงดินแดง เขตดินแดง กรุงเทพฯ 10400&#10;ตัวอย่าง (คอนโด): ห้อง 1203 ชั้น 12 คอนโด The Base พระราม 9 แขวงบางกะปิ เขตห้วยขวาง กรุงเทพฯ 10310" rows="2">${S.info?.address||""}</textarea><div class="field-err" id="ea">⚠️ กรุณากรอกที่อยู่จัดส่งให้ครบถ้วนครับ</div></div>
     <div class="field-box"><div class="field-header"><div class="field-icon">💬</div><div><div class="field-title">หมายเหตุสำหรับ Rider <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:6px">(ไม่บังคับ)</span></div><div class="field-desc">แจ้งข้อมูลเพิ่มเติมให้ Rider ทราบ</div></div></div><textarea class="field-input field-textarea" id="fn" placeholder="เช่น: ฝากไว้ที่ป้อม รปภ. / วางที่โต๊ะรับพัสดุ / โทรแจ้งก่อนถึง 10 นาที" rows="2">${S.info?.note||""}</textarea></div>
     <div class="field-box"><div class="field-header"><div class="field-icon">🧾</div><div><div class="field-title">สลิปโอนเงิน <span style="color:var(--red)">*</span></div><div class="field-desc">ถ่ายภาพหรือ Screenshot สลิปการโอนเงิน</div></div></div><div id="sa"><label class="slip-upload-btn" for="si"><div class="slip-upload-ico">📎</div><div><div class="slip-upload-txt">แนบสลิปโอนเงิน</div><div class="slip-upload-sub">กดเพื่อเลือกรูปจากอัลบั้ม</div></div></label><input type="file" id="si" accept="image/*" style="display:none"/></div><div id="sp" style="display:none"><div class="slip-preview-row"><div class="slip-thumb"><img id="sim" src="" alt="slip"/></div><div class="slip-preview-info"><div class="slip-preview-ok">✅ แนบสลิปแล้ว</div><div class="slip-preview-name" id="slip-fname"></div></div><button class="slip-change-btn" id="cs">เปลี่ยน</button></div></div></div>
-    </div></div><div class="bottom-bar"><button class="btn btn-gold btn-full" id="sb" disabled>📤 ส่งข้อมูลและสลิป</button><button class="btn btn-back btn-full" id="bk-cart">← กลับหน้าตะกร้า</button></div></div>`;
+    </div>
+    <!-- ปุ่มอยู่ใน content ไม่ sticky — keyboard ขึ้นมาปุ่มไม่บัง input -->
+    <div style="padding:0 16px 48px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-gold btn-full" id="sb" disabled>📤 ส่งข้อมูลและสลิป</button>
+      <button class="btn btn-back btn-full" id="bk-cart">← กลับหน้าตะกร้า</button>
+    </div>
+    </div></div>`;
   };
 
   const hSu=()=>{
@@ -319,43 +325,6 @@
     function chk(){const ph=document.getElementById("fp")?.value.trim()||"";const ad=document.getElementById("fa")?.value.trim()||"";const rdy=ph.length===10&&ad.length>5&&!!S.info?.location&&!!S.slip;sb.disabled=!rdy;sb.style.opacity=rdy?"1":".30";}
     document.getElementById("fp")?.addEventListener("input",chk);
     document.getElementById("fa")?.addEventListener("input",chk);
-
-    // ✅ scroll ช่องที่กำลังพิมพ์ขึ้นมาพ้น bottom-bar
-    // คำนวณตำแหน่งจริงโดยหัก bottom-bar (~130px) และ padding เพิ่ม
-    const BOTTOM_BAR_H = 140; // ความสูงโดยประมาณของ bottom-bar (2 ปุ่ม)
-    const scrollToField = el => {
-      if(!el) return;
-      el.addEventListener("focus", () => {
-        setTimeout(() => {
-          const rect   = el.getBoundingClientRect();
-          const vvH    = window.visualViewport?.height || window.innerHeight;
-          // พื้นที่ที่มองเห็นได้จริง = viewport - keyboard - bottom-bar
-          const visible = vvH - BOTTOM_BAR_H;
-          // ถ้าช่องอยู่ต่ำกว่าพื้นที่มองเห็น → scroll ขึ้น
-          if(rect.bottom > visible) {
-            const scrollY = window.scrollY + rect.bottom - visible + 16;
-            window.scrollTo({ top: scrollY, behavior:"smooth" });
-          }
-        }, 350);
-      });
-    };
-    ["fp","fa","fn"].forEach(id => scrollToField(document.getElementById(id)));
-
-    // รองรับ visualViewport resize (keyboard ขึ้น-ลง)
-    window.visualViewport?.addEventListener("resize", () => {
-      const focused = document.activeElement;
-      if(focused && ["fp","fa","fn"].includes(focused.id)) {
-        setTimeout(() => {
-          const rect   = focused.getBoundingClientRect();
-          const vvH    = window.visualViewport?.height || window.innerHeight;
-          const visible = vvH - BOTTOM_BAR_H;
-          if(rect.bottom > visible) {
-            const scrollY = window.scrollY + rect.bottom - visible + 16;
-            window.scrollTo({ top: scrollY, behavior:"smooth" });
-          }
-        }, 100);
-      }
-    });
     document.getElementById("gl")?.addEventListener("click",()=>{
       if(!navigator.geolocation){alert("ไม่รองรับการแชร์ตำแหน่งครับ");return;}
       const btn=document.getElementById("gl");btn.textContent="⏳ กำลังดึงตำแหน่ง...";btn.disabled=true;
