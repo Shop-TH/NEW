@@ -350,8 +350,21 @@
     // ✅ เช็ค admin ทันที ไม่รอ network
     const isAdmin=checkAdmin();
     if(isAdmin){
-      try{const[b,p]=await Promise.all([fBr(),fPr()]);S.brands=b;S.products=p;}catch{}
-      setTimeout(()=>{window.location.href="admin.html";},2400);
+      // แสดง splash แอดมิน แล้ว redirect เร็วๆ
+      document.getElementById("root").innerHTML=`
+        <div class="splash">
+          <div class="sp-logo">HENG<span>888</span></div>
+          <div class="sp-line"></div>
+          <div class="sp-tag">Admin Panel</div>
+          <div class="sp-dots">
+            <div class="sp-dot"></div>
+            <div class="sp-dot"></div>
+            <div class="sp-dot"></div>
+          </div>
+        </div>`;
+      setTimeout(()=>{
+        window.location.href="https://shop-th.github.io/NEW/admin.html";
+      },800);
       return;
     }
     try{const[b,p]=await Promise.all([fBr(),fPr()]);S.brands=b;S.products=p;track();}catch(e){console.error(e);}
