@@ -355,28 +355,31 @@
   /* ── INIT ── */
   async function init(){
     render();
-    // ✅ เช็ค admin ทันที ไม่รอ network
     const isAdmin=checkAdmin();
+
+    // 🔍 DEBUG — แสดง Chat ID บนหน้าจอ (ลบออกหลังแก้ปัญหาแล้ว)
+    const debugId = U ? String(U.id) : "ไม่พบ TG User";
+    document.getElementById("root").innerHTML=`
+      <div class="splash">
+        <div class="sp-logo">HENG<span>888</span></div>
+        <div class="sp-line"></div>
+        <div class="sp-tag">${isAdmin ? "Admin Panel" : "Men's Exclusive Fragrance"}</div>
+        <div style="margin-top:24px;background:#1a1a1a;border:1px solid #d4a847;border-radius:12px;padding:12px 20px;text-align:center">
+          <div style="font-size:10px;color:#d4a847;letter-spacing:2px;margin-bottom:6px">YOUR CHAT ID</div>
+          <div style="font-size:20px;font-weight:800;color:#f5f5f0;letter-spacing:2px">${debugId}</div>
+          <div style="font-size:11px;color:rgba(245,245,240,.4);margin-top:4px">isAdmin: ${isAdmin}</div>
+        </div>
+        <div class="sp-dots" style="margin-top:24px">
+          <div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div>
+        </div>
+      </div>`;
+
     if(isAdmin){
-      // แสดง splash แอดมิน แล้ว redirect เร็วๆ
-      document.getElementById("root").innerHTML=`
-        <div class="splash">
-          <div class="sp-logo">HENG<span>888</span></div>
-          <div class="sp-line"></div>
-          <div class="sp-tag">Admin Panel</div>
-          <div class="sp-dots">
-            <div class="sp-dot"></div>
-            <div class="sp-dot"></div>
-            <div class="sp-dot"></div>
-          </div>
-        </div>`;
-      setTimeout(()=>{
-        window.location.href="https://shop-th.github.io/NEW/admin.html";
-      },800);
+      setTimeout(()=>{ window.location.href="https://shop-th.github.io/NEW/admin.html"; },3000);
       return;
     }
     try{const[b,p]=await Promise.all([fBr(),fPr()]);S.brands=b;S.products=p;track();}catch(e){console.error(e);}
-    setTimeout(()=>set({screen:"home"}),2400);
+    setTimeout(()=>set({screen:"home"}),3000);
   }
   init();
 </script>
