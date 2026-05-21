@@ -149,10 +149,23 @@
   if(tg)tg.expand();
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
   let ADMIN=null;
-  async function checkAuth(){
-    if(U){const cid=String(U.id);const snap=await getDoc(doc(db,"admins",cid));if(snap.exists()&&snap.data().active){ADMIN=snap.data();return true;}if(cid===ADMIN_ID){ADMIN={chatId:cid,name:U.first_name||"Admin",role:"superadmin"};return true;}return false;}
-    return"browser";
+async function checkAuth(){
+  if(U){
+    const cid  = String(U.id);
+    // เช็ค Firestore ก่อน
+    const snap = await getDoc(doc(db,"admins",cid));
+    if(snap.exists() && snap.data().active){
+      ADMIN = snap.data(); return true;
+    }
+    // fallback เช็ค ADMIN_IDS
+    if(ADMIN_IDS.includes(cid)){
+      ADMIN = { chatId:cid, name:U.first_name||"Admin", role:"admin" };
+      return true;
+    }
+    return false;
   }
+  return "browser";
+}
   async function loadBrands(){const s=await getDocs(collection(db,"shops",SHOP,"brands"));return s.docs.map(d=>({docId:d.id,...d.data()}));}
   async function loadProducts(){const s=await getDocs(collection(db,"shops",SHOP,"products"));return s.docs.map(d=>({docId:d.id,...d.data()})).sort((a,b)=>(a.brand||"").localeCompare(b.brand||""));}
   async function loadOrders(){const s=await getDocs(collection(db,"orders"));return s.docs.map(d=>({docId:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));}
