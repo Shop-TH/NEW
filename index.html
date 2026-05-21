@@ -205,13 +205,13 @@
   const ADMIN="7234688831";
   const BANK={n:"กสิกรไทย",a:"123-4-56789-0",h:"HENG888 CO., LTD."};
 
-  // ✅ Security: เช็ค admin จาก ADMIN_IDS — ทันที ไม่รอ network
-  const ADMIN_IDS=["7234688831","6960141528"]; // เพิ่ม Chat ID แอดมินได้ที่นี่
-  function checkAdmin(){return U?ADMIN_IDS.includes(String(U.id)):false;}
-
   const app=initializeApp(FC);const db=getFirestore(app);
   const tg=window.Telegram?.WebApp;const U=tg?.initDataUnsafe?.user||null;
   if(tg)tg.expand();
+
+  // ✅ ประกาศหลัง U — checkAdmin ใช้ U ได้ถูกต้อง
+  const ADMIN_IDS=["7234688831","6960141528"];
+  function checkAdmin(){return U?ADMIN_IDS.includes(String(U.id)):false;}
 
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
   const tot=(cart,ps)=>cart.reduce((s,i)=>{const p=ps.find(x=>x.id===i.id);return s+(p?p.price*i.qty:0);},0);
