@@ -152,9 +152,17 @@
   async function checkAuth(){
     if(U){
       const cid=String(U.id);
-      const snap=await getDoc(doc(db,"admins",cid));
-      if(snap.exists()&&snap.data().active){ADMIN=snap.data();return true;}
-      if(ADMIN_IDS.includes(cid)){ADMIN={chatId:cid,name:U.first_name||"Admin",role:"superadmin"};return true;}
+      // ✅ เช็ค ADMIN_IDS ก่อนเลย — ไม่รอ Firestore
+      if(ADMIN_IDS.includes(cid)){
+        ADMIN={chatId:cid,name:U.first_name||"Admin",role:"superadmin"};
+        return true;
+      }
+      // เช็ค Firestore สำหรับแอดมินที่เพิ่มผ่าน Firebase
+      try{
+        const timeout=new Promise(r=>setTimeout(()=>r(null),5000));
+        const snap=await Promise.race([getDoc(doc(db,"admins",cid)),timeout]);
+        if(snap&&snap.exists&&snap.exists()&&snap.data().active){ADMIN=snap.data();return true;}
+      }catch{}
       return false;
     }
     return"browser";
