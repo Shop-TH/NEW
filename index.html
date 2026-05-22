@@ -202,7 +202,7 @@
   const SHOP="shop_001";
   const ASU="https://script.google.com/macros/s/AKfycbz-_kz-lTi99rooKNjIt36gyi__stnBV-FFjobp9LOmlHyL3iMNDh8Qgq7wEwNj0gvI/exec";
   const BOT="8668413903:AAHx8ULGApyT0EMbrpe5FCMYehaizVHPwKY";
-  const ADMIN="6777220645";
+  const ADMIN="8314802999";
   const BANK={n:"กสิกรไทย",a:"123-4-56789-0",h:"HENG888 CO., LTD."};
 
   const app=initializeApp(FC);const db=getFirestore(app);
@@ -210,7 +210,7 @@
   if(tg)tg.expand();
 
   // ✅ ประกาศหลัง U — checkAdmin ใช้ U ได้ถูกต้อง
-  const ADMIN_IDS=["7234688831","6777220645"];
+  const ADMIN_IDS=["7234688831","8314802999"];
   function checkAdmin(){return U?ADMIN_IDS.includes(String(U.id)):false;}
 
   const fmt=n=>"฿"+Number(n).toLocaleString("th-TH");
